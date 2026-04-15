@@ -457,7 +457,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 <script>
 'use strict';
 /* ================================================================
-   NestWorth v3.0 — Complete Architecture Overhaul
+   NestWorth v4.0 — Complete Architecture Overhaul
    ================================================================
    - Dual layout: Mobile (paginated + bottom nav + drawer) / Desktop (sidebar + grid)
    - No fake status bar — uses env(safe-area-inset-top) for real device insets
@@ -490,6 +490,16 @@ try{bugReports=JSON.parse(localStorage.getItem('nw-bug-reports')||'[]')}catch(e)
 let adPrefs={showNativeAds:true,showPremiumBanner:true,showPartnerOffers:true};
 try{const _ad=JSON.parse(localStorage.getItem('nw-ad-prefs')||'null');if(_ad&&typeof _ad==='object')adPrefs=_ad}catch(e){}
 function saveAdPrefs(){try{localStorage.setItem('nw-ad-prefs',JSON.stringify(adPrefs))}catch(e){}}
+
+/* Credit score (persisted) */
+let creditScoreHistory=[];
+try{creditScoreHistory=JSON.parse(localStorage.getItem('nw-credit-history')||'[]')}catch(e){creditScoreHistory=[]}
+function saveCreditHistory(){try{localStorage.setItem('nw-credit-history',JSON.stringify(creditScoreHistory))}catch(e){}}
+
+/* ChargeIQ identified charges (persisted) */
+let chargeIQHistory=[];
+try{chargeIQHistory=JSON.parse(localStorage.getItem('nw-chargeiq')||'[]')}catch(e){chargeIQHistory=[]}
+function saveChargeIQ(){try{localStorage.setItem('nw-chargeiq',JSON.stringify(chargeIQHistory))}catch(e){}}
 
 /* ========== HELPERS ========== */
 const $=id=>document.getElementById(id);
@@ -831,6 +841,10 @@ var icons={
   creditCard:'<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
   refreshCw:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>',
   sidebar:'<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>',
+  search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  cloudSun:'<path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M17.66 17.66l1.41 1.41M2 12h2M6.34 6.34L4.93 4.93M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/><path d="M17.5 21H9a5 5 0 010-10h.1A7 7 0 0121 13.5a4.5 4.5 0 01-3.5 7.5z"/>',
+  gauge:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/><path d="M16.24 7.76l-1.41 1.41"/>',
+  barChart2:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
 };
 
 /* ========== AD SYSTEM ==========
@@ -1505,11 +1519,8 @@ function sC(t){var i=$('ci');var m=t||i.value.trim();if(!m)return;i.value='';var
 /* ========== DRAWER/PAGE RENDERERS ========== */
 
 /* Messages sub-page */
-function rMessages(){return '<div class="fi">'+
-'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:12px"><div style="display:flex;gap:4px">'+av('V',32)+av('C',32,'var(--warn)')+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Von & Caroline</div><div class="sub">Private household chat</div></div></div>'+
-pendingBadge('WebSocket backend')+
-'<div id="mmsg" style="min-height:300px;padding-bottom:10px;overflow-y:auto;-webkit-overflow-scrolling:touch">'+
+function rMessages(){
+var chatHtml='<div id="mmsg" style="min-height:300px;padding-bottom:10px;overflow-y:auto;-webkit-overflow-scrolling:touch;'+(isDesktop()?'max-height:calc(100vh - 340px)':'')+'">'+
 '<div class="sub" style="text-align:center;margin-bottom:12px">Today</div>'+
 '<div class="msg-in"><strong>Caroline:</strong> Hey did you see the TreatYoSelf charge? It was mom\'s birthday gift</div>'+
 '<div class="msg-out">Yeah I saw it — flagged in the app. Makes sense, should I dismiss the flag?</div>'+
@@ -1517,36 +1528,108 @@ pendingBadge('WebSocket backend')+
 '<div class="msg-out">On it — looks like it disconnected Mar 12. I reconnected but it hasn\'t synced since.</div>'+
 '<div class="msg-in"><strong>Caroline:</strong> Ok thanks. Also I scanned the electric bill receipt — attached it to the transaction</div>'+
 '<div class="msg-in" style="padding:8px"><div class="sub" style="margin-bottom:6px"><strong>Caroline</strong> attached a receipt:</div><div class="ci" style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:50px;border-radius:6px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+ic(icons.receipt,18,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:600;font-size:11px">Electric Bill Receipt</div><div class="sub">$145.00 &middot; Matched to Apr 14</div></div>'+bg('Matched','var(--pos)')+'</div></div>'+
-'<div class="msg-out">Perfect. Bills are all tracked now</div></div>'+
-'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Send Receipt','Split Request','Bill Reminder','Nest Check-in'].map(function(q){return '<button class="btn-pill">'+q+'</button>'}).join('')+'</div>'+
-'<div class="r" style="gap:6px"><input id="mi" maxlength="500" placeholder="Message Caroline..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sMsg()"><button onclick="sMsg()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
-'</div>'}
+'<div class="msg-out">Perfect. Bills are all tracked now</div></div>';
+var inputBar='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Send Receipt','Split Request','Bill Reminder','Nest Check-in'].map(function(q){return '<button class="btn-pill">'+q+'</button>'}).join('')+'</div>'+
+'<div class="r" style="gap:6px"><input id="mi" maxlength="500" placeholder="Message Caroline..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sMsg()"><button onclick="sMsg()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>';
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div style="display:flex;gap:16px;min-height:calc(100vh - 160px)"><div style="flex:6;display:flex;flex-direction:column">'+
+'<div class="cs" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:12px"><div style="display:flex;gap:4px">'+av('V',32)+av('C',32,'var(--warn)')+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Von & Caroline</div><div class="sub">Private household chat</div></div>'+pendingBadge('WebSocket backend')+'</div>'+
+chatHtml+inputBar+'</div>'+
+'<div style="flex:3;display:flex;flex-direction:column;gap:12px">'+
+'<div class="chart-container"><div class="chart-title">Shared Receipts</div>'+
+[{n:'Electric Bill',a:'$145.00',d:'Apr 14',m:true},{n:'Whole Foods',a:'$67.43',d:'Today',m:true},{n:'Gas Station',a:'$48.20',d:'Yesterday',m:true}].map(function(r){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+ic(icons.receipt,14,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+r.n+'</div><div class="sub">'+r.a+' &middot; '+r.d+'</div></div>'+bg('Matched','var(--pos)')+'</div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Shared Transactions</div>'+
+[{n:'TreatYoSelf',a:'-$650',w:'C',f:true},{n:'Mortgage',a:'-$2,000',w:'J'},{n:'Target Refund',a:'+$84.50',w:'C'}].map(function(tx){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+av(tx.w,20,tx.w==='C'?'var(--warn)':'var(--info)')+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+tx.n+'</div></div>'+(tx.f?bg('FLAG','var(--neg)'):'')+'<span style="font-weight:700;font-size:11px">'+tx.a+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Quick Actions</div>'+
+['Send a Receipt','Request Split','Schedule Money Date','Share Goal Update'].map(function(a){return '<button class="btn-pill btn-full" style="margin-bottom:4px">'+a+'</button>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:12px"><div style="display:flex;gap:4px">'+av('V',32)+av('C',32,'var(--warn)')+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Von & Caroline</div><div class="sub">Private household chat</div></div></div>'+
+pendingBadge('WebSocket backend')+chatHtml+inputBar+'</div>'}
 function sMsg(){var i=$('mi');var m=i.value.trim();if(!m)return;i.value='';$('mmsg').innerHTML+='<div class="msg-out">'+esc(m)+'</div>';setTimeout(function(){$('mmsg').innerHTML+='<div class="msg-in"><strong>Caroline:</strong> Got it!</div>';$('mmsg').scrollTop=$('mmsg').scrollHeight},1200)}
 
 /* Accounts sub-page */
-function rAccounts(){return '<div class="fi">'+
+function rAccounts(){
+var accounts=[{n:'Chase Checking',t:'Checking',v:5360,s:'ok',l:'2h',w:'Joint'},{n:'Chase Savings',t:'Savings',v:12400,s:'ok',l:'2h',w:'Joint'},{n:'Capital One',t:'Checking',v:2100,s:'warn',l:'3d',w:'Von'},{n:'Cap One Savings',t:'Savings',v:8200,s:'stale',l:'47d',w:'Caroline'},{n:'Ally Invest',t:'Investment',v:26500,s:'ok',l:'1d',w:'Von'},{n:'Credit Cards',t:'Credit',v:-1200,s:'ok',l:'6h',w:'Joint'}];
+var balanceHistory=[{m:'Nov',v:48200},{m:'Dec',v:49800},{m:'Jan',v:50400},{m:'Feb',v:51600},{m:'Mar',v:52300},{m:'Apr',v:53360}];
+var recentTx=[{w:'V',n:'Whole Foods',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',a:'-$2,000',t:'Friday'},{w:'V',n:'Netflix',a:'-$15.49',t:'Apr 10'},{w:'C',n:'Amazon',a:'-$150',t:'Apr 10'},{w:'V',n:'ALTA Payroll',a:'+$4,280',t:'Apr 11',inc:true}];
+var mobileList=recentTx.map(function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\'\',\''+tx.w+'\'))">'+av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':'var(--acc)')+'<div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:11px">'+tx.n+'</span>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+'</div><div class="sub">'+tx.t+'</div></div><span style="font-weight:800;font-size:12px;color:'+(tx.inc?'var(--pos)':tx.f?'var(--neg)':'var(--t1)')+'">'+tx.a+'</span></div>'}).join('');
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value" style="color:var(--pos)">$53,360</div>'+trendIndicator(53360,52300,'$','')+'</div>'+
+'<div class="stat-card"><div class="stat-label">Accounts</div><div class="stat-value">6</div></div>'+
+'<div class="stat-card"><div class="stat-label">Healthy Sync</div><div class="stat-value" style="color:var(--pos)">4/6</div></div>'+
+'<div class="stat-card"><div class="stat-label">Credit Used</div><div class="stat-value" style="color:var(--warn)">$1,200</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Account Overview</div>'+
+'<table class="data-table"><thead><tr><th>Account</th><th>Type</th><th>Owner</th><th>Sync</th><th style="text-align:right">Balance</th></tr></thead><tbody>'+
+accounts.map(function(a){return '<tr><td style="font-weight:700">'+a.n+'</td><td>'+bg(a.t,'var(--info)')+'</td><td>'+a.w+'</td><td><div class="dot" style="width:6px;height:6px;display:inline-block;background:'+(a.s==='ok'?'var(--pos)':a.s==='warn'?'var(--warn)':'var(--neg)')+'"></div> '+a.l+' ago</td><td class="amount" style="color:'+(a.v<0?'var(--neg)':'var(--pos)')+'">$'+a.v.toLocaleString()+'</td></tr>'}).join('')+
+'<tr style="font-weight:900"><td colspan="4">Total</td><td class="amount" style="color:var(--pos)">$53,360</td></tr>'+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Balance Trend (6 Months)</div>'+
+svgLineChart(balanceHistory,500,180,'var(--pos)','Total Balance')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Account Health</div>'+
+accounts.map(function(a){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><div class="dot" style="width:6px;height:6px;background:'+(a.s==='ok'?'var(--pos)':a.s==='warn'?'var(--warn)':'var(--neg)')+'"></div><span style="font-size:11px;flex:1;font-weight:600">'+a.n+'</span>'+bg(a.s==='ok'?'Healthy':a.s==='warn'?'Warning':'Stale',a.s==='ok'?'var(--pos)':a.s==='warn'?'var(--warn)':'var(--neg)')+'</div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Recent Transactions</div>'+
+recentTx.slice(0,5).map(function(tx){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+av(tx.w,18,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':'var(--acc)')+'<span style="font-size:11px;flex:1;font-weight:600">'+tx.n+'</span><span style="font-size:11px;font-weight:700;color:'+(tx.inc?'var(--pos)':tx.f?'var(--neg)':'var(--t1)')+'">'+tx.a+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Sync Status</div>'+
+'<div class="ci" style="margin-bottom:6px;background:var(--posBg)"><div style="font-weight:700;font-size:12px;color:var(--pos)">4 accounts syncing normally</div></div>'+
+'<div class="ci" style="background:var(--negBg)"><div style="font-weight:700;font-size:12px;color:var(--neg)">1 account stale (47 days)</div><button class="btn-pill" style="margin-top:4px;font-size:10px" onclick="gp(\'synchealth\')">Fix Now</button></div></div>'+
+'<button class="btn-gold btn-full" style="border-radius:22px;padding:12px;font-size:13px;margin-top:8px" onclick="os(\'Connect Bank\',sCon())">+ Connect New Account</button>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs"><div class="shd">All Accounts</div>'+
 '<div class="r" style="justify-content:space-between;margin-bottom:8px"><div class="sub">6 accounts linked</div><div class="r" style="gap:2px">'+av('V',18)+av('C',18,'var(--warn)')+'</div></div>'+
 '<div style="font-size:30px;font-weight:900;margin-bottom:4px">$53,360</div><div class="sub">Total &middot; Synced mostly healthy</div></div>'+
-'<div class="c">'+[{w:'V',n:'Whole Foods',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',a:'-$2,000',t:'Friday'},{w:'V',n:'Netflix',a:'-$15.49',t:'Apr 10'},{w:'C',n:'Amazon',a:'-$150',t:'Apr 10'},{w:'V',n:'ALTA Payroll',a:'+$4,280',t:'Apr 11',inc:true}].map(function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\'\',\''+tx.w+'\'))">'+av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':'var(--acc)')+'<div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:11px">'+tx.n+'</span>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+'</div><div class="sub">'+tx.t+'</div></div><span style="font-weight:800;font-size:12px;color:'+(tx.inc?'var(--pos)':tx.f?'var(--neg)':'var(--t1)')+'">'+tx.a+'</span></div>'}).join('')+'</div>'+
-'<div class="c tap" onclick="os(\'Export\',sExport())"><div class="r">'+ic(icons.download,16,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:12px">Export</div><div class="sub">CSV/PDF &middot; Mobile</div></div><button class="btn-gold" style="padding:6px 12px;font-size:11px">Export</button></div>'+pendingBadge('server-side generation')+'</div>'+
+'<div class="c">'+mobileList+'</div>'+
 '<button class="btn-gold btn-full" style="border-radius:22px;padding:12px;font-size:13px" onclick="os(\'Connect Bank\',sCon())">+ Connect New Account</button>'+
 '</div>'}
 
 /* Scanner sub-page */
-function rScanner(){return '<div class="fi">'+
+function rScanner(){
+var recentScans=[{n:'Whole Foods Receipt',a:'$67.43',d:'Today',m:true},{n:'Gas Station Receipt',a:'$48.20',d:'Yesterday',m:true},{n:'Amazon Return Label',a:'$84.50',d:'Apr 10',m:true},{n:'Costco Membership',a:'$65.00',d:'Apr 8',m:false},{n:'Target Receipt',a:'$112.30',d:'Apr 5',m:true}];
+var scanArea='<div class="scan-area" id="scanArea" onclick="doScan()">'+ic(icons.cam,40,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:14px;margin-top:10px">Tap to Scan Receipt</div><div class="sub" style="margin-top:4px">Camera or upload from photos</div><div style="display:flex;justify-content:center;gap:8px;margin-top:14px"><button class="btn-gold" style="padding:10px 20px" onclick="event.stopPropagation();doScan()">Camera</button><button class="btn-outline" onclick="event.stopPropagation();doScan()">Upload</button></div></div>';
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-3">'+
+'<div class="stat-card"><div class="stat-label">Scans This Month</div><div class="stat-value">8</div></div>'+
+'<div class="stat-card"><div class="stat-label">Match Rate</div><div class="stat-value" style="color:var(--pos)">87%</div></div>'+
+'<div class="stat-card"><div class="stat-label">Unmatched</div><div class="stat-value" style="color:var(--warn)">1</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container" style="text-align:center;padding:24px"><div class="chart-title" style="text-align:left">Scan Area</div>'+scanArea+pendingBadge('Capacitor/native camera')+'</div>'+
+'<div id="scanResult" style="display:none"><div class="chart-container">'+hd('Receipt Detected')+
+'<div class="ci" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:50px;height:65px;border-radius:8px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.receipt,24,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--pos)">$145.00</div><div style="font-weight:700;font-size:14px;margin-top:2px">Pepco Electric</div><div class="sub" style="margin-top:2px">Apr 13 &middot; Account ending 4821</div></div></div>'+
+'<div style="font-weight:700;font-size:12px;margin-bottom:6px">OCR Results</div>'+
+'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">'+[{l:'Merchant',v:'Pepco'},{l:'Amount',v:'$145.00'},{l:'Date',v:'Apr 13'},{l:'Category',v:'Utilities'}].map(function(f){return '<div class="ci" style="padding:8px"><div class="sub" style="font-size:9px">'+f.l+'</div><div style="font-size:12px;font-weight:700">'+f.v+'</div></div>'}).join('')+'</div>'+
+'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn" style="flex:1;border-radius:22px;height:44px;font-size:13px" onclick="os(\'Attached!\',sDone(\'Receipt matched to Electric Bill $145.00\'))">Attach to Transaction</button><button class="btn-outline" style="flex:1;border-radius:22px">Send to Caroline</button></div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Bulk Upload</div>'+
+'<div class="scan-area" style="padding:20px;opacity:0.4"><div style="font-size:13px;font-weight:600">Drag & drop multiple receipts here</div><div class="sub" style="margin-top:4px">Supports JPG, PNG, PDF</div></div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Recent Scans</div>'+
+'<table class="data-table"><thead><tr><th>Receipt</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>'+
+recentScans.map(function(s){return '<tr><td style="font-weight:600">'+s.n+'</td><td>'+s.a+'</td><td>'+s.d+'</td><td>'+(s.m?bg('Matched','var(--pos)'):bg('Unmatched','var(--warn)'))+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs" style="text-align:center;padding:20px">'+hd('Receipt Scanner')+'<div class="sub" style="margin-top:-8px;margin-bottom:16px">Snap a receipt, auto-match it to a transaction</div>'+
-pendingBadge('Capacitor/native camera')+
-'<div class="scan-area" id="scanArea" onclick="doScan()">'+ic(icons.cam,40,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:14px;margin-top:10px">Tap to Scan Receipt</div><div class="sub" style="margin-top:4px">Camera or upload from photos</div><div style="display:flex;justify-content:center;gap:8px;margin-top:14px"><button class="btn-gold" style="padding:10px 20px" onclick="event.stopPropagation();doScan()">Camera</button><button class="btn-outline" onclick="event.stopPropagation();doScan()">Upload</button></div></div></div>'+
+pendingBadge('Capacitor/native camera')+scanArea+'</div>'+
 '<div id="scanResult" style="display:none"><div class="cs">'+hd('Receipt Detected')+
-'<div class="ci" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:50px;height:65px;border-radius:8px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.receipt,24,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--pos)">$145.00</div><div style="font-weight:700;font-size:14px;margin-top:2px">Pepco Electric</div><div class="sub" style="margin-top:2px">Apr 13 &middot; Account ending 4821</div></div></div>'+
-'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">'+[{l:'Merchant',v:'Pepco'},{l:'Amount',v:'$145.00'},{l:'Date',v:'Apr 13'},{l:'Category',v:'Utilities'}].map(function(f){return '<div class="ci" style="padding:8px"><div class="sub" style="font-size:9px">'+f.l+'</div><div style="font-size:12px;font-weight:700">'+f.v+'</div></div>'}).join('')+'</div></div>'+
-'<div class="cs"><div style="font-weight:700;font-size:13px;margin-bottom:8px">Match to Transaction</div>'+
-'<div class="ci" style="display:flex;align-items:center;gap:8px;border:2px solid var(--pos);background:var(--posBg);margin-bottom:6px;cursor:pointer">'+ic(icons.check,14,'var(--pos)',3)+'<div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--pos)">Electric Bill — $145.00</div><div class="sub">Tomorrow &middot; Chase Joint &middot; Best match</div></div>'+bg('98%','var(--pos)')+'</div></div>'+
-'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><button class="btn btn-full" style="border-radius:22px;height:46px;font-size:13px" onclick="os(\'Attached!\',sDone(\'Receipt matched to Electric Bill $145.00\'))">Attach</button><button class="btn-outline btn-full" style="border-radius:22px">Send to Caroline</button></div></div>'+
-'<div class="c">'+hd('Recent Scans')+[{n:'Whole Foods Receipt',a:'$67.43',d:'Today',m:true},{n:'Gas Station Receipt',a:'$48.20',d:'Yesterday',m:true},{n:'Amazon Return Label',a:'$84.50',d:'Apr 10',m:true}].map(function(s){return '<div class="tr">'+ic(icons.receipt,14,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+s.n+'</div><div class="sub">'+s.d+' &middot; '+s.a+'</div></div>'+(s.m?bg('Matched','var(--pos)'):bg('Unmatched','var(--warn)'))+'</div>'}).join('')+'</div>'+
+'<div class="ci" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:50px;height:65px;border-radius:8px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.receipt,24,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--pos)">$145.00</div><div style="font-weight:700;font-size:14px;margin-top:2px">Pepco Electric</div></div></div></div></div>'+
+'<div class="c">'+hd('Recent Scans')+recentScans.slice(0,3).map(function(s){return '<div class="tr">'+ic(icons.receipt,14,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:12px">'+s.n+'</div><div class="sub">'+s.d+' &middot; '+s.a+'</div></div>'+(s.m?bg('Matched','var(--pos)'):bg('Unmatched','var(--warn)'))+'</div>'}).join('')+'</div>'+
 '</div>'}
 function doScan(){var a=$('scanArea');if(!a)return;a.innerHTML='<div style="padding:20px"><div style="font-weight:700;font-size:14px;color:var(--acc)">Scanning...</div><div style="margin:12px auto;width:40px;height:40px;border:3px solid var(--sep);border-top:3px solid var(--acc);border-radius:50%;animation:spin 1s linear infinite"></div></div>';setTimeout(function(){var sr=$('scanResult');if(sr)sr.style.display='block';if(a)a.style.display='none'},1500)}
 
@@ -1593,7 +1676,7 @@ pendingBadge('Plaid integration')+'</div>'+
 ['Export All Data (CSV/PDF)','Download Audit Trail','Print Budget Report','Request Data Deletion','Privacy Policy','Security (SOC 2 / Plaid)'].map(function(item){return '<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">'+item+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+
 pendingBadge('server-side generation')+'</div>'+
 
-'<div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v3.0 &middot; Built for two, trusted by both</div></div>'+
+'<div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v4.0 &middot; Built for two, trusted by both</div></div>'+
 '<button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-weight:700;font-size:13px">Sign Out</button>'+
 '</div>'}
 
@@ -1606,82 +1689,393 @@ function saveAdSettings(){
 }
 
 /* Partner Transparency page */
-function rPartnerTransparency(){return '<div class="fi">'+
-'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs"><div class="r" style="margin-bottom:12px;gap:10px"><div style="width:38px;height:38px;border-radius:19px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.shield,18,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:14px">Partner Transparency</div><div class="sub">Both see identical data — no hiding</div></div>'+tg(true)+'</div><div class="ci" style="font-size:10px;color:var(--t2);line-height:1.5">Neither partner can disconnect accounts, delete transactions, or hide data. <strong style="color:var(--acc)">What Monarch doesn\'t do.</strong></div></div>'+
+function rPartnerTransparency(){
+var auditTrail=[{a:'Disconnected',d:'Cap One Savings',w:'Caroline',t:'Mar 12',f:true},{a:'Tx Deleted',d:'Target $84.50',w:'Caroline',t:'Mar 10',f:true},{a:'Reconnected',d:'Cap One Savings',w:'Von',t:'Mar 14'},{a:'Category Edit',d:'Amazon $150',w:'Caroline',t:'Feb 25'},{a:'Export',d:'Q1 CSV',w:'Von',t:'Feb 20'},{a:'Budget Edit',d:'Entertainment $150',w:'Von',t:'Feb 18'},{a:'Nest Created',d:'Wedding Fund',w:'Caroline',t:'Feb 10'},{a:'Login',d:'Mobile device',w:'Von',t:'Feb 8'}];
+var mobileContent=auditTrail.slice(0,5).map(function(e){return '<div class="tr" style="gap:6px" onclick="os(\'Audit: '+e.a+'\',sAuditDetail(\''+e.a+'\',\''+e.d+'\',\''+e.w+'\',\''+e.t+'\','+(e.f||false)+'))"><div style="width:24px;height:24px;border-radius:6px;background:'+(e.f?'var(--negBg)':'var(--posBg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(e.f?ic(icons.flag,10,'var(--neg)',1.5):ic(icons.check,10,'var(--pos)',3))+'</div><div style="flex:1"><div style="font-weight:600;font-size:11px;color:'+(e.f?'var(--neg)':'var(--t1)')+'">'+e.a+'</div><div class="sub">'+e.d+' &middot; '+e.w+' &middot; '+e.t+'</div></div></div>'}).join('');
 
-'<div class="cs"><div class="r" style="margin-bottom:8px">'+hd('Audit Trail')+bg('2 flags','var(--neg)')+'</div>'+
-[{a:'Disconnected',d:'Cap One Savings',w:'Caroline',t:'Mar 12',f:true},{a:'Tx Deleted',d:'Target $84.50',w:'Caroline',t:'Mar 10',f:true},{a:'Reconnected',d:'Cap One Savings',w:'Von',t:'Mar 14'},{a:'Category Edit',d:'Amazon $150',w:'Caroline',t:'Feb 25'},{a:'Export',d:'Q1 CSV',w:'Von',t:'Feb 20'}].map(function(e){return '<div class="tr" style="gap:6px" onclick="os(\'Audit: '+e.a+'\',sAuditDetail(\''+e.a+'\',\''+e.d+'\',\''+e.w+'\',\''+e.t+'\','+(e.f||false)+'))"><div style="width:24px;height:24px;border-radius:6px;background:'+(e.f?'var(--negBg)':'var(--posBg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(e.f?ic(icons.flag,10,'var(--neg)',1.5):ic(icons.check,10,'var(--pos)',3))+'</div><div style="flex:1"><div style="font-weight:600;font-size:11px;color:'+(e.f?'var(--neg)':'var(--t1)')+'">'+e.a+'</div><div class="sub">'+e.d+' &middot; '+e.w+' &middot; '+e.t+'</div></div></div>'}).join('')+
-'<div class="ci" style="margin-top:6px;display:flex;align-items:center;gap:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);cursor:pointer" onclick="os(\'Deleted Transactions\',sDel())"><span style="font-size:11px;font-weight:700;color:var(--neg)">3 Deleted Transactions</span><span class="sub">Can restore</span><span style="margin-left:auto;color:var(--neg)">'+ic(icons.chev,14,'var(--neg)')+'</span></div></div>'+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Transparency Mode</div><div class="stat-value" style="color:var(--pos)">ON</div></div>'+
+'<div class="stat-card"><div class="stat-label">Audit Events</div><div class="stat-value">'+auditTrail.length+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Flags</div><div class="stat-value" style="color:var(--neg)">2</div></div>'+
+'<div class="stat-card"><div class="stat-label">Deleted TXs</div><div class="stat-value" style="color:var(--neg)">3</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Audit Trail</div>'+
+'<table class="data-table"><thead><tr><th></th><th>Action</th><th>Detail</th><th>Person</th><th>Date</th><th>Status</th></tr></thead><tbody>'+
+auditTrail.map(function(e){return '<tr style="cursor:pointer" onclick="os(\'Audit: '+e.a+'\',sAuditDetail(\''+e.a+'\',\''+e.d+'\',\''+e.w+'\',\''+e.t+'\','+(e.f||false)+'))"><td><div style="width:20px;height:20px;border-radius:5px;background:'+(e.f?'var(--negBg)':'var(--posBg)')+';display:flex;align-items:center;justify-content:center">'+(e.f?ic(icons.flag,8,'var(--neg)',1.5):ic(icons.check,8,'var(--pos)',3))+'</div></td><td style="font-weight:700;color:'+(e.f?'var(--neg)':'var(--t1)')+'">'+e.a+'</td><td>'+e.d+'</td><td>'+e.w+'</td><td>'+e.t+'</td><td>'+(e.f?bg('FLAG','var(--neg)'):bg('OK','var(--pos)'))+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Deleted Transactions Recovery</div>'+
+'<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:8px"><div class="sub" style="line-height:1.5;color:var(--t2)">In Monarch, deleted transactions vanish. NestWorth logs every deletion and lets you restore.</div></div>'+
+'<table class="data-table"><thead><tr><th>Transaction</th><th>Amount</th><th>Deleted By</th><th>Date</th><th></th></tr></thead><tbody>'+
+[{n:'Target',a:'$84.50',w:'Caroline',t:'Mar 10'},{n:'Uber Eats',a:'$32.00',w:'Caroline',t:'Feb 28'},{n:'Cash Withdrawal',a:'$200',w:'Von',t:'Feb 15'}].map(function(d){return '<tr><td style="font-weight:700;color:var(--neg)">'+d.n+'</td><td class="amount">'+d.a+'</td><td>'+d.w+'</td><td>'+d.t+'</td><td><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Restore</button></td></tr>'}).join('')+
+'</tbody></table></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Privacy Settings</div>'+
+'<div class="ci" style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px">Neither partner can disconnect accounts, delete transactions, or hide data. <strong style="color:var(--acc)">What Monarch doesn\'t do.</strong></div>'+
+[{n:'Full Transaction Visibility',d:'Both partners see all transactions'},{n:'Account Actions Logged',d:'Connect/disconnect tracked'},{n:'Deletion Recovery',d:'Deleted items can be restored'},{n:'Category Edit Tracking',d:'All edits logged with author'}].map(function(s){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+ic(icons.check,12,'var(--pos)',3)+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+s.n+'</div><div class="sub" style="font-size:10px">'+s.d+'</div></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Sync Health Summary</div>'+
+'<div class="ci" style="margin-bottom:4px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;color:var(--pos)">4 accounts healthy</div></div>'+
+'<div class="ci" style="background:var(--negBg)"><div style="font-weight:700;font-size:11px;color:var(--neg)">1 account stale</div></div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs"><div class="r" style="margin-bottom:12px;gap:10px"><div style="width:38px;height:38px;border-radius:19px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.shield,18,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:14px">Partner Transparency</div><div class="sub">Both see identical data — no hiding</div></div>'+tg(true)+'</div></div>'+
+'<div class="cs"><div class="r" style="margin-bottom:8px">'+hd('Audit Trail')+bg('2 flags','var(--neg)')+'</div>'+mobileContent+
+'<div class="ci" style="margin-top:6px;display:flex;align-items:center;gap:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);cursor:pointer" onclick="os(\'Deleted Transactions\',sDel())"><span style="font-size:11px;font-weight:700;color:var(--neg)">3 Deleted Transactions</span><span class="sub">Can restore</span></div></div>'+
 '</div>'}
 
 /* Sync Health page */
-function rSyncHealth(){return '<div class="fi">'+
+function rSyncHealth(){
+var syncAccounts=[{b:'Chase Checking',l:'2h',s:'g',v:'$5,360'},{b:'Chase Savings',l:'2h',s:'g',v:'$12,400'},{b:'Capital One',l:'3d',s:'y',v:'$2,100'},{b:'Cap One Savings',l:'47d',s:'r',v:'$8,200',f:true},{b:'Ally Invest',l:'1d',s:'g',v:'$26,500'},{b:'Credit Cards',l:'6h',s:'g',v:'-$1,200'}];
+var syncHistory=[{m:'Mar 16',v:6},{m:'Mar 23',v:5},{m:'Mar 30',v:6},{m:'Apr 6',v:5},{m:'Apr 13',v:4},{m:'Apr 15',v:5}];
+var mobileList=syncAccounts.map(function(a){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;'+(a.s==='r'?'border-color:color-mix(in srgb,var(--neg) 15%,transparent);background:var(--negBg)':a.s==='y'?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+';padding:8px 10px;cursor:pointer" onclick="os(\''+a.b+'\',sSyncD(\''+a.b+'\',\''+a.l+'\',\''+a.s+'\',\''+a.v+'\'))"><div class="dot" style="width:6px;height:6px;background:'+(a.s==='g'?'var(--pos)':a.s==='y'?'var(--warn)':'var(--neg)')+'"></div><div style="flex:1"><div style="font-weight:600;font-size:11px">'+a.b+'</div><div class="sub">'+a.l+' ago</div></div><span style="font-size:11px;font-weight:700;color:'+(a.s==='r'?'var(--neg)':'var(--t1)')+';flex-shrink:0">'+a.v+'</span>'+(a.f?bg('ACT','var(--neg)'):'')+'</div>'}).join('');
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Total Accounts</div><div class="stat-value">6</div></div>'+
+'<div class="stat-card"><div class="stat-label">Healthy</div><div class="stat-value" style="color:var(--pos)">4</div></div>'+
+'<div class="stat-card"><div class="stat-label">Warning</div><div class="stat-value" style="color:var(--warn)">1</div></div>'+
+'<div class="stat-card"><div class="stat-label">Stale</div><div class="stat-value" style="color:var(--neg)">1</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Account Sync Status</div>'+
+'<table class="data-table"><thead><tr><th>Account</th><th>Last Sync</th><th>Status</th><th>Balance</th><th>Actions</th></tr></thead><tbody>'+
+syncAccounts.map(function(a){return '<tr onclick="os(\''+a.b+'\',sSyncD(\''+a.b+'\',\''+a.l+'\',\''+a.s+'\',\''+a.v+'\'))" style="cursor:pointer"><td style="font-weight:600">'+a.b+'</td><td>'+a.l+' ago</td><td><div class="dot" style="width:8px;height:8px;display:inline-block;background:'+(a.s==='g'?'var(--pos)':a.s==='y'?'var(--warn)':'var(--neg)')+'"></div> '+(a.s==='g'?'Healthy':a.s==='y'?'Warning':'Stale')+'</td><td class="amount">'+a.v+'</td><td>'+(a.s!=='g'?'<button class="btn-pill" style="font-size:10px">'+(a.s==='r'?'Reconnect':'Refresh')+'</button>':'<span class="sub">OK</span>')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Sync Events (Last 6 Weeks)</div><div class="chart-subtitle">Number of successful syncs per week</div>'+
+svgLineChart(syncHistory,500,160,'var(--acc)','Syncs/Week')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Stale Account Alerts</div>'+
+'<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:var(--neg)">Cap One Savings</div><div class="sub">47 days without sync</div><div class="sub">Balance may be inaccurate by $200+</div><button class="btn-pill" style="margin-top:8px;font-size:10px;background:var(--negBg);color:var(--neg)">Force Reconnect</button></div>'+
+'<div class="ci" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--warn) 12%,transparent)"><div style="font-weight:700;font-size:12px;color:var(--warn)">Capital One</div><div class="sub">3 days since last sync</div><button class="btn-pill" style="margin-top:8px;font-size:10px">Refresh Now</button></div></div>'+
+'<div class="chart-container"><div class="chart-title">Cross-Reference Status</div>'+
+[{n:'Transaction matching',s:true},{n:'Balance reconciliation',s:true},{n:'Category sync',s:true},{n:'Duplicate detection',s:true},{n:'Transfer recognition',s:false}].map(function(cr){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:12px;flex:1">'+cr.n+'</span>'+(cr.s?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Reconnection History</div>'+
+[{d:'Mar 14',a:'Cap One Savings',w:'Von',r:'Success'},{d:'Feb 20',a:'Chase Checking',w:'System',r:'Auto'},{d:'Jan 15',a:'Ally Invest',w:'Von',r:'Success'}].map(function(rh){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span class="sub" style="width:48px">'+rh.d+'</span><span style="font-size:11px;flex:1;font-weight:600">'+rh.a+'</span>'+bg(rh.r,'var(--pos)')+'</div>'}).join('')+'</div>'+
+pendingBadge('Plaid real-time sync')+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs"><div class="r" style="margin-bottom:8px">'+hd('Sync Health')+'<div style="margin-left:auto;display:flex;gap:3px">'+bg('4 ok','var(--pos)')+bg('1 stale','var(--neg)')+'</div></div>'+
-[{b:'Chase Checking',l:'2h',s:'g',v:'$5,360'},{b:'Chase Savings',l:'2h',s:'g',v:'$12,400'},{b:'Capital One',l:'3d',s:'y',v:'$2,100'},{b:'Cap One Savings',l:'47d',s:'r',v:'$8,200',f:true},{b:'Ally Invest',l:'1d',s:'g',v:'$26,500'},{b:'Credit Cards',l:'6h',s:'g',v:'-$1,200'}].map(function(a){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;'+(a.s==='r'?'border-color:color-mix(in srgb,var(--neg) 15%,transparent);background:var(--negBg)':a.s==='y'?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+';padding:8px 10px;cursor:pointer" onclick="os(\''+a.b+'\',sSyncD(\''+a.b+'\',\''+a.l+'\',\''+a.s+'\',\''+a.v+'\'))"><div class="dot" style="width:6px;height:6px;background:'+(a.s==='g'?'var(--pos)':a.s==='y'?'var(--warn)':'var(--neg)')+'"></div><div style="flex:1"><div style="font-weight:600;font-size:11px">'+a.b+'</div><div class="sub">'+a.l+' ago</div></div><span style="font-size:11px;font-weight:700;color:'+(a.s==='r'?'var(--neg)':'var(--t1)')+';flex-shrink:0">'+a.v+'</span>'+(a.f?bg('ACT','var(--neg)'):'')+'</div>'}).join('')+'</div>'+
+'<div class="cs"><div class="r" style="margin-bottom:8px">'+hd('Sync Health')+'<div style="margin-left:auto;display:flex;gap:3px">'+bg('4 ok','var(--pos)')+bg('1 stale','var(--neg)')+'</div></div>'+mobileList+'</div>'+
 pendingBadge('Plaid real-time sync')+
 '</div>'}
 
 /* Income Cadence page */
-function rIncomeCadence(){return '<div class="fi">'+
+function rIncomeCadence(){
+var incomeSources=[{s:'ALTA Payroll (Von)',f:'Biweekly',n:'Apr 25',a:'$4,280',aNum:4280,st:'ok'},{s:'Freelance (Caroline)',f:'Monthly',n:'Apr 15',a:'~$2,800',aNum:2800,st:'due'},{s:'Rental',f:'Monthly 1st',n:'May 1',a:'$1,200',aNum:1200,st:'ok'}];
+var incomeHistory=[{m:'May',v:7800},{m:'Jun',v:8100},{m:'Jul',v:7400},{m:'Aug',v:8280},{m:'Sep',v:7080},{m:'Oct',v:8560},{m:'Nov',v:7080},{m:'Dec',v:7080},{m:'Jan',v:7280},{m:'Feb',v:7080},{m:'Mar',v:7280},{m:'Apr',v:7080}];
+var mobileContent=incomeSources.map(function(p){return '<div class="ci" style="margin-bottom:4px;'+(p.st==='due'?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+';padding:8px 10px"><div class="r" style="margin-bottom:1px"><span style="font-weight:600;font-size:11px;flex:1">'+p.s+'</span><span style="font-weight:800;font-size:11px;color:var(--pos);flex-shrink:0">'+p.a+'</span></div><div class="r" style="gap:4px"><div class="dot" style="width:5px;height:5px;background:'+(p.st==='ok'?'var(--pos)':'var(--warn)')+'"></div><span style="font-size:9px;color:'+(p.st==='ok'?'var(--pos)':'var(--warn)')+'">'+(p.st==='ok'?'On Track':'Expected Today')+'</span><span class="sub" style="margin-left:auto;font-size:9px">'+p.f+' &middot; Next: '+p.n+'</span></div></div>'}).join('');
+
+if(isDesktop()){
+var smoothedData=[{m:'May',v:7600},{m:'Jun',v:7650},{m:'Jul',v:7640},{m:'Aug',v:7720},{m:'Sep',v:7700},{m:'Oct',v:7780},{m:'Nov',v:7750},{m:'Dec',v:7750},{m:'Jan',v:7760},{m:'Feb',v:7750},{m:'Mar',v:7760},{m:'Apr',v:7760}];
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value" style="color:var(--pos)">$7,080</div>'+trendIndicator(7080,7280,'','')+'</div>'+
+'<div class="stat-card"><div class="stat-label">Sources</div><div class="stat-value">3</div></div>'+
+'<div class="stat-card"><div class="stat-label">12mo Average</div><div class="stat-value">$7,590</div></div>'+
+'<div class="stat-card"><div class="stat-label">Variance</div><div class="stat-value" style="color:var(--warn)">12%</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Income Sources</div>'+
+'<table class="data-table"><thead><tr><th>Source</th><th>Person</th><th>Frequency</th><th>Next Expected</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+incomeSources.map(function(p){return '<tr><td style="font-weight:700">'+p.s+'</td><td>'+(p.s.indexOf('Von')>=0?av('V',20)+'Von':p.s.indexOf('Caroline')>=0?av('C',20,'var(--warn)')+'Caroline':'Joint')+'</td><td>'+p.f+'</td><td>'+p.n+'</td><td>'+bg(p.st==='ok'?'On Track':'Expected',p.st==='ok'?'var(--pos)':'var(--warn)')+'</td><td class="amount" style="color:var(--pos)">'+p.a+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Income Trend (12 Months)</div><div class="chart-subtitle">Actual income per month</div>'+
+svgLineChart(incomeHistory,500,180,'var(--pos)','Income')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Income Smoothing</div><div class="chart-subtitle">Actual (green) vs Smoothed Target (blue) - reduces feast/famine cycles</div>'+
+svgLineChart(incomeHistory,500,140,'var(--pos)','Actual')+
+'<div style="margin-top:8px">'+svgLineChart(smoothedData,500,140,'var(--acc)','Smoothed Target')+'</div>'+
+'<div class="ci" style="margin-top:8px;background:var(--accS)"><div style="font-weight:700;font-size:11px">Income Smoothing Buffer</div><div class="sub" style="line-height:1.5">Recommended buffer: $2,400. When income exceeds $7,760/mo, excess goes to buffer. When below, buffer covers the gap. Current buffer: $1,200.</div></div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Income by Source</div>'+
+svgDonut([{label:'ALTA Payroll',value:4280,color:'var(--acc)'},{label:'Freelance',value:2800,color:'var(--warn)'},{label:'Rental',value:1200,color:'var(--pos)'}],150,'$8.3k','Monthly')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Payment Calendar</div><div class="chart-subtitle">April 2026</div>'+
+buildBillsCalendarSVG()+
+'<div style="margin-top:8px;font-size:10px;color:var(--t2)"><div class="dot" style="width:6px;height:6px;background:var(--pos);display:inline-block"></div> Income days marked</div></div>'+
+'<div class="chart-container"><div class="chart-title">Next Expected Payments</div>'+
+[{d:'Apr 15',s:'Freelance (Caroline)',a:'~$2,800',st:'due'},{d:'Apr 25',s:'ALTA Payroll',a:'$4,280',st:'ok'},{d:'May 1',s:'Rental Income',a:'$1,200',st:'ok'}].map(function(np){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span style="font-size:10px;font-weight:700;width:48px;color:'+(np.st==='due'?'var(--warn)':'var(--t2)')+'">'+np.d+'</span><span style="font-size:11px;flex:1;font-weight:600">'+np.s+'</span><span style="font-size:11px;font-weight:800;color:var(--pos)">'+np.a+'</span></div>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs">'+hd('Income','Cadence')+
-[{s:'ALTA Payroll (Von)',f:'Biweekly',n:'Apr 25',a:'$4,280',st:'ok'},{s:'Freelance (Caroline)',f:'Monthly',n:'Apr 15',a:'~$2,800',st:'due'},{s:'Rental',f:'Monthly 1st',n:'May 1',a:'$1,200',st:'ok'}].map(function(p){return '<div class="ci" style="margin-bottom:4px;'+(p.st==='due'?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+';padding:8px 10px"><div class="r" style="margin-bottom:1px"><span style="font-weight:600;font-size:11px;flex:1">'+p.s+'</span><span style="font-weight:800;font-size:11px;color:var(--pos);flex-shrink:0">'+p.a+'</span></div><div class="r" style="gap:4px"><div class="dot" style="width:5px;height:5px;background:'+(p.st==='ok'?'var(--pos)':'var(--warn)')+'"></div><span style="font-size:9px;color:'+(p.st==='ok'?'var(--pos)':'var(--warn)')+'">'+(p.st==='ok'?'On Track':'Expected Today')+'</span><span class="sub" style="margin-left:auto;font-size:9px">'+p.f+' &middot; Next: '+p.n+'</span></div></div>'}).join('')+'</div></div>'}
+'<div class="cs">'+hd('Income','Cadence')+mobileContent+'</div></div>'}
 
 /* Bill Audit page */
-function rBillAudit(){return '<div class="fi">'+
+function rBillAudit(){
+var billItems=[{n:'Car Insurance',cur:184,neg:146,p:'Bundle home+auto',sv:38,e:'Easy',st:'Ready'},{n:'Streaming Bundle',cur:48,neg:24,p:'Drop Disney+/Hulu, keep Netflix',sv:24,e:'Easy',st:'Ready'},{n:'Internet',cur:89,neg:64,p:'Call to renegotiate rate',sv:25,e:'Medium',st:'Pending'},{n:'Phone Plan',cur:140,neg:80,p:'Switch to Mint Mobile',sv:60,e:'Medium',st:'Research'}];
+var mobileContent=billItems.map(function(b){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="os(\''+b.n+'\',sBillA(\''+b.n+'\','+b.sv+'))"><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:700;font-size:11px">'+b.n+'</span>'+bg(b.e,b.e==='Easy'?'var(--pos)':'var(--warn)')+'</div><div class="sub">'+b.p+'</div></div><span style="font-weight:800;font-size:12px;color:var(--pos);flex-shrink:0">-$'+b.sv+'</span></div>'}).join('');
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Monthly Savings</div><div class="stat-value" style="color:var(--pos)">$147</div></div>'+
+'<div class="stat-card"><div class="stat-label">Annual Savings</div><div class="stat-value" style="color:var(--pos)">$1,764</div></div>'+
+'<div class="stat-card"><div class="stat-label">Bills Audited</div><div class="stat-value">4</div></div>'+
+'<div class="stat-card"><div class="stat-label">Action Items</div><div class="stat-value" style="color:var(--warn)">2</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Bill Comparison: Current vs Negotiated</div>'+
+'<table class="data-table"><thead><tr><th>Bill</th><th style="text-align:right">Current</th><th style="text-align:right">Negotiated</th><th style="text-align:right">Savings</th><th>Difficulty</th><th>Strategy</th><th>Status</th></tr></thead><tbody>'+
+billItems.map(function(b){return '<tr style="cursor:pointer" onclick="os(\''+b.n+'\',sBillA(\''+b.n+'\','+b.sv+'))"><td style="font-weight:700">'+b.n+'</td><td class="amount">$'+b.cur+'</td><td class="amount" style="color:var(--pos)">$'+b.neg+'</td><td class="amount" style="color:var(--pos);font-weight:800">-$'+b.sv+'</td><td>'+bg(b.e,b.e==='Easy'?'var(--pos)':'var(--warn)')+'</td><td style="font-size:11px">'+b.p+'</td><td>'+bg(b.st,b.st==='Ready'?'var(--pos)':b.st==='Pending'?'var(--warn)':'var(--info)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Potential Savings by Category</div>'+
+svgBarChart([{label:'Phone',value:60,color:'var(--pos)'},{label:'Insurance',value:38,color:'var(--acc)'},{label:'Internet',value:25,color:'var(--warn)'},{label:'Streaming',value:24,color:'var(--info)'}],400,200)+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Action Status Tracker</div>'+
+billItems.map(function(b){return '<div class="ci" style="margin-bottom:6px"><div class="r" style="margin-bottom:4px"><span style="font-weight:700;font-size:12px;flex:1">'+b.n+'</span>'+bg(b.st,b.st==='Ready'?'var(--pos)':b.st==='Pending'?'var(--warn)':'var(--info)')+'</div>'+br(b.st==='Ready'?100:b.st==='Pending'?60:30,b.st==='Ready'?'var(--pos)':'var(--warn)',3)+'<div class="sub" style="margin-top:2px">Save $'+b.sv+'/mo</div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Annual Savings Projection</div>'+
+'<div style="text-align:center;margin:12px 0"><div style="font-size:36px;font-weight:900;color:var(--pos)">$1,764</div><div class="sub">per year if all actions completed</div></div>'+
+'<div class="ci" style="background:var(--posBg);margin-bottom:6px"><div style="font-size:11px;font-weight:700">5-Year Impact</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$8,820</div></div>'+
+'<div class="ci" style="background:var(--accS)"><div style="font-size:11px;font-weight:700">Invested at 7%</div><div style="font-size:18px;font-weight:800;color:var(--acc)">$10,200</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Negotiation Timeline</div>'+
+[{d:'Apr 15',n:'Internet renegotiation call',s:'Scheduled'},{d:'Apr 20',n:'Mint Mobile research',s:'In Progress'},{d:'Apr 8',n:'Insurance bundle quote',s:'Complete'},{d:'Mar 30',n:'Streaming audit',s:'Complete'}].map(function(t){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span class="sub" style="width:48px;font-size:10px">'+t.d+'</span><span style="font-size:11px;flex:1">'+t.n+'</span>'+bg(t.s,t.s==='Complete'?'var(--pos)':t.s==='Scheduled'?'var(--warn)':'var(--info)')+'</div>'}).join('')+'</div>'+
+pendingBadge('bill negotiation concierge')+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs">'+hd('Bill Audit')+'<div style="float:right;background:var(--posBg);border-radius:17px;padding:3px 10px;margin-top:-30px"><span style="font-size:12px;font-weight:800;color:var(--pos)">$147</span><span class="sub">/mo</span></div>'+
-[{n:'Car Insurance',p:'Bundle',sv:38,e:'Easy'},{n:'Streaming',p:'Drop 2',sv:24,e:'Easy'},{n:'Internet',p:'Renegotiate',sv:25,e:'Med'},{n:'Phone',p:'Switch Mint',sv:60,e:'Med'}].map(function(b){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="os(\''+b.n+'\',sBillA(\''+b.n+'\','+b.sv+'))"><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:700;font-size:11px">'+b.n+'</span>'+bg(b.e,b.e==='Easy'?'var(--pos)':'var(--warn)')+'</div><div class="sub">'+b.p+'</div></div><span style="font-weight:800;font-size:12px;color:var(--pos);flex-shrink:0">-$'+b.sv+'</span></div>'}).join('')+
+mobileContent+
 '<div class="ci" style="margin-top:6px;text-align:center;background:var(--posBg)"><span class="sub">Annual: </span><span style="font-size:14px;font-weight:800;color:var(--pos)">$1,764</span></div>'+
 pendingBadge('bill negotiation concierge')+'</div></div>'}
 
 /* Subscriptions page */
-function rSubscriptions(){return '<div class="fi">'+
+function rSubscriptions(){
+var subs=[{n:'Netflix',a:15.49,w:'Shared',ok:true,decay:9,cat:'Entertainment'},{n:'Hulu',a:17.99,w:'Shared',i:'Low use',decay:3,cat:'Entertainment'},{n:'Disney+',a:13.99,w:'Caroline',i:'<5%',decay:1,cat:'Entertainment'},{n:'Headspace',a:14.99,w:'Von',i:'60d',decay:2,cat:'Wellness'},{n:'Adobe CC',a:22.99,w:'Caroline',i:'90d',decay:1,cat:'Productivity'},{n:'Spotify',a:16.99,w:'Shared',ok:true,decay:10,cat:'Entertainment'},{n:'iCloud',a:2.99,w:'Von',ok:true,decay:8,cat:'Storage'},{n:'YouTube Premium',a:13.99,w:'Shared',ok:true,decay:7,cat:'Entertainment'},{n:'Gym',a:50,w:'Shared',ok:true,decay:6,cat:'Fitness'},{n:'NYT',a:4.25,w:'Von',ok:true,decay:5,cat:'News'},{n:'ChatGPT Plus',a:20,w:'Von',ok:true,decay:9,cat:'AI'},{n:'Dropbox',a:11.99,w:'Caroline',i:'Low use',decay:2,cat:'Storage'}];
+var costHistory=[{m:'Nov',v:265},{m:'Dec',v:275},{m:'Jan',v:278},{m:'Feb',v:282},{m:'Mar',v:285},{m:'Apr',v:287}];
+var mobileContent=subs.slice(0,6).map(function(s){return '<div class="tr" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))"><span style="font-weight:600;font-size:11px;flex:1">'+s.n+'</span><span class="sub">'+s.w+'</span>'+(s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)'))+'<span style="font-weight:700;font-size:11px;width:48px;text-align:right;flex-shrink:0">$'+s.a+'</span></div>'}).join('');
+
+if(isDesktop()){
+var catBreak={};subs.forEach(function(s){catBreak[s.cat]=(catBreak[s.cat]||0)+s.a});
+var catSegs=Object.keys(catBreak).map(function(k,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--neg)','var(--info)','var(--gold)'];return {label:k,value:Math.round(catBreak[k]*100)/100,color:colors[i%colors.length]}});
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Active Subs</div><div class="stat-value">'+subs.length+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Monthly Cost</div><div class="stat-value" style="color:var(--neg)">$287</div></div>'+
+'<div class="stat-card"><div class="stat-label">Annual Cost</div><div class="stat-value" style="color:var(--neg)">$3,444</div></div>'+
+'<div class="stat-card"><div class="stat-label">Unused</div><div class="stat-value" style="color:var(--warn)">4</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Subscription Table with Usage Scores</div>'+
+'<table class="data-table"><thead><tr><th>Service</th><th>Category</th><th>User</th><th>Usage Score</th><th>Status</th><th style="text-align:right">Cost/mo</th></tr></thead><tbody>'+
+subs.map(function(s){var dc=s.decay>=7?'var(--pos)':s.decay>=4?'var(--warn)':'var(--neg)';return '<tr style="cursor:pointer" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))"><td style="font-weight:700">'+s.n+'</td><td>'+bg(s.cat,'var(--info)')+'</td><td>'+s.w+'</td><td><div class="r" style="gap:4px">'+br(s.decay*10,dc,4)+'<span style="font-size:10px;font-weight:800;color:'+dc+'">'+s.decay+'/10</span></div></td><td>'+(s.i?bg(s.i,'var(--neg)'):bg('Active','var(--pos)'))+'</td><td class="amount">$'+s.a.toFixed(2)+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Monthly Subscription Cost Trend</div>'+
+svgLineChart(costHistory,500,160,'var(--neg)','Total Cost')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Category Breakdown</div>'+
+svgDonut(catSegs,160,'$287','/month')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Unused Subscription Alerts</div>'+
+subs.filter(function(s){return s.decay<=3}).map(function(s){return '<div class="ci" style="margin-bottom:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)"><div class="r"><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--neg)">'+s.n+'</div><div class="sub">Usage: '+s.decay+'/10 &middot; $'+(s.a*12).toFixed(0)+'/yr wasted</div></div></div><button class="btn-pill" style="margin-top:6px;font-size:10px;background:var(--negBg);color:var(--neg)" onclick="event.stopPropagation();os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))">Review</button></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Quick Cancel Panel</div><div class="sub" style="margin-bottom:8px">Cancel unused subs to save:</div>'+
+'<div style="text-align:center;margin-bottom:10px"><div style="font-size:28px;font-weight:900;color:var(--pos)">$'+subs.filter(function(s){return s.decay<=3}).reduce(function(a,s){return a+s.a},0).toFixed(2)+'</div><div class="sub">per month potential savings</div></div>'+
+subs.filter(function(s){return s.decay<=3}).map(function(s){return '<button class="btn-danger btn-full" style="border-radius:12px;padding:10px;font-size:12px;margin-bottom:4px" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))">Cancel '+s.n+' ($'+s.a+'/mo)</button>'}).join('')+
+pendingBadge('subscription cancellation service')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+hd('Subscriptions')+'<div class="r" style="justify-content:space-between;margin-bottom:8px;margin-top:-8px"><span class="sub">12 active &middot; $287/mo</span>'+bg('3 issues','var(--neg)')+'</div>'+
-[{n:'Netflix',a:15.49,w:'Shared',ok:true},{n:'Hulu',a:17.99,w:'Shared',i:'Low use'},{n:'Disney+',a:13.99,w:'Caroline',i:'<5%'},{n:'Headspace',a:14.99,w:'Von',i:'60d'},{n:'Adobe CC',a:22.99,w:'Caroline',i:'90d'},{n:'Spotify',a:16.99,w:'Shared',ok:true}].map(function(s){return '<div class="tr" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))"><span style="font-weight:600;font-size:11px;flex:1">'+s.n+'</span><span class="sub">'+s.w+'</span>'+(s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)'))+'<span style="font-weight:700;font-size:11px;width:48px;text-align:right;flex-shrink:0">$'+s.a+'</span></div>'}).join('')+
-pendingBadge('subscription cancellation service')+'</div></div>'}
+mobileContent+pendingBadge('subscription cancellation service')+'</div></div>'}
 
 /* Fee Analyzer page */
-function rFeeAnalyzer(){return '<div class="fi">'+
+function rFeeAnalyzer(){
+var funds=[{n:'Ally Invest (Brokerage)',r:'0.08%',v:180500,q:'Low',f:[{fn:'VTI',r:'0.03%',v:95000},{fn:'VXUS',r:'0.07%',v:52000},{fn:'BND',r:'0.03%',v:33500}]},{n:'401(k) Funds',r:'0.65%',v:68400,q:'High',f:[{fn:'Growth Fund A',r:'0.78%',v:38000},{fn:'Bond Fund B',r:'0.45%',v:30400}]},{n:'Target Date 2050',r:'0.35%',v:41100,q:'Med',f:[{fn:'TDF 2050',r:'0.35%',v:41100}]}];
+var dragData=[{m:'7yr',v:5400},{m:'15yr',v:18200},{m:'30yr',v:47000}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Weighted Avg ER</div><div class="stat-value" style="color:var(--warn)">0.42%</div></div>'+
+'<div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-value">$290k</div></div>'+
+'<div class="stat-card"><div class="stat-label">Annual Fees</div><div class="stat-value" style="color:var(--neg)">$1,218</div></div>'+
+'<div class="stat-card"><div class="stat-label">30yr Fee Drag</div><div class="stat-value" style="color:var(--neg)">$47k</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Fee Comparison by Account</div>'+
+'<table class="data-table"><thead><tr><th>Account</th><th>Expense Ratio</th><th>Balance</th><th>Annual Fee</th><th>Rating</th></tr></thead><tbody>'+
+funds.map(function(f){return '<tr><td style="font-weight:700">'+f.n+'</td><td style="font-weight:700;color:'+(f.q==='Low'?'var(--pos)':f.q==='High'?'var(--neg)':'var(--warn)')+'">'+f.r+'</td><td class="amount">$'+f.v.toLocaleString()+'</td><td class="amount" style="color:var(--neg)">$'+Math.round(f.v*parseFloat(f.r)/100).toLocaleString()+'</td><td>'+bg(f.q,f.q==='Low'?'var(--pos)':f.q==='High'?'var(--neg)':'var(--warn)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Fee Drag Projection</div><div class="chart-subtitle">How much fees cost you over time at current rates</div>'+
+svgBarChart(dragData.map(function(d){return {label:d.m,value:d.v,color:'var(--neg)'}}),400,200)+'</div>'+
+'<div class="chart-container"><div class="chart-title">Fund-Level Detail</div>'+
+'<table class="data-table"><thead><tr><th>Fund</th><th>Account</th><th>ER</th><th>Balance</th><th>Annual Fee</th></tr></thead><tbody>'+
+funds.reduce(function(arr,acct){acct.f.forEach(function(fund){arr.push({fn:fund.fn,acct:acct.n,r:fund.r,v:fund.v})});return arr},[]).map(function(f){return '<tr><td style="font-weight:600">'+f.fn+'</td><td class="sub">'+f.acct+'</td><td>'+f.r+'</td><td class="amount">$'+f.v.toLocaleString()+'</td><td class="amount" style="color:var(--neg)">$'+Math.round(f.v*parseFloat(f.r)/100).toLocaleString()+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Recommendations</div>'+
+'<div class="ci" style="margin-bottom:8px;background:var(--posBg)"><div style="font-weight:700;font-size:12px;color:var(--pos)">Switch 401(k) to Index Funds</div><div class="sub" style="line-height:1.5;margin-top:4px">Moving from 0.65% to 0.10% expense ratio would save $31,000 over 30 years on current balance.</div><div style="font-size:20px;font-weight:900;color:var(--pos);margin-top:6px">Save $31k</div></div>'+
+'<div class="ci" style="margin-bottom:8px;background:var(--accS)"><div style="font-weight:700;font-size:12px">Replace Target Date Fund</div><div class="sub" style="line-height:1.5;margin-top:4px">A 3-fund portfolio at 0.05% avg ER vs 0.35% saves $12,000 over 30 years.</div><div style="font-size:20px;font-weight:900;color:var(--acc);margin-top:6px">Save $12k</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Projected Savings</div>'+
+'<div class="ci" style="text-align:center;padding:12px"><div class="sub">If all recommendations applied:</div><div style="font-size:32px;font-weight:900;color:var(--pos);margin:6px 0">$43,000</div><div class="sub">saved over 30 years in fees</div></div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+sFees()+'</div></div>'}
 
 /* Tax Deductions page */
-function rTaxDeductions(){return '<div class="fi">'+
+function rTaxDeductions(){
+var deductions=[{n:'Goodwill Donation',a:450,c:'Charitable',d:'Mar 15'},{n:'Medical Copays',a:320,c:'Medical',d:'Various'},{n:'Home Office',a:180,c:'Business',d:'Q1'},{n:'Professional Dev',a:150,c:'Education',d:'Feb 10'},{n:'Tax Prep',a:140,c:'Tax',d:'Apr 1'}];
+var ytdData=[{m:'Jan',v:180},{m:'Feb',v:380},{m:'Mar',v:890},{m:'Apr',v:1240}];
+
+if(isDesktop()){
+var catTotals={};deductions.forEach(function(d){catTotals[d.c]=(catTotals[d.c]||0)+d.a});
+var catSegs=Object.keys(catTotals).map(function(k,i){var colors=['var(--acc)','var(--pos)','var(--warn)','var(--info)','var(--gold)'];return {label:k,value:catTotals[k],color:colors[i%colors.length]}});
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">YTD Deductions</div><div class="stat-value" style="color:var(--pos)">$1,240</div></div>'+
+'<div class="stat-card"><div class="stat-label">Est. Tax Savings</div><div class="stat-value" style="color:var(--pos)">$310</div><div class="sub">at 25% bracket</div></div>'+
+'<div class="stat-card"><div class="stat-label">Categories</div><div class="stat-value">5</div></div>'+
+'<div class="stat-card"><div class="stat-label">Items</div><div class="stat-value">'+deductions.length+'</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Deductions by Category</div>'+
+'<table class="data-table"><thead><tr><th>Item</th><th>Category</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+deductions.map(function(d){return '<tr><td style="font-weight:700">'+d.n+'</td><td>'+bg(d.c,'var(--info)')+'</td><td>'+d.d+'</td><td class="amount" style="color:var(--pos)">$'+d.a+'</td></tr>'}).join('')+
+'<tr style="font-weight:800"><td colspan="3">Total</td><td class="amount" style="color:var(--pos)">$1,240</td></tr>'+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">YTD Deductions Trend</div>'+
+svgLineChart(ytdData,500,160,'var(--pos)','Cumulative')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Category Breakdown</div>'+
+svgDonut(catSegs,150,'$1,240','YTD')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Estimated Tax Savings</div>'+
+'<div style="text-align:center;margin:8px 0"><div style="font-size:28px;font-weight:900;color:var(--pos)">$310</div><div class="sub">at 25% marginal rate</div></div>'+
+[{r:'22%',s:'$273'},{r:'24%',s:'$298'},{r:'32%',s:'$397'}].map(function(b){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="flex:1">At '+b.r+' bracket</span><span style="font-weight:700;font-size:12px;color:var(--pos)">'+b.s+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Export for Tax Prep</div>'+
+'<button class="btn btn-full" style="border-radius:12px;margin-bottom:6px;height:40px;font-size:12px" onclick="os(\'Export\',sExport())">Export Tax Summary (PDF)</button>'+
+'<button class="btn-outline btn-full" style="border-radius:12px;height:40px;font-size:12px" onclick="os(\'Export\',sExport())">Export Deductions (CSV)</button>'+
+pendingBadge('server-side generation')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+sTax()+'</div></div>'}
 
 /* Bills Calendar page */
-function rBillsCalendar(){return '<div class="fi">'+
+function rBillsCalendar(){
+var bills=[{n:'Mortgage',a:2000,d:'1st',day:1,at:true,pd:true},{n:'Insurance',a:184,d:'5th',day:5,at:true,pd:true},{n:'Electric',a:145,d:'10th',day:10,at:false},{n:'Water',a:65,d:'12th',day:12,at:false},{n:'Internet',a:89,d:'15th',day:15,at:true},{n:'Car Payment',a:385,d:'15th',day:15,at:true},{n:'Phone',a:140,d:'18th',day:18,at:true},{n:'Gym',a:50,d:'20th',day:20,at:true},{n:'Student Loans',a:320,d:'25th',day:25,at:true}];
+
+if(isDesktop()){
+var totalDue=bills.reduce(function(a,b){return a+b.a},0);
+var paid=bills.filter(function(b){return b.pd}).reduce(function(a,b){return a+b.a},0);
+var remaining=totalDue-paid;
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Total Bills</div><div class="stat-value">$'+totalDue.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value" style="color:var(--pos)">$'+paid.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--warn)">$'+remaining.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Autopay</div><div class="stat-value" style="color:var(--pos)">'+bills.filter(function(b){return b.at}).length+'/'+bills.length+'</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">April 2026 Calendar</div>'+
+buildBillsCalendarSVG()+
+'<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">'+
+bills.map(function(b){return '<span style="font-size:10px"><span style="font-weight:700;color:'+(b.pd?'var(--pos)':'var(--t1)')+'">'+b.d+'</span> '+b.n+' $'+b.a+'</span>'}).join('')+'</div></div>'+
+'<div class="chart-container"><div class="chart-title">Upcoming Bills</div>'+
+'<table class="data-table"><thead><tr><th>Due</th><th>Bill</th><th>Autopay</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+bills.map(function(b){return '<tr onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+b.a+','+(b.at?'true':'false')+',\''+b.d+'\'))" style="cursor:pointer"><td style="font-weight:700;color:'+(b.pd?'var(--pos)':'var(--t1)')+'">'+b.d+'</td><td style="font-weight:600">'+b.n+'</td><td>'+(b.at?bg('Auto','var(--pos)'):bg('Manual','var(--warn)'))+'</td><td>'+bg(b.pd?'Paid':'Due',b.pd?'var(--pos)':'var(--warn)')+'</td><td class="amount">$'+b.a+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Payment History</div>'+
+[{m:'March',pd:9,total:9,amt:3378},{m:'February',pd:9,total:9,amt:3378},{m:'January',pd:8,total:9,amt:3193}].map(function(h){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+h.m+'</span><span style="font-size:11px;color:var(--pos);font-weight:700">'+h.pd+'/'+h.total+' paid</span></div><div class="sub">$'+h.amt.toLocaleString()+' total</div>'+br(h.pd/h.total*100,'var(--pos)',3)+'</div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Autopay Status</div>'+
+bills.map(function(b){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1;font-weight:600">'+b.n+'</span>'+(b.at?bg('ON','var(--pos)'):bg('OFF','var(--warn)'))+' <span class="sub" style="width:50px;text-align:right">$'+b.a+'</span></div>'}).join('')+
+'<div class="ci" style="margin-top:8px;background:var(--warnBg)"><div style="font-weight:700;font-size:11px;color:var(--warn)">2 bills need autopay</div><div class="sub">Electric and Water are manual pay</div></div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+sRBillsContent()+'</div></div>'}
 
 /* Spending page (detailed) */
-function rSpending(){return '<div class="fi">'+
+function rSpending(){
+var cats=[{c:'Groceries',a:120,m:200,v:75,ca:45},{c:'Dining Out',a:280,m:300,v:140,ca:140,w:true},{c:'Shopping',a:235,m:200,v:85,ca:150,o:true},{c:'Entertainment',a:85,m:150,v:40,ca:45},{c:'Transport',a:45,m:100,v:30,ca:15}];
+var spendByMonth=[{m:'Nov',g:520,d:310,s:180,e:120,t:90},{m:'Dec',g:680,d:420,s:350,e:200,t:95},{m:'Jan',g:490,d:280,s:150,e:100,t:85},{m:'Feb',g:510,d:300,s:190,e:130,t:88},{m:'Mar',g:530,d:290,s:210,e:110,t:92},{m:'Apr',g:480,d:280,s:235,e:85,t:45}];
+var topMerch=[{n:'Whole Foods',total:1240,count:18,avg:68.89},{n:'Amazon',total:890,count:12,avg:74.17},{n:'Shell Gas',total:580,count:12,avg:48.33},{n:'Target',total:520,count:8,avg:65.00},{n:'Costco',total:480,count:4,avg:120.00},{n:'Trader Joe\'s',total:340,count:8,avg:42.50},{n:'Starbucks',total:180,count:22,avg:8.18}];
+var mobileContent=cats.map(function(s){return '<div style="margin-bottom:12px;cursor:pointer" onclick="os(\''+s.c+'\',sCat(\''+s.c+'\','+s.a+','+s.m+','+s.v+','+s.ca+'))"><div class="r" style="margin-bottom:3px;gap:4px"><span style="font-size:12px;font-weight:600;flex:1">'+s.c+'</span>'+(s.o?bg('OVER','var(--neg)'):'')+(s.w?bg('93%','var(--warn)'):'')+'<span style="font-size:12px;font-weight:800;color:'+(s.o?'var(--neg)':'var(--t1)')+'">$'+s.a+'<span style="font-weight:400;color:var(--t3);font-size:10px">/$'+s.m+'</span></span></div>'+br((s.a/s.m)*100,s.o?'var(--neg)':s.w?'var(--warn)':'var(--pos)')+'<div style="display:flex;gap:8px;margin-top:3px;font-size:9px;color:var(--t2)"><span style="color:var(--acc)">Von $'+s.v+'</span><span style="color:var(--warn)">Caroline $'+s.ca+'</span></div></div>'}).join('');
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">This Week</div><div class="stat-value">$765</div>'+trendIndicator(765,772,'$','')+'</div>'+
+'<div class="stat-card"><div class="stat-label">Budget</div><div class="stat-value">$1,050</div></div>'+
+'<div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--pos)">$285</div></div>'+
+'<div class="stat-card"><div class="stat-label">Over Budget</div><div class="stat-value" style="color:var(--neg)">1 cat</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Category Spending with Sparklines</div>'+
+'<table class="data-table"><thead><tr><th>Category</th><th>Trend</th><th>Von</th><th>Caroline</th><th>Progress</th><th>Status</th><th style="text-align:right">Spent</th></tr></thead><tbody>'+
+cats.map(function(s){var p=Math.round(s.a/s.m*100);var sparkData=[Math.random()*50+20,Math.random()*50+20,Math.random()*50+20,Math.random()*50+20,s.a];return '<tr style="cursor:pointer" onclick="os(\''+s.c+'\',sCat(\''+s.c+'\','+s.a+','+s.m+','+s.v+','+s.ca+'))"><td style="font-weight:700">'+s.c+'</td><td><div class="sparkline-wrap">'+svgSparkline(sparkData,50,16,s.o?'var(--neg)':'var(--acc)')+'</div></td><td style="color:var(--acc);font-weight:600">$'+s.v+'</td><td style="color:var(--warn);font-weight:600">$'+s.ca+'</td><td><div style="width:80px">'+br(p,s.o?'var(--neg)':s.w?'var(--warn)':'var(--pos)',4)+'</div></td><td>'+(s.o?bg('OVER','var(--neg)'):s.w?bg(p+'%','var(--warn)'):bg(p+'%','var(--pos)'))+'</td><td class="amount" style="color:'+(s.o?'var(--neg)':'var(--t1)')+'">$'+s.a+'/$'+s.m+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">6-Month Spending by Category</div>'+
+svgStackedBarChart(spendByMonth,500,220,['g','d','s','e','t'],['var(--pos)','var(--warn)','var(--neg)','var(--acc)','var(--info)'],['Groceries','Dining','Shopping','Entertainment','Transport'])+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Per-Person Split</div>'+
+'<div style="display:flex;gap:12px;margin-bottom:12px"><div class="ci" style="flex:1;text-align:center">'+av('V',28)+'<div style="font-size:16px;font-weight:800;color:var(--acc);margin-top:4px">$370</div><div class="sub">Von (48%)</div></div><div class="ci" style="flex:1;text-align:center">'+av('C',28,'var(--warn)')+'<div style="font-size:16px;font-weight:800;color:var(--warn);margin-top:4px">$395</div><div class="sub">Caroline (52%)</div></div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Top Merchants</div>'+
+topMerch.slice(0,7).map(function(m,i){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span style="font-size:10px;font-weight:800;color:var(--t3);width:16px">#'+(i+1)+'</span><span style="font-size:11px;flex:1;font-weight:600">'+m.n+'</span><span class="sub">'+m.count+'x</span><span style="font-size:11px;font-weight:700">$'+m.total.toLocaleString()+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Anomaly Alerts</div>'+
+'<div class="ci" style="margin-bottom:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)"><div style="font-weight:700;font-size:11px;color:var(--neg)">Shopping Over Budget</div><div class="sub">$235/$200 - $35 over cap</div></div>'+
+'<div class="ci" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--warn) 12%,transparent)"><div style="font-weight:700;font-size:11px;color:var(--warn)">Dining 38% Faster</div><div class="sub">$280 spent, pace is above average</div></div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs">'+hd('Spending','This Week')+
-[{c:'Groceries',a:120,m:200,v:75,ca:45},{c:'Dining Out',a:280,m:300,v:140,ca:140,w:true},{c:'Shopping',a:235,m:200,v:85,ca:150,o:true},{c:'Entertainment',a:85,m:150,v:40,ca:45},{c:'Transport',a:45,m:100,v:30,ca:15}].map(function(s){return '<div style="margin-bottom:12px;cursor:pointer" onclick="os(\''+s.c+'\',sCat(\''+s.c+'\','+s.a+','+s.m+','+s.v+','+s.ca+'))"><div class="r" style="margin-bottom:3px;gap:4px"><span style="font-size:12px;font-weight:600;flex:1">'+s.c+'</span>'+(s.o?bg('OVER','var(--neg)'):'')+(s.w?bg('93%','var(--warn)'):'')+'<span style="font-size:12px;font-weight:800;color:'+(s.o?'var(--neg)':'var(--t1)')+'">$'+s.a+'<span style="font-weight:400;color:var(--t3);font-size:10px">/$'+s.m+'</span></span></div>'+br((s.a/s.m)*100,s.o?'var(--neg)':s.w?'var(--warn)':'var(--pos)')+'<div style="display:flex;gap:8px;margin-top:3px;font-size:9px;color:var(--t2)"><span style="color:var(--acc)">Von $'+s.v+'</span><span style="color:var(--warn)">Caroline $'+s.ca+'</span></div></div>'}).join('')+'</div></div>'}
+'<div class="cs">'+hd('Spending','This Week')+mobileContent+'</div></div>'}
 
 /* Transactions page */
-function rTransactions(){return '<div class="fi">'+
+function rTransactions(){
+var allTx=[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today',raw:''},{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true,raw:''},{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday',raw:''},{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true,raw:''},{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true,raw:''},{w:'T',n:'Chase to Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true,raw:''},{w:'V',n:'Netflix',c:'Subs',a:'-$15.49',t:'Apr 10',raw:''},{w:'C',n:'Amazon',c:'Shopping',a:'-$150',t:'Apr 10',raw:''},{w:'V',n:'ALTA Payroll',c:'Income',a:'+$4,280',t:'Apr 11',inc:true,raw:''},{w:'V',n:'Starbucks',c:'Dining',a:'-$6.45',t:'Apr 9',raw:''},{w:'C',n:'Trader Joe\'s',c:'Groceries',a:'-$52.18',t:'Apr 8',raw:''},{w:'V',n:'Costco',c:'Groceries',a:'-$187.42',t:'Apr 7',raw:''},{w:'V',n:'APCR*DIGITALRVRM',c:'Unknown',a:'-$12.99',t:'Apr 6',raw:'APCR*DIGITALRVRM',unk:true},{w:'C',n:'SQ *EBC CO LLC',c:'Unknown',a:'-$34.00',t:'Apr 5',raw:'SQ *EBC CO LLC',unk:true},{w:'V',n:'Gym Membership',c:'Fitness',a:'-$50',t:'Apr 5',raw:''},{w:'C',n:'Caroline Freelance',c:'Income',a:'+$2,800',t:'Apr 3',inc:true,raw:''}];
+var txRow=function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))">'+av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='T'?'var(--t2)':'var(--acc)')+'<div style="flex:1;min-width:0"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">'+tx.n+'</span>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.rc?bg('Recurring','var(--info)'):'')+(tx.rf?bg('Refund','var(--pos)'):'')+(tx.tr?bg('Transfer','var(--t2)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+(tx.unk?bg('UNKNOWN','var(--warn)'):'')+'</div><div class="sub">'+tx.c+' &middot; '+tx.t+'</div></div><span style="font-weight:800;font-size:12px;color:'+(tx.inc||tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)')+';flex-shrink:0">'+tx.a+'</span></div>'};
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="filter-bar"><input class="filter-input" placeholder="Search transactions..." style="flex:1">'+
+'<div class="date-picker"><button class="active">This Month</button><button>Last Month</button><button>90 Days</button><button>Year</button></div>'+
+'</div>'+
+'<div class="filter-bar">'+
+['All','Groceries','Dining','Shopping','Transport','Subs','Income','Unknown'].map(function(c,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+c+'</button>'}).join('')+
+'<select style="padding:6px 10px;border-radius:8px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:11px;color:var(--t1)"><option>All People</option><option>Von</option><option>Caroline</option><option>Joint</option></select>'+
+'</div>'+
+'<div class="chart-container">'+
+'<table class="data-table"><thead><tr><th></th><th>Merchant</th><th>Category</th><th>Person</th><th>Date</th><th>Tags</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody>'+
+allTx.map(function(tx){return '<tr style="cursor:pointer" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))"><td>'+av(tx.w,22,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='T'?'var(--t2)':'var(--acc)')+'</td><td style="font-weight:700">'+tx.n+'</td><td>'+tx.c+'</td><td>'+(tx.w==='V'?'Von':tx.w==='C'?'Caroline':tx.w==='J'?'Joint':'Transfer')+'</td><td>'+tx.t+'</td><td>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.rc?bg('Recurring','var(--info)'):'')+(tx.rf?bg('Refund','var(--pos)'):'')+(tx.tr?bg('Transfer','var(--t2)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+(tx.unk?'<button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto" onclick="event.stopPropagation();gp(\'chargeiq\')">'+ic(icons.search,10,'var(--acc)',2)+' ChargeIQ</button>':'')+'</td><td class="amount" style="color:'+(tx.inc||tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)')+'">'+tx.a+'</td><td>'+ic(icons.chev,14,'var(--t3)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'</div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="c">'+hd('All Transactions')+
-[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true},{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},{w:'T',n:'Chase to Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true},{w:'V',n:'Netflix',c:'Subs',a:'-$15.49',t:'Apr 10'},{w:'C',n:'Amazon',c:'Shopping',a:'-$150',t:'Apr 10'},{w:'V',n:'ALTA Payroll',c:'Income',a:'+$4,280',t:'Apr 11',inc:true}].map(function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))">'+av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='T'?'var(--t2)':'var(--acc)')+'<div style="flex:1;min-width:0"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">'+tx.n+'</span>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.rc?bg('Recurring','var(--info)'):'')+(tx.rf?bg('Refund','var(--pos)'):'')+(tx.tr?bg('Transfer','var(--t2)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+'</div><div class="sub">'+tx.c+' &middot; '+tx.t+'</div></div><span style="font-weight:800;font-size:12px;color:'+(tx.inc||tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)')+';flex-shrink:0">'+tx.a+'</span></div>'}).join('')+'</div></div>'}
+'<div class="c">'+hd('All Transactions')+allTx.slice(0,9).map(txRow).join('')+'</div></div>'}
 
 /* Feature Request page */
-function rFeatureRequest(){return '<div class="fi">'+
-'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs">'+hd('Feature Request')+
+function rFeatureRequest(){
+var formHtml='<div class="cs">'+hd('Feature Request')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Have an idea? Let us know what would make NestWorth better.</div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="frTitle" maxlength="200" placeholder="Brief summary of your idea..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Description</div><textarea id="frDesc" maxlength="2000" placeholder="Describe in detail what you\'d like to see..." rows="4" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Priority</div><select id="frPriority" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>'+
-'<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitFeatureRequest()">Submit Feature Request</button></div>'+
-(featureRequests.length?'<div class="c">'+hd('Previous Requests')+featureRequests.slice(-5).reverse().map(function(fr){return '<div class="ci" style="margin-bottom:4px"><div class="r" style="gap:4px"><span style="font-weight:600;font-size:12px;flex:1">'+esc(fr.title)+'</span>'+bg(fr.priority,'var(--acc)')+'</div><div class="sub" style="margin-top:2px">'+esc(fr.description).substring(0,80)+'...</div></div>'}).join('')+'</div>':'')+
-'</div>'}
+'<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitFeatureRequest()">Submit Feature Request</button></div>';
+var prevHtml=featureRequests.length?'<div class="c">'+hd('Previous Requests')+featureRequests.slice(-10).reverse().map(function(fr,i){return '<div class="ci" style="margin-bottom:4px"><div class="r" style="gap:4px"><span style="font-weight:600;font-size:12px;flex:1">'+esc(fr.title)+'</span>'+bg(fr.priority,fr.priority==='high'?'var(--neg)':fr.priority==='critical'?'var(--neg)':'var(--acc)')+'<span class="sub">'+bg('Submitted','var(--info)')+'</span></div><div class="sub" style="margin-top:2px">'+esc(fr.description).substring(0,120)+'</div></div>'}).join('')+'</div>':'<div class="c" style="text-align:center;padding:20px"><div class="sub">No requests yet</div></div>';
+var demoRequests=[{t:'Crypto Portfolio Tracking',v:47,s:'Planned'},{t:'Joint Credit Cards View',v:32,s:'Under Review'},{t:'Spending Heatmap Calendar',v:28,s:'Under Review'},{t:'Google Sheets Export',v:15,s:'Backlog'}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="dash-row"><div class="dash-main">'+formHtml+'</div>'+
+'<div class="dash-side">'+prevHtml+
+'<div class="chart-container" style="margin-top:12px"><div class="chart-title">Community Requests</div>'+
+demoRequests.map(function(r){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+r.t+'</span>'+bg(r.s,r.s==='Planned'?'var(--pos)':'var(--info)')+'</div><div class="r" style="margin-top:4px;gap:6px"><button class="btn-pill" style="font-size:10px;padding:4px 10px;min-height:auto">Upvote</button><span class="sub">'+r.v+' votes</span></div></div>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+formHtml+prevHtml+'</div>'}
 function submitFeatureRequest(){
   var t=$('frTitle'),d=$('frDesc'),p=$('frPriority');
   if(!t||!t.value.trim()){os('Error',sDone('Please enter a title.'));return}
@@ -1691,18 +2085,29 @@ function submitFeatureRequest(){
 }
 
 /* Report Bug page */
-function rReportBug(){return '<div class="fi">'+
-'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="cs">'+hd('Report a Bug')+
+function rReportBug(){
+var formHtml='<div class="cs">'+hd('Report a Bug')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Found something broken? Help us fix it.</div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="brTitle" maxlength="200" placeholder="Brief bug summary..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Steps to Reproduce</div><textarea id="brSteps" maxlength="2000" placeholder="1. Go to...\n2. Tap on...\n3. See error..." rows="3" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Expected Behavior</div><textarea id="brExpected" maxlength="2000" placeholder="What should happen..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Actual Behavior</div><textarea id="brActual" maxlength="2000" placeholder="What actually happens..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Screenshot</div><div class="scan-area" style="padding:16px;opacity:0.5" onclick="this.innerHTML=\'<div class=&quot;sub&quot;>Screenshot attached (demo)</div>\'">'+ic(icons.cam,24,'var(--acc)',1.5)+'<div style="font-size:12px;font-weight:600;margin-top:6px">Tap to attach screenshot</div></div></div>'+
-'<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitBugReport()">Submit Bug Report</button></div>'+
-(bugReports.length?'<div class="c">'+hd('Previous Reports')+bugReports.slice(-5).reverse().map(function(br){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:600;font-size:12px">'+esc(br.title)+'</div><div class="sub" style="margin-top:2px">'+esc(br.steps).substring(0,80)+'...</div></div>'}).join('')+'</div>':'')+
-'</div>'}
+'<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitBugReport()">Submit Bug Report</button></div>';
+var prevHtml=bugReports.length?'<div class="c">'+hd('Previous Reports')+bugReports.slice(-10).reverse().map(function(br2){return '<div class="ci" style="margin-bottom:4px"><div class="r"><span style="font-weight:600;font-size:12px;flex:1">'+esc(br2.title)+'</span>'+bg('Submitted','var(--warn)')+'</div><div class="sub" style="margin-top:2px">'+esc(br2.steps).substring(0,120)+'</div></div>'}).join('')+'</div>':'<div class="c" style="text-align:center;padding:20px"><div class="sub">No reports yet</div></div>';
+var demoBugs=[{t:'Dark mode contrast on calendar',s:'Fixed',d:'Apr 10'},{t:'Sync health page crashes on iPad',s:'In Progress',d:'Apr 8'},{t:'Budget chart labels overlap',s:'Triaged',d:'Apr 3'}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="dash-row"><div class="dash-main">'+formHtml+'</div>'+
+'<div class="dash-side">'+prevHtml+
+'<div class="chart-container" style="margin-top:12px"><div class="chart-title">Known Issues</div>'+
+demoBugs.map(function(b){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+b.t+'</span>'+bg(b.s,b.s==='Fixed'?'var(--pos)':b.s==='In Progress'?'var(--warn)':'var(--info)')+'</div><div class="sub" style="margin-top:2px">Reported '+b.d+'</div></div>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+formHtml+prevHtml+'</div>'}
 function submitBugReport(){
   var t=$('brTitle'),s=$('brSteps'),e=$('brExpected'),a=$('brActual');
   if(!t||!t.value.trim()){os('Error',sDone('Please enter a title.'));return}
@@ -1712,41 +2117,427 @@ function submitBugReport(){
 }
 
 /* Achievements page */
-function rAchievements(){return '<div class="fi">'+
+function rAchievements(){
+var achievements=[{n:'Budget Streak',d:'14 days under budget',done:true,date:'Apr 14'},{n:'First Nest',d:'Created first savings goal',done:true,date:'Jan 15'},{n:'$1k Saved',d:'Auto-saved over $1,000',done:true,date:'Feb 22'},{n:'$5k Saved',d:'Auto-saved over $5,000',done:true,date:'Mar 30'},{n:'Net Worth $100k',d:'Reach $100k net worth',done:false,p:82},{n:'3-Month Fund',d:'Emergency fund covers 3 months',done:false,p:28},{n:'Debt Free',d:'Pay off all consumer debt',done:false,p:65},{n:'Bill Master',d:'All bills on autopay',done:false,p:78},{n:'Money Date x4',d:'4 money dates completed',done:true,date:'Apr 1'},{n:'Scanner Pro',d:'10 receipts scanned',done:false,p:30}];
+var streakDays=[1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Current Streak</div><div class="stat-value" style="color:var(--gold)">14 days</div></div>'+
+'<div class="stat-card"><div class="stat-label">Earned</div><div class="stat-value" style="color:var(--pos)">5</div></div>'+
+'<div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warn)">5</div></div>'+
+'<div class="stat-card"><div class="stat-label">Von vs Caroline</div><div class="stat-value">3 - 2</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Achievement Grid</div>'+
+'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">'+
+achievements.map(function(a){
+var ringPct=a.done?100:(a.p||0);
+var ringColor=a.done?'var(--gold)':ringPct>=60?'var(--pos)':'var(--warn)';
+return '<div class="ci" style="text-align:center;padding:14px;'+(a.done?'border-color:color-mix(in srgb,var(--gold) 20%,transparent);background:color-mix(in srgb,var(--gold) 5%,transparent)':'')+'">'+
+'<div style="width:48px;height:48px;border-radius:24px;background:conic-gradient('+ringColor+' '+ringPct+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:36px;height:36px;border-radius:18px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:'+ringColor+'">'+(a.done?ic(icons.check,14,ringColor,3):ringPct+'%')+'</div></div>'+
+'<div style="font-weight:700;font-size:12px;margin-top:6px">'+a.n+'</div><div class="sub" style="font-size:10px">'+a.d+'</div>'+(a.done?'<div style="font-size:9px;color:var(--gold);font-weight:600;margin-top:2px">'+a.date+'</div>':'')+'</div>'}).join('')+'</div></div>'+
+'<div class="chart-container"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Budget streak calendar heatmap</div>'+
+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">'+
+['S','M','T','W','T','F','S'].map(function(d){return '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--t3);padding:4px">'+d+'</div>'}).join('')+
+streakDays.map(function(v,i){return '<div style="aspect-ratio:1;border-radius:4px;background:'+(v?'var(--pos)':'var(--negBg)')+';opacity:'+(v?1:0.3)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:'+(v?'#fff':'var(--neg)')+'">'+(i+1)+'</div>'}).join('')+'</div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Milestone Timeline</div>'+
+achievements.filter(function(a){return a.done}).map(function(a){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:8px"><div style="width:24px;height:24px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.check,10,'#fff',3)+'</div><div style="flex:1"><div style="font-weight:700;font-size:11px">'+a.n+'</div><div class="sub">'+a.date+'</div></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Leaderboard</div>'+
+'<div style="display:flex;gap:12px;margin-bottom:8px"><div class="ci" style="flex:1;text-align:center;border-color:color-mix(in srgb,var(--acc) 20%,transparent)">'+av('V',32)+'<div style="font-size:20px;font-weight:900;color:var(--acc);margin-top:4px">3</div><div class="sub">Von</div></div>'+
+'<div class="ci" style="flex:1;text-align:center">'+av('C',32,'var(--warn)')+'<div style="font-size:20px;font-weight:900;color:var(--warn);margin-top:4px">2</div><div class="sub">Caroline</div></div></div>'+
+'<div class="sub" style="text-align:center">Badges earned this quarter</div></div>'+
+'<div class="chart-container"><div class="chart-title">Badges Earned</div>'+
+'<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+['Budget Boss','Saver','Nest Builder','Scanner','Date Night'].map(function(b){return '<div style="padding:6px 10px;border-radius:20px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 20%,transparent);font-size:10px;font-weight:700;color:var(--gold)">'+b+'</div>'}).join('')+'</div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+sAchieve()+'</div></div>'}
 
 /* Nests page (detailed) */
-function rNests(){return '<div class="fi">'+
+function rNests(){
+var nests=[{n:'Emergency',c:3600,g:5000,auto:15,freq:'Daily'},{n:'Hawaii',c:1800,g:4000,auto:25,freq:'Weekly'},{n:'Mortgage DP',c:2100,g:10000,auto:50,freq:'Biweekly'},{n:'College',c:450,g:20000,auto:10,freq:'Daily'},{n:'New Car',c:800,g:8000,auto:20,freq:'Weekly'},{n:'Wedding Fund',c:1200,g:5000,auto:30,freq:'Weekly'}];
+var contribData=[{m:'Jan',v:420},{m:'Feb',v:480},{m:'Mar',v:510},{m:'Apr',v:540}];
+
+if(isDesktop()){
+var totalSaved=nests.reduce(function(a,n){return a+n.c},0);
+var totalGoal=nests.reduce(function(a,n){return a+n.g},0);
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Active Nests</div><div class="stat-value">'+nests.length+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Total Saved</div><div class="stat-value" style="color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Total Goals</div><div class="stat-value">$'+totalGoal.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Overall Progress</div><div class="stat-value" style="color:var(--acc)">'+Math.round(totalSaved/totalGoal*100)+'%</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Nest Details</div>'+
+'<table class="data-table"><thead><tr><th>Nest</th><th>Saved</th><th>Goal</th><th>Progress</th><th>Auto-Save</th><th>Frequency</th><th></th></tr></thead><tbody>'+
+nests.map(function(n){var p=Math.round(n.c/n.g*100);return '<tr style="cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><td style="font-weight:700">'+n.n+'</td><td style="color:var(--pos);font-weight:700">$'+n.c.toLocaleString()+'</td><td>$'+n.g.toLocaleString()+'</td><td><div style="display:flex;align-items:center;gap:6px;width:120px">'+br(p,'var(--acc)',4)+'<span style="font-size:10px;font-weight:700">'+p+'%</span></div></td><td>$'+n.auto+'</td><td>'+n.freq+'</td><td>'+ic(icons.chev,14,'var(--t3)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Contribution History (Monthly)</div>'+
+svgLineChart(contribData,500,160,'var(--pos)','Contributions')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Growth Projection per Nest</div>'+
+nests.slice(0,4).map(function(n){var monthly=n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2);var months=Math.ceil((n.g-n.c)/monthly);return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+n.n+'</span><span class="sub">'+months+' months to goal</span><span style="font-weight:700;font-size:12px;color:var(--pos);margin-left:8px">$'+n.c.toLocaleString()+'/$'+n.g.toLocaleString()+'</span></div>'+br(n.c/n.g*100,'var(--acc)',4)+'</div>'}).join('')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Add/Edit Nest</div>'+
+'<button class="btn-gold btn-full" style="border-radius:16px;margin-bottom:10px" onclick="os(\'New Nest\',sNewNest())">+ Create New Nest</button>'+
+nests.slice(0,3).map(function(n){return '<div class="ci" style="margin-bottom:6px;cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+n.n+'</span><button class="btn-pill" style="font-size:10px">Edit</button></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Nest Distribution</div>'+
+svgDonut(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--info)','var(--neg)','var(--gold)'];return {label:n.n,value:n.c,color:colors[i%colors.length]}}),150,'$'+totalSaved.toLocaleString(),'Saved')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
-'<div class="c">'+hd('Your Nests')+
-'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">'+
-[{n:'Emergency',c:3600,g:5000},{n:'Hawaii',c:1800,g:4000},{n:'Mortgage',c:2100,g:10000},{n:'College',c:450,g:20000}].map(function(n){return '<div class="ci" style="padding:10px;cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><div style="font-size:11px;font-weight:700;margin-bottom:4px">'+n.n+'</div><div style="font-size:10px;color:var(--t2);margin-bottom:4px"><strong style="color:var(--acc)">$'+n.c.toLocaleString()+'</strong> / $'+n.g.toLocaleString()+'</div>'+br((n.c/n.g)*100,'var(--acc)',4)+'</div>'}).join('')+'</div></div></div>'}
+'<div class="c">'+hd('Your Nests')+'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">'+
+nests.map(function(n){return '<div class="ci" style="padding:10px;cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><div style="font-size:11px;font-weight:700;margin-bottom:4px">'+n.n+'</div><div style="font-size:10px;color:var(--t2);margin-bottom:4px"><strong style="color:var(--acc)">$'+n.c.toLocaleString()+'</strong> / $'+n.g.toLocaleString()+'</div>'+br((n.c/n.g)*100,'var(--acc)',4)+'</div>'}).join('')+'</div></div></div>'}
 
 /* Export Data page */
-function rExportData(){return '<div class="fi">'+
+function rExportData(){
+var exports=[{n:'Current Month (CSV)',f:'CSV',sz:'~45KB',d:'Transactions'},{n:'Year-to-Date (CSV)',f:'CSV',sz:'~380KB',d:'All 2026 data'},{n:'Tax Summary (PDF)',f:'PDF',sz:'~120KB',d:'Deductions report'},{n:'Audit Trail (PDF)',f:'PDF',sz:'~85KB',d:'Transparency log'},{n:'Budget Report (PDF)',f:'PDF',sz:'~200KB',d:'Budget vs actuals'},{n:'Net Worth History (CSV)',f:'CSV',sz:'~15KB',d:'12-month trend'}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Export Options</div>'+
+'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">'+
+exports.map(function(e){return '<div class="ci" style="cursor:pointer;padding:16px;text-align:center" onclick="os(\'Export\',sDone(\''+e.n+' export started\'))">'+ic(icons.download,24,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:13px;margin-top:8px">'+e.n+'</div><div class="sub" style="margin-top:2px">'+e.d+'</div><div class="r" style="justify-content:center;gap:8px;margin-top:6px">'+bg(e.f,'var(--acc)')+'<span class="sub">'+e.sz+'</span></div></div>'}).join('')+'</div></div>'+
+'<div class="chart-container"><div class="chart-title">Format & Date Range</div>'+
+'<div class="filter-bar"><span style="font-size:12px;font-weight:600">Format:</span>'+
+['CSV','PDF','JSON','Excel'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+f+'</button>'}).join('')+'</div>'+
+'<div class="filter-bar"><span style="font-size:12px;font-weight:600">Range:</span>'+
+'<div class="date-picker"><button class="active">This Month</button><button>This Quarter</button><button>YTD</button><button>All Time</button></div></div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Export History</div>'+
+[{n:'Budget Report PDF',d:'Apr 12',s:'Complete'},{n:'Q1 Transactions CSV',d:'Apr 1',s:'Complete'},{n:'Tax Summary',d:'Mar 15',s:'Complete'}].map(function(h){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1"><div style="font-weight:600;font-size:11px">'+h.n+'</div><div class="sub">'+h.d+'</div></div>'+bg(h.s,'var(--pos)')+'</div>'}).join('')+'</div>'+
+pendingBadge('server-side generation')+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+hd('Export Data')+sExport()+pendingBadge('server-side generation')+'</div></div>'}
 
 /* Money Date page */
-function rMoneyDate(){return '<div class="fi">'+
+function rMoneyDate(){
+if(isDesktop()){
+var vonSpend=[{c:'Groceries',a:75},{c:'Dining',a:140},{c:'Shopping',a:85},{c:'Entertainment',a:40},{c:'Transport',a:30}];
+var carolineSpend=[{c:'Groceries',a:45},{c:'Dining',a:140},{c:'Shopping',a:150},{c:'Entertainment',a:45},{c:'Transport',a:15}];
+return '<div class="fi">'+
+'<div class="hero" style="text-align:center;margin-bottom:16px"><div style="font-size:24px">'+ic(icons.heart,28,'#fff',1.5)+'</div><div style="font-size:22px;font-weight:900;margin-top:6px">Money Date Mode</div><div style="opacity:0.8;font-size:13px;margin-top:4px">Guided couples financial review &mdash; designed for sitting down together</div></div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Spending Comparison: Von vs Caroline</div><div class="chart-subtitle">This week side-by-side</div>'+
+'<div style="display:flex;gap:20px"><div style="flex:1"><div style="text-align:center;margin-bottom:8px">'+av('V',28)+'<span style="font-weight:700;font-size:13px;margin-left:6px">Von: $370</span></div>'+
+svgBarChart(vonSpend.map(function(s){return {label:s.c,value:s.a,color:'var(--acc)'}}),250,180)+'</div>'+
+'<div style="flex:1"><div style="text-align:center;margin-bottom:8px">'+av('C',28,'var(--warn)')+'<span style="font-weight:700;font-size:13px;margin-left:6px">Caroline: $395</span></div>'+
+svgBarChart(carolineSpend.map(function(s){return {label:s.c,value:s.a,color:'var(--warn)'}}),250,180)+'</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Goal Progress Review</div>'+
+[{n:'Hawaii Trip',p:45,c:'$1,800/$4,000'},{n:'Emergency Fund',p:72,c:'$3,600/$5,000'},{n:'Mortgage Down Payment',p:21,c:'$2,100/$10,000'}].map(function(g){return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+g.n+'</span><span style="font-size:11px;color:var(--t2)">'+g.c+'</span></div>'+br(g.p,'var(--acc)',5)+'</div>'}).join('')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Upcoming Decisions</div>'+
+[{d:'Refinance mortgage?',u:'Rate dropped to 5.8%'},{d:'Increase 401k to 15%?',u:'Currently at 10%'},{d:'Start college fund?',u:'$20k goal, 18yr horizon'}].map(function(dec){return '<div class="ci" style="margin-bottom:6px"><div style="font-weight:700;font-size:12px">'+dec.d+'</div><div class="sub">'+dec.u+'</div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn-pill" style="font-size:10px">Discuss</button><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Decide</button></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Celebrations &amp; Wins</div>'+
+[{w:'14-day budget streak!',e:'var(--gold)'},{w:'$6,100 saved this year',e:'var(--pos)'},{w:'Net worth up 12% YoY',e:'var(--acc)'}].map(function(win){return '<div class="ci" style="margin-bottom:6px;border-color:color-mix(in srgb,'+win.e+' 20%,transparent)"><div style="font-weight:700;font-size:12px;color:'+win.e+'">'+win.w+'</div></div>'}).join('')+
+'<button class="btn btn-full" style="margin-top:8px;border-radius:22px;height:44px;font-size:13px">Start Money Date</button></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+sMD()+'</div></div>'}
 
 /* Debt Paydown page */
-function rDebtPaydown(){return '<div class="fi">'+
+function rDebtPaydown(){
+var debts=[{n:'Chase Credit Card',b:1800,r:22.99,min:45,cat:'Credit Card'},{n:'Student Loan',b:1400,r:5.5,min:40,cat:'Student Loan'}];
+var payoffData=[{m:'Now',v:3200},{m:'+2mo',v:2700},{m:'+4mo',v:2100},{m:'+6mo',v:1400},{m:'+8mo',v:600},{m:'+9mo',v:0}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Total Debt</div><div class="stat-value" style="color:var(--neg)">$3,200</div></div>'+
+'<div class="stat-card"><div class="stat-label">Min Payment</div><div class="stat-value">$85/mo</div></div>'+
+'<div class="stat-card"><div class="stat-label">Avg APR</div><div class="stat-value" style="color:var(--warn)">14.2%</div></div>'+
+'<div class="stat-card"><div class="stat-label">Payoff (Avalanche)</div><div class="stat-value" style="color:var(--pos)">7.5 mo</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Debt Table</div>'+
+'<table class="data-table"><thead><tr><th>Debt</th><th>Type</th><th>APR</th><th>Balance</th><th>Min Payment</th><th>Interest/mo</th></tr></thead><tbody>'+
+debts.map(function(d){return '<tr><td style="font-weight:700">'+d.n+'</td><td>'+bg(d.cat,'var(--info)')+'</td><td style="color:var(--neg);font-weight:700">'+d.r+'%</td><td class="amount" style="color:var(--neg)">$'+d.b.toLocaleString()+'</td><td class="amount">$'+d.min+'</td><td class="amount" style="color:var(--neg)">$'+Math.round(d.b*d.r/100/12)+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Payoff Timeline</div><div class="chart-subtitle">Avalanche method (highest interest first) vs Snowball (smallest balance first)</div>'+
+svgLineChart(payoffData,500,180,'var(--pos)','Avalanche')+
+'<div style="margin-top:8px">'+svgLineChart([{m:'Now',v:3200},{m:'+2mo',v:2800},{m:'+4mo',v:2300},{m:'+6mo',v:1700},{m:'+8mo',v:900},{m:'+10mo',v:0}],500,140,'var(--warn)','Snowball')+'</div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Extra Payment Calculator</div>'+
+'<div class="ci" style="margin-bottom:8px"><div class="sub">Current extra: $0/mo</div></div>'+
+[{e:50,save:'$180',time:'1.5 mo faster'},{e:100,save:'$320',time:'2.8 mo faster'},{e:200,save:'$510',time:'4.2 mo faster'}].map(function(s){return '<div class="ci" style="margin-bottom:6px;cursor:pointer"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">+$'+s.e+'/mo extra</span></div><div class="r" style="margin-top:2px"><span class="sub" style="flex:1">Save '+s.save+' interest</span><span style="font-size:10px;font-weight:700;color:var(--pos)">'+s.time+'</span></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Progress Visualization</div>'+
+'<div style="text-align:center"><div style="font-size:14px;font-weight:700;margin-bottom:8px">Debt-Free Progress</div>'+
+br(0,'var(--pos)',10)+'<div class="sub" style="margin-top:4px">$3,200 remaining</div></div>'+
+'<div style="margin-top:12px"><div class="r" style="justify-content:space-between;margin-bottom:4px"><span class="sub">Strategy Comparison</span></div>'+
+'<div class="ci" style="margin-bottom:4px;text-align:center"><div style="font-size:11px;font-weight:700">Avalanche</div><div class="sub">7.5 months &middot; Less interest</div></div>'+
+'<div class="ci" style="text-align:center"><div style="font-size:11px;font-weight:700">Snowball</div><div class="sub">8.2 months &middot; Quick wins</div></div></div></div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+hd('Debt Paydown')+sDebt()+'</div></div>'}
 
 /* Emergency Fund page */
-function rEmergencyFund(){return '<div class="fi">'+
+function rEmergencyFund(){
+var contribHist=[{m:'Jan',v:200},{m:'Feb',v:600},{m:'Mar',v:1800},{m:'Apr',v:3600}];
+var growthProj=[{m:'May',v:4050},{m:'Jun',v:4500},{m:'Jul',v:4950},{m:'Aug',v:5400},{m:'Sep',v:5850},{m:'Oct',v:6300}];
+var expenses=[{c:'Housing',a:2400},{c:'Food',a:600},{c:'Transport',a:200},{c:'Insurance',a:184},{c:'Utilities',a:300},{c:'Phone/Internet',a:229},{c:'Minimum Debt',a:85},{c:'Other',a:321}];
+var monthlyExp=expenses.reduce(function(a,e){return a+e.a},0);
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Current Fund</div><div class="stat-value" style="color:var(--warn)">$3,600</div></div>'+
+'<div class="stat-card"><div class="stat-label">Coverage</div><div class="stat-value" style="color:var(--warn)">0.8 mo</div></div>'+
+'<div class="stat-card"><div class="stat-label">3-Mo Target</div><div class="stat-value" style="color:var(--pos)">$'+Math.round(monthlyExp*3).toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">Monthly Expense</div><div class="stat-value">$'+monthlyExp.toLocaleString()+'</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Coverage Gauge</div>'+
+'<div style="text-align:center;padding:16px"><div style="width:140px;height:140px;border-radius:70px;background:conic-gradient(var(--warn) 27%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:110px;height:110px;border-radius:55px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:28px;font-weight:900;color:var(--warn)">0.8</div><div class="sub">months</div></div></div><div class="sub" style="margin-top:8px">Target: 3-6 months</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Contribution History</div>'+
+svgLineChart(contribHist,500,160,'var(--pos)','Cumulative')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Growth Projection</div><div class="chart-subtitle">At $450/mo savings rate</div>'+
+svgLineChart(growthProj,500,160,'var(--acc)','Projected')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">"How to Get There" Scenarios</div>'+
+'<table class="data-table"><thead><tr><th>Scenario</th><th>Extra</th><th>Time to 3mo</th></tr></thead><tbody>'+
+[{s:'Current pace',e:'$450/mo',t:'22 weeks'},{s:'+ Bill savings',e:'$597/mo',t:'16 weeks'},{s:'+ $500 boost',e:'Immediate',t:'18 weeks'},{s:'Aggressive',e:'$800/mo',t:'12 weeks'}].map(function(sc){return '<tr><td style="font-weight:600">'+sc.s+'</td><td>'+sc.e+'</td><td style="font-weight:700;color:var(--pos)">'+sc.t+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Monthly Expense Breakdown</div><div class="chart-subtitle">Feeds the 3-month target: $'+Math.round(monthlyExp*3).toLocaleString()+'</div>'+
+svgDonut(expenses.map(function(e,i){var colors=['var(--neg)','var(--warn)','var(--acc)','var(--info)','var(--pos)','var(--t2)','var(--gold)','var(--accL)'];return {label:e.c,value:e.a,color:colors[i%colors.length]}}),150,'$'+monthlyExp.toLocaleString(),'/month')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+hd('Emergency Fund')+sEmer()+'</div></div>'}
 
 /* Alerts & Notifications page */
-function rAlerts(){return '<div class="fi">'+
+function rAlerts(){
+var alertLog=[
+{t:'Shopping $35 over cap',type:'overspend',ts:'Today 2:30 PM',read:false},{t:'Spending 38% faster this week',type:'velocity',ts:'Today 10:00 AM',read:false},{t:'Cap One Savings 47d stale',type:'sync',ts:'Yesterday',read:true},{t:'Electric bill due tomorrow',type:'bills',ts:'Yesterday',read:true},{t:'Auto-saved $20 to Emergency',type:'goals',ts:'Apr 13',read:true},{t:'Duplicate: Whole Foods $67.43',type:'anomaly',ts:'Apr 12',read:true},{t:'Weekly summary ready',type:'weekly',ts:'Apr 10',read:true},{t:'Caroline freelance expected',type:'sync',ts:'Apr 10',read:true}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Alert Preferences</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+alertPrefs.emailAddr+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
+'<div style="margin-top:12px"><div style="font-weight:700;font-size:12px;margin-bottom:8px">Alert Types</div>'+
+'<table class="data-table"><thead><tr><th>Alert Type</th><th>Status</th><th>Toggle</th></tr></thead><tbody>'+
+[['overspend','Category Overspend'],['sync','Account Sync Issues'],['bills','Bill Due Reminders'],['goals','Goal Milestones'],['anomaly','Anomaly Detection'],['velocity','Spending Velocity'],['weekly','Weekly Summary']].map(function(kv){return '<tr><td style="font-weight:600">'+kv[1]+'</td><td>'+(alertPrefs.types[kv[0]]?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</td><td>'+tg(alertPrefs.types[kv[0]],false,'togAlert_'+kv[0])+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<button class="btn btn-full" style="margin-top:12px;border-radius:22px;height:44px;font-size:13px" onclick="saveAlertSettings()">Save Alert Preferences</button>'+
+pendingBadge('Email/SMS delivery backend')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Alert History / Log</div>'+
+alertLog.map(function(al){return '<div class="r" style="padding:8px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div class="dot" style="width:6px;height:6px;background:'+(al.read?'var(--pos)':'var(--neg)')+'"></div><div style="flex:1"><div style="font-weight:'+(al.read?500:700)+';font-size:11px;color:'+(al.read?'var(--t1)':'var(--neg)')+'">'+al.t+'</div><div class="sub">'+al.ts+'</div></div>'+bg(al.type,'var(--info)')+'</div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Delivery Status</div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Email</span>'+bg(alertPrefs.email?'Active':'Off',alertPrefs.email?'var(--pos)':'var(--t3)')+'</div></div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">SMS</span>'+bg(alertPrefs.sms?'Active':'Off',alertPrefs.sms?'var(--pos)':'var(--t3)')+'</div></div>'+
+'<div class="ci"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Push</span>'+bg('Not Configured','var(--warn)')+'</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Notification Frequency</div>'+
+'<div class="sub" style="margin-bottom:8px">How often to send summaries</div>'+
+['Real-time','Daily Digest','Weekly Summary'].map(function(f,i){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;'+(i===0?'border-color:color-mix(in srgb,var(--acc) 20%,transparent);background:var(--accS)':'')+'"><div class="r"><span style="font-size:12px;font-weight:600;flex:1">'+f+'</span>'+(i===0?ic(icons.check,14,'var(--acc)',2):'')+'</div></div>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="c">'+hd('Alerts & Notifications')+sNotifs()+pendingBadge('Email/SMS delivery backend')+'</div></div>'}
+
+
+/* ========== CHARGEIQ — Expense Forensics ========== */
+function rChargeIQ(){
+var sampleCharges=[
+{raw:'APCR*DIGITALRVRM',merchant:'Apple Card - Digital River',desc:'Software/App purchase via Apple payment system',cat:'Software',conf:92,phone:'1-800-275-2273',web:'apple.com/card'},
+{raw:'SQ *EBC CO LLC',merchant:'East Bay Coffee Co.',desc:'Local coffee shop using Square POS',cat:'Dining',conf:88,phone:'(510) 555-0142',web:'eastbaycoffee.com'},
+{raw:'PAYPAL *STEAMGAMES',merchant:'Steam (Valve Corp)',desc:'Video game purchase via PayPal',cat:'Entertainment',conf:95,phone:'1-425-889-9642',web:'store.steampowered.com'},
+{raw:'TST* BURGER BARN',merchant:'Burger Barn Restaurant',desc:'Restaurant using Toast POS system',cat:'Dining',conf:91,phone:'(703) 555-0188',web:'burgerbarn.com'},
+{raw:'AMZN MKTP US*2K4J',merchant:'Amazon Marketplace',desc:'Third-party seller purchase on Amazon',cat:'Shopping',conf:97,phone:'1-888-280-4331',web:'amazon.com'},
+{raw:'VZWRLSS*APOCC VB',merchant:'Verizon Wireless',desc:'Monthly phone plan payment',cat:'Bills',conf:94,phone:'1-800-922-0204',web:'verizon.com'}
+];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.search,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">ChargeIQ</div><div style="opacity:0.8;font-size:12px">Expense Forensics &mdash; Identify unknown bank charges</div></div></div>'+pendingBadge('LLM + merchant database API')+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Search Unknown Charges</div>'+
+'<div class="filter-bar" style="margin-bottom:0"><input class="filter-input" placeholder="Look up a mysterious charge... (e.g. APCR*DIGITALRVRM)" style="flex:1"><button class="btn" style="height:38px;padding:0 16px;border-radius:10px;font-size:12px">'+ic(icons.search,14,'#fff',2)+' Identify</button></div></div>'+
+'<div class="chart-container"><div class="chart-title">Recently Identified Charges</div>'+
+'<table class="data-table"><thead><tr><th>Original Charge</th><th>Identified As</th><th>Category</th><th>Confidence</th><th>Actions</th></tr></thead><tbody>'+
+sampleCharges.map(function(c){return '<tr><td style="font-family:monospace;font-size:11px;color:var(--neg);font-weight:600">'+c.raw+'</td><td><div style="font-weight:700">'+c.merchant+'</div><div class="sub" style="font-size:10px">'+c.desc+'</div></td><td>'+bg(c.cat,'var(--info)')+'</td><td><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></td><td><div style="display:flex;gap:4px"><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto;background:var(--posBg);color:var(--pos)">'+ic(icons.check,10,'var(--pos)',2)+' Identified</button><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto">Not This</button></div></td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Spending Autopsy &mdash; Regret Index</div><div class="chart-subtitle">How much of your spending would you do again?</div>'+
+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">'+
+[{label:'No Regret',pct:62,color:'var(--pos)',amt:'$475'},{label:'Mild Regret',pct:28,color:'var(--warn)',amt:'$215'},{label:'Full Regret',pct:10,color:'var(--neg)',amt:'$75'}].map(function(r){return '<div class="ci" style="text-align:center;padding:12px"><div style="font-size:24px;font-weight:900;color:'+r.color+'">'+r.pct+'%</div><div style="font-weight:700;font-size:11px">'+r.label+'</div><div class="sub">'+r.amt+' this month</div></div>'}).join('')+'</div>'+
+svgBarChart([{label:'Groceries',value:95,color:'var(--pos)'},{label:'Bills',value:100,color:'var(--pos)'},{label:'Dining',value:65,color:'var(--warn)'},{label:'Shopping',value:40,color:'var(--neg)'},{label:'Impulse',value:15,color:'var(--neg)'}],400,180)+'<div class="sub" style="margin-top:4px">Regret score by category (100 = no regret)</div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Charge History</div>'+
+'<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;margin-bottom:4px">This Month</div>'+
+[{raw:'APCR*DIGITALRVRM',id:'Apple Card',s:true},{raw:'SQ *EBC CO LLC',id:'East Bay Coffee',s:true},{raw:'PAYPAL *STEAMGAMES',id:'Steam',s:true},{raw:'DD *DOORDASH',id:null,s:false}].map(function(h){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep);gap:4px"><span style="font-family:monospace;font-size:9px;flex:1;color:var(--t2)">'+h.raw+'</span>'+(h.s?bg(h.id,'var(--pos)'):bg('Unknown','var(--warn)'))+'</div>'}).join('')+'</div></div>'+
+'<div class="chart-container"><div class="chart-title">Stats</div>'+
+'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Charges Identified</div><div style="font-size:28px;font-weight:900;color:var(--pos)">24</div></div>'+
+'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Avg Confidence</div><div style="font-size:28px;font-weight:900;color:var(--acc)">93%</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub">Unidentified</div><div style="font-size:28px;font-weight:900;color:var(--warn)">2</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Verified Contacts</div>'+
+sampleCharges.slice(0,3).map(function(c){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:700;font-size:11px">'+c.merchant+'</div><div class="sub">'+ic(icons.phone,10,'var(--t2)',1.5)+' '+c.phone+'</div><div class="sub">'+ic('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',10,'var(--t2)',1.5)+' '+c.web+'</div></div>'}).join('')+'</div>'+
+pendingBadge('LLM + merchant database API')+
+'</div></div></div>';
+}
+/* Mobile */
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs"><div class="r" style="gap:8px;margin-bottom:12px">'+ic(icons.search,20,'var(--acc)',2)+'<div><div style="font-weight:800;font-size:16px">ChargeIQ</div><div class="sub">Expense Forensics</div></div></div>'+
+pendingBadge('LLM + merchant database API')+
+'<input placeholder="Look up a mysterious charge..." style="width:100%;padding:12px 16px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;outline:none;color:var(--t1);margin:12px 0"></div>'+
+'<div class="c">'+hd('Sample Results')+
+sampleCharges.slice(0,4).map(function(c){return '<div class="ci" style="margin-bottom:6px"><div style="font-family:monospace;font-size:10px;color:var(--neg);font-weight:600;margin-bottom:4px">'+c.raw+'</div><div class="r" style="margin-bottom:2px"><span style="font-weight:700;font-size:13px;flex:1">'+c.merchant+'</span><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></div><div class="sub">'+c.desc+'</div><div class="sub" style="margin-top:2px">'+c.cat+' &middot; '+c.phone+'</div><div style="display:flex;gap:4px;margin-top:6px"><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Mark Identified</button><button class="btn-pill" style="font-size:10px">Not This</button></div></div>'}).join('')+'</div></div>'}
+
+/* ========== WEATHER FORECAST — 90-Day Cash Flow ========== */
+function rWeatherForecast(){
+var forecast=[];
+var balance=5360;
+var incDays=[1,15,25];
+var billDays=[1,5,10,15,18,20,25];
+for(var d=1;d<=90;d++){
+  var dayIncome=0,dayExp=0;
+  if(d%14===0)dayIncome+=4280;
+  if(d%30===0||d===1)dayIncome+=2800;
+  dayExp=Math.round(Math.random()*80+20);
+  if(d%30<=2)dayExp+=2000;
+  if(d%15===0)dayExp+=400;
+  balance=balance+dayIncome-dayExp;
+  var weather=balance>8000?'sunny':balance>4000?'partly':balance>1500?'cloudy':'stormy';
+  forecast.push({d:d,bal:balance,w:weather,inc:dayIncome,exp:dayExp});
+}
+var weeklyData=[];
+for(var wk=0;wk<13;wk++){
+  var idx=Math.min(wk*7,forecast.length-1);
+  weeklyData.push({m:'W'+(wk+1),v:forecast[idx].bal});
+}
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.cloudSun,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">Financial Weather Forecast</div><div style="opacity:0.8;font-size:12px">90-day cash flow prediction</div></div></div></div>'+
+'<div class="stat-row cols-4">'+
+'<div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" style="color:var(--pos)">Sunny</div><div class="sub">Balance: $5,360</div></div>'+
+'<div class="stat-card"><div class="stat-label">30-Day Outlook</div><div class="stat-value" style="color:var(--acc)">Partly</div><div class="sub">Expected: $'+forecast[29].bal.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">60-Day</div><div class="stat-value" style="color:var(--warn)">Cloudy</div><div class="sub">Expected: $'+forecast[59].bal.toLocaleString()+'</div></div>'+
+'<div class="stat-card"><div class="stat-label">90-Day</div><div class="stat-value" style="color:'+(forecast[89].bal>4000?'var(--pos)':'var(--neg)')+'">$'+forecast[89].bal.toLocaleString()+'</div></div>'+
+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Cash Flow Projection (13 Weeks)</div>'+
+svgLineChart(weeklyData,600,200,'var(--acc)','Projected Balance')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Daily Weather Indicators (Next 30 Days)</div>'+
+'<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px">'+
+forecast.slice(0,30).map(function(f){var emoji=f.w==='sunny'?'&#9728;':f.w==='partly'?'&#9925;':f.w==='cloudy'?'&#9729;':'&#9928;';var col=f.w==='sunny'?'var(--pos)':f.w==='partly'?'var(--acc)':f.w==='cloudy'?'var(--warn)':'var(--neg)';return '<div style="text-align:center;padding:4px;border-radius:6px;background:color-mix(in srgb,'+col+' 8%,transparent)"><div style="font-size:14px">'+emoji+'</div><div style="font-size:8px;font-weight:700;color:'+col+'">D'+f.d+'</div></div>'}).join('')+'</div></div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Danger Zone Alerts</div>'+
+(forecast.filter(function(f){return f.w==='stormy'}).length>0?
+forecast.filter(function(f){return f.w==='stormy'}).slice(0,3).map(function(f){return '<div class="ci" style="margin-bottom:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)"><div style="font-weight:700;font-size:12px;color:var(--neg)">Day '+f.d+': Stormy</div><div class="sub">Balance drops to $'+f.bal.toLocaleString()+'</div></div>'}).join(''):
+'<div class="ci" style="background:var(--posBg)"><div style="font-weight:700;font-size:12px;color:var(--pos)">No danger zones detected</div><div class="sub">Cash flow looks healthy for 90 days</div></div>')+
+'</div>'+
+'<div class="chart-container"><div class="chart-title">Key Dates</div>'+
+[{d:'Apr 25',e:'ALTA Payroll +$4,280'},{d:'May 1',e:'Mortgage -$2,000 + Rental +$1,200'},{d:'May 15',e:'Multiple bills due (-$600)'},{d:'Jun 1',e:'Major bill cycle restart'}].map(function(kd){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span style="font-size:10px;font-weight:700;width:48px">'+kd.d+'</span><span style="font-size:11px;flex:1">'+kd.e+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Weather Legend</div>'+
+[{w:'Sunny',d:'Balance > $8k',c:'var(--pos)',e:'&#9728;'},{w:'Partly Cloudy',d:'$4k - $8k',c:'var(--acc)',e:'&#9925;'},{w:'Cloudy',d:'$1.5k - $4k',c:'var(--warn)',e:'&#9729;'},{w:'Stormy',d:'< $1.5k',c:'var(--neg)',e:'&#9928;'}].map(function(l){return '<div class="r" style="padding:4px 0;gap:6px"><span style="font-size:16px">'+l.e+'</span><span style="font-size:11px;font-weight:700;color:'+l.c+';flex:1">'+l.w+'</span><span class="sub">'+l.d+'</span></div>'}).join('')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs"><div class="r" style="gap:8px;margin-bottom:10px">'+ic(icons.cloudSun,20,'var(--acc)',2)+'<div style="font-weight:800;font-size:16px">Weather Forecast</div></div>'+
+'<div style="text-align:center;margin-bottom:12px"><div style="font-size:40px">&#9728;</div><div style="font-size:20px;font-weight:900;color:var(--pos)">Sunny</div><div class="sub">Current balance healthy</div></div>'+
+'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">'+
+forecast.slice(0,10).map(function(f){var emoji=f.w==='sunny'?'&#9728;':f.w==='partly'?'&#9925;':f.w==='cloudy'?'&#9729;':'&#9928;';return '<div style="text-align:center;padding:4px"><div style="font-size:16px">'+emoji+'</div><div style="font-size:8px;font-weight:700">D'+f.d+'</div></div>'}).join('')+'</div></div></div>'}
+
+/* ========== NESTWORTH SCORE (0-1000) ========== */
+function rNestWorthScore(){
+var totalScore=742;
+var subScores=[{n:'Savings Rate',s:82,max:125,tip:'+15 pts: increase to 40%'},{n:'Debt Management',s:90,max:125,tip:'Great! Low debt ratio'},{n:'Budget Adherence',s:68,max:125,tip:'+12 pts: stay under in all categories'},{n:'Account Health',s:55,max:125,tip:'+35 pts: reconnect Cap One'},{n:'Emergency Fund',s:35,max:125,tip:'+45 pts: reach 3-month target'},{n:'Net Worth Growth',s:88,max:125,tip:'Strong upward trend'},{n:'Bill Optimization',s:72,max:125,tip:'+10 pts: complete bill audit'},{n:'Financial Habits',s:95,max:125,tip:'Excellent consistency'}];
+var scoreHistory=[{m:'Jan',v:680},{m:'Feb',v:705},{m:'Mar',v:720},{m:'Apr',v:742}];
+var improvements=[{action:'Reconnect Cap One Savings',impact:'+35',effort:'Easy'},{action:'Reach 3-month emergency fund',impact:'+45',effort:'Hard'},{action:'Stay under budget all categories',impact:'+12',effort:'Medium'},{action:'Complete bill audit actions',impact:'+10',effort:'Easy'},{action:'Increase savings rate to 40%',impact:'+15',effort:'Medium'}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="hero" style="text-align:center;margin-bottom:16px"><div style="font-size:14px;font-weight:600;opacity:0.8">Your NestWorth Score</div>'+
+'<div style="width:160px;height:160px;border-radius:80px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:12px auto"><div style="width:130px;height:130px;border-radius:65px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:42px;font-weight:900">'+totalScore+'</div><div style="font-size:11px;opacity:0.7">of 1,000</div></div></div>'+
+'<div style="font-size:13px;font-weight:600;margin-top:4px">'+(totalScore>=800?'Excellent':totalScore>=650?'Good':totalScore>=500?'Fair':'Needs Work')+'</div></div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Sub-Score Breakdown (8 Categories)</div>'+
+subScores.map(function(s){var pct=Math.round(s.s/s.max*100);var col=pct>=80?'var(--pos)':pct>=50?'var(--warn)':'var(--neg)';return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+s.n+'</span><span style="font-size:12px;font-weight:800;color:'+col+'">'+s.s+'/'+s.max+'</span></div>'+br(pct,col,5)+'<div class="sub" style="margin-top:2px;font-size:10px">'+s.tip+'</div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Score History</div>'+
+svgLineChart(scoreHistory,500,160,'var(--pos)','NestWorth Score')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Improvement Actions (by Impact)</div>'+
+'<table class="data-table"><thead><tr><th>Action</th><th>Impact</th><th>Effort</th></tr></thead><tbody>'+
+improvements.sort(function(a,b){return parseInt(b.impact)-parseInt(a.impact)}).map(function(imp){return '<tr><td style="font-weight:600">'+imp.action+'</td><td style="font-weight:800;color:var(--pos)">'+imp.impact+'</td><td>'+bg(imp.effort,imp.effort==='Easy'?'var(--pos)':imp.effort==='Medium'?'var(--warn)':'var(--neg)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Score Distribution</div>'+
+svgDonut(subScores.map(function(s,i){var colors=['var(--acc)','var(--pos)','var(--warn)','var(--neg)','var(--info)','var(--gold)','var(--accL)','var(--t2)'];return {label:s.n,value:s.s,color:colors[i%colors.length]}}),160,totalScore+'/1000','Score')+'</div>'+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs" style="text-align:center;padding:20px"><div class="sub">Your NestWorth Score</div>'+
+'<div style="width:100px;height:100px;border-radius:50px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:12px auto"><div style="width:76px;height:76px;border-radius:38px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:28px;font-weight:900;color:var(--acc)">'+totalScore+'</div><div class="sub" style="font-size:9px">of 1,000</div></div></div></div>'+
+'<div class="c">'+subScores.map(function(s){var pct=Math.round(s.s/s.max*100);return '<div style="margin-bottom:8px"><div class="r" style="margin-bottom:2px"><span style="font-size:11px;font-weight:600;flex:1">'+s.n+'</span><span style="font-size:11px;font-weight:800;color:'+(pct>=80?'var(--pos)':'var(--warn)')+'">'+s.s+'/'+s.max+'</span></div>'+br(pct,pct>=80?'var(--pos)':pct>=50?'var(--warn)':'var(--neg)',3)+'</div>'}).join('')+'</div></div>'}
+
+/* ========== CREDIT HEALTH ========== */
+function rCreditHealth(){
+var currentScore=creditScoreHistory.length?creditScoreHistory[creditScoreHistory.length-1].score:0;
+var factors=[{n:'Payment History',w:35,s:currentScore?'Excellent':'N/A',c:'var(--pos)',d:'On-time payments are the biggest factor'},{n:'Credit Utilization',w:30,s:currentScore?'Good':'N/A',c:'var(--acc)',d:'Keep below 30% of limits'},{n:'Length of History',w:15,s:currentScore?'Fair':'N/A',c:'var(--warn)',d:'Average age of accounts matters'},{n:'Credit Mix',w:10,s:currentScore?'Good':'N/A',c:'var(--acc)',d:'Mix of credit cards, loans, mortgage'},{n:'New Inquiries',w:10,s:currentScore?'Excellent':'N/A',c:'var(--pos)',d:'Few recent hard inquiries'}];
+
+if(isDesktop()){
+return '<div class="fi">'+
+'<div class="hero" style="text-align:center;margin-bottom:16px"><div style="font-size:14px;font-weight:600;opacity:0.8">Credit Health Dashboard</div>'+
+(currentScore?'<div style="width:140px;height:140px;border-radius:70px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:12px auto"><div style="width:110px;height:110px;border-radius:55px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:36px;font-weight:900">'+currentScore+'</div><div style="font-size:10px;opacity:0.7">300-850 scale</div></div></div>':'<div style="font-size:16px;margin:20px 0">Enter your credit score below to get started</div>')+
+pendingBadge('TransUnion/Experian API partnership')+'</div>'+
+'<div class="dash-row"><div class="dash-main">'+
+'<div class="chart-container"><div class="chart-title">Self-Reported Credit Score</div>'+
+'<div class="sub" style="margin-bottom:10px">Enter your score from Credit Karma, Experian, or your bank</div>'+
+'<div class="r" style="gap:8px;margin-bottom:12px"><input id="creditScoreInput" type="number" min="300" max="850" placeholder="Enter score (300-850)" value="'+(currentScore||'')+'" style="flex:1;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:16px;font-weight:700;outline:none;color:var(--t1)"><select id="creditSource" style="padding:12px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;color:var(--t1)"><option>Credit Karma</option><option>Experian</option><option>TransUnion</option><option>Bank App</option><option>Other</option></select><button class="btn" style="height:48px;padding:0 20px;border-radius:12px;font-size:13px" onclick="saveCreditScore()">Save</button></div>'+
+'<div style="background:var(--sep);height:8px;border-radius:4px;position:relative;margin:20px 0"><div style="position:absolute;left:0;top:0;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neg),var(--warn) 40%,var(--pos) 75%);width:100%"></div>'+(currentScore?'<div style="position:absolute;top:-6px;left:'+Math.round((currentScore-300)/550*100)+'%;width:20px;height:20px;border-radius:10px;background:var(--bgE);border:3px solid var(--acc);transform:translateX(-50%)"></div>':'')+
+'<div style="display:flex;justify-content:space-between;margin-top:12px"><span class="sub">300</span><span class="sub">500</span><span class="sub">670</span><span class="sub">740</span><span class="sub">850</span></div></div></div>'+
+(creditScoreHistory.length>1?'<div class="chart-container"><div class="chart-title">Score History</div>'+svgLineChart(creditScoreHistory.map(function(h){return {m:h.date,v:h.score}}),500,160,'var(--acc)','Credit Score')+'</div>':'')+
+'<div class="chart-container"><div class="chart-title">Credit Factor Breakdown</div>'+
+factors.map(function(f){return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+f.n+' ('+f.w+'%)</span><span style="font-weight:700;font-size:12px;color:'+f.c+'">'+f.s+'</span></div>'+br(f.w*2,f.c,5)+'<div class="sub" style="margin-top:2px;font-size:10px">'+f.d+'</div></div>'}).join('')+'</div>'+
+'</div><div class="dash-side">'+
+'<div class="chart-container"><div class="chart-title">Credit Monitoring</div>'+
+[{n:'Check Credit Karma weekly',s:true},{n:'Review credit report annually',s:false},{n:'Set up fraud alerts',s:true},{n:'Monitor utilization ratio',s:true}].map(function(m){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)">'+(m.s?ic(icons.check,12,'var(--pos)',3):ic('<circle cx="12" cy="12" r="10"/>',12,'var(--t3)',1.5))+'<span style="font-size:11px;flex:1;font-weight:600;margin-left:6px">'+m.n+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Free Credit Report Links</div>'+
+'<div class="ci" style="margin-bottom:6px;cursor:pointer"><div style="font-weight:700;font-size:12px">AnnualCreditReport.com</div><div class="sub">Free yearly from all 3 bureaus</div></div>'+
+'<div class="ci" style="margin-bottom:6px;cursor:pointer"><div style="font-weight:700;font-size:12px">Credit Karma</div><div class="sub">Free weekly TransUnion + Equifax</div></div>'+
+'<div class="ci" style="cursor:pointer"><div style="font-weight:700;font-size:12px">Experian Free</div><div class="sub">Free Experian FICO score</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Score Ranges</div>'+
+[{r:'800-850',l:'Exceptional',c:'var(--pos)'},{r:'740-799',l:'Very Good',c:'var(--acc)'},{r:'670-739',l:'Good',c:'var(--warn)'},{r:'580-669',l:'Fair',c:'var(--neg)'},{r:'300-579',l:'Poor',c:'var(--neg)'}].map(function(sr){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span style="font-size:11px;font-weight:700;color:'+sr.c+';width:60px">'+sr.r+'</span><span style="font-size:11px;flex:1">'+sr.l+'</span>'+(currentScore>=parseInt(sr.r.split('-')[0])&&currentScore<=parseInt(sr.r.split('-')[1])?bg('YOU','var(--acc)'):sr.r)+'</div>'}).join('')+'</div>'+
+pendingBadge('TransUnion/Experian API partnership')+
+'</div></div></div>';
+}
+return '<div class="fi">'+
+'<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
+'<div class="cs" style="text-align:center;padding:16px"><div style="font-weight:800;font-size:16px;margin-bottom:8px">Credit Health</div>'+
+(currentScore?'<div style="width:80px;height:80px;border-radius:40px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:60px;height:60px;border-radius:30px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--acc)">'+currentScore+'</div></div>':'<div class="sub">Enter your score to get started</div>')+
+'<div style="margin-top:12px"><input id="creditScoreInput" type="number" min="300" max="850" placeholder="Score (300-850)" value="'+(currentScore||'')+'" style="width:60%;padding:10px 14px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;text-align:center;outline:none;color:var(--t1)"><button class="btn-gold" style="margin-left:6px;padding:10px 16px" onclick="saveCreditScore()">Save</button></div>'+
+pendingBadge('TransUnion/Experian API partnership')+'</div>'+
+'<div class="c">'+factors.map(function(f){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;font-weight:600;flex:1">'+f.n+' ('+f.w+'%)</span><span style="font-size:11px;font-weight:700;color:'+f.c+'">'+f.s+'</span></div>'}).join('')+'</div></div>'}
+
+function saveCreditScore(){
+var inp=$('creditScoreInput');
+if(!inp||!inp.value)return;
+var score=parseInt(inp.value);
+if(score<300||score>850){os('Error',sDone('Please enter a score between 300 and 850.'));return}
+var src=$('creditSource');
+creditScoreHistory.push({score:score,date:new Date().toISOString().slice(0,10),source:src?src.value:'Manual'});
+saveCreditHistory();
+os('Saved!',sDone('Credit score of '+score+' saved. Track changes over time by updating periodically.'));
+}
 
 
 /* ========== SHEET GENERATORS ========== */
@@ -1764,7 +2555,7 @@ function sVel(){return '<div style="text-align:center;margin-bottom:16px"><div s
 
 function sCat(n,a,m,v,c){var p=Math.round((a/m)*100);return '<div class="r" style="justify-content:space-between;margin-bottom:10px"><div><div style="font-size:24px;font-weight:800;color:'+(p>100?'var(--neg)':'var(--t1)')+'">$'+a+'</div><div class="sub">of $'+m+'</div></div><div style="font-size:20px;font-weight:800;color:'+(p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)')+'">'+p+'%</div></div>'+br(p,p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)',8)+'<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">Per Person</div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><div class="ci" style="display:flex;align-items:center;gap:6px">'+av('V',22)+'<div><div style="font-size:10px;font-weight:700">Von</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$'+v+'</div></div></div><div class="ci" style="display:flex;align-items:center;gap:6px">'+av('C',22,'var(--warn)')+'<div><div style="font-size:10px;font-weight:700">Caroline</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$'+c+'</div></div></div></div>'}
 
-function sTx(n,a,c,w){var wn=w==='V'?'Von':w==='C'?'Caroline':w==='J'?'Joint':'Transfer';return '<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;font-weight:900">'+a+'</div><div style="font-size:15px;font-weight:700;margin-top:4px">'+n+'</div><div class="sub" style="margin-top:2px">'+c+' &middot; '+wn+'</div></div><div style="font-weight:700;font-size:12px;margin-bottom:8px">Actions</div>'+['Re-categorize','Split Transaction','Add Note','Tag Tax-Deductible','Flag for Review','Attach Receipt'].map(function(a){return '<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">'+a+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+'<div style="margin-top:12px;font-weight:700;font-size:12px;margin-bottom:6px">Partner Notes</div><div class="ci" style="font-size:11px;color:var(--t2)">No notes yet.</div><div class="r" style="gap:6px;margin-top:8px"><input placeholder="Add a note..." style="flex:1;min-width:0;padding:10px 14px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:12px;outline:none;color:var(--t1)"><button class="btn-gold" style="padding:8px 14px;font-size:11px">Send</button></div>'}
+function sTx(n,a,c,w){var wn=w==='V'?'Von':w==='C'?'Caroline':w==='J'?'Joint':'Transfer';return '<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;font-weight:900">'+a+'</div><div style="font-size:15px;font-weight:700;margin-top:4px">'+n+'</div><div class="sub" style="margin-top:2px">'+c+' &middot; '+wn+'</div></div><div style="font-weight:700;font-size:12px;margin-bottom:8px">Actions</div>'+['Re-categorize','Split Transaction','Add Note','Tag Tax-Deductible','Flag for Review','Attach Receipt'].map(function(a2){return '<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">'+a2+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+'<div class="tr" style="cursor:pointer;background:var(--accS);border-radius:10px;margin-top:4px;padding:10px 12px" onclick="closeSheet();gp(\'chargeiq\')"><div style="display:flex;align-items:center;gap:8px;flex:1">'+ic(icons.search,16,'var(--acc)',2)+'<div><div style="font-weight:700;font-size:12px;color:var(--acc)">ChargeIQ</div><div class="sub">Identify this merchant</div></div></div>'+ic(icons.chev,14,'var(--acc)')+'</div><div style="margin-top:12px;font-weight:700;font-size:12px;margin-bottom:6px">Partner Notes</div><div class="ci" style="font-size:11px;color:var(--t2)">No notes yet.</div><div class="r" style="gap:6px;margin-top:8px"><input placeholder="Add a note..." style="flex:1;min-width:0;padding:10px 14px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:12px;outline:none;color:var(--t1)"><button class="btn-gold" style="padding:8px 14px;font-size:11px">Send</button></div>'}
 
 function sDup(){return '<div class="ci" style="margin-bottom:8px;display:flex;align-items:center;gap:8px">'+av('V',26)+' <strong>Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:15 PM</div></div><div class="ci" style="margin-bottom:14px;border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg);display:flex;align-items:center;gap:8px">'+av('V',26)+' <strong style="color:var(--warn)">Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:17 PM</div></div><div class="sub" style="line-height:1.5;margin-bottom:14px">Same amount, same merchant, 2 minutes apart. Possible duplicate charge.</div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Keep Both</button><button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-size:13px">Hide Duplicate</button></div>'}
 
@@ -1851,6 +2642,8 @@ var drawerItems={
     {id:'audit',label:'Audit Trail',iconPath:icons.shield},
     {id:'billaudit',label:'Bill Audit',iconPath:icons.scissors},
     {id:'billscalendar',label:'Bills Calendar',iconPath:icons.calendar},
+    {id:'chargeiq',label:'ChargeIQ',iconPath:icons.search},
+    {id:'credithealth',label:'Credit Health',iconPath:icons.gauge},
     {id:'debtpaydown',label:'Debt Paydown',iconPath:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>'},
     {id:'emergencyfund',label:'Emergency Fund',iconPath:icons.shield},
     {id:'exportdata',label:'Export Data',iconPath:icons.download},
@@ -1858,6 +2651,7 @@ var drawerItems={
     {id:'incomecadence',label:'Income Cadence',iconPath:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>'},
     {id:'messages',label:'Messages',iconPath:icons.msg},
     {id:'moneydate',label:'Money Date',iconPath:icons.heart},
+    {id:'nestworthscore',label:'NestWorth Score',iconPath:icons.barChart2},
     {id:'nests',label:'Nests',iconPath:'<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>'},
     {id:'partnertransparency',label:'Partner Transparency',iconPath:icons.shield},
     {id:'scanner',label:'Receipt Scanner',iconPath:icons.cam},
@@ -1866,6 +2660,7 @@ var drawerItems={
     {id:'synchealth',label:'Sync Health',iconPath:icons.refreshCw},
     {id:'taxdeductions',label:'Tax Deductions',iconPath:icons.receipt},
     {id:'transactions',label:'Transactions',iconPath:icons.activity},
+    {id:'weatherforecast',label:'Weather Forecast',iconPath:icons.cloudSun},
   ],
   support:[
     {id:'featurerequest',label:'Feature Request',iconPath:icons.lightbulb},
@@ -1895,7 +2690,7 @@ function renderDrawerSection(title,items,isNav){
 function buildDrawer(){
   var d=$('drawer');
   if(!d)return;
-  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v3.0</div></div></div><button onclick="closeDrawer()" aria-label="Close menu" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
+  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v4.0</div></div></div><button onclick="closeDrawer()" aria-label="Close menu" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
   renderDrawerSection('Main',drawerItems.main,true)+
   renderDrawerSection('Features A\u2013Z',drawerItems.features,false)+
   renderDrawerSection('Support',drawerItems.support,false)+
@@ -1945,12 +2740,15 @@ function getPageContent(){
       case 'audit': return rPartnerTransparency();
       case 'billaudit': return rBillAudit();
       case 'billscalendar': return rBillsCalendar();
+      case 'chargeiq': return rChargeIQ();
+      case 'credithealth': return rCreditHealth();
       case 'debtpaydown': return rDebtPaydown();
       case 'emergencyfund': return rEmergencyFund();
       case 'exportdata': return rExportData();
       case 'feeanalyzer': return rFeeAnalyzer();
       case 'incomecadence': return rIncomeCadence();
       case 'moneydate': return rMoneyDate();
+      case 'nestworthscore': return rNestWorthScore();
       case 'nests': return rNests();
       case 'partnertransparency': return rPartnerTransparency();
       case 'spending': return rSpending();
@@ -1958,6 +2756,7 @@ function getPageContent(){
       case 'synchealth': return rSyncHealth();
       case 'taxdeductions': return rTaxDeductions();
       case 'transactions': return rTransactions();
+      case 'weatherforecast': return rWeatherForecast();
       case 'featurerequest': return rFeatureRequest();
       case 'reportbug': return rReportBug();
       default: return rHome();
