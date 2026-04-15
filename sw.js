@@ -1,5 +1,6 @@
-const CACHE = 'nestworth-v1';
+const CACHE = 'nestworth-v4.2';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
+const MAX_CACHE_AGE = 24 * 60 * 60 * 1000; /* 24 hours */
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
