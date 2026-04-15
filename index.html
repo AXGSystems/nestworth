@@ -472,6 +472,20 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
 @media(prefers-contrast:more){:root{--sep:rgba(0,0,0,0.2);--t2:rgba(0,0,0,0.7)}[data-theme="dark"],[data-theme="midnight"],[data-theme="gold"]{--sep:rgba(255,255,255,0.2);--t2:rgba(255,255,255,0.75)}}
 
+/* === Small screens (320px) === */
+@media(max-width:374px){
+  .stat-value{font-size:20px}
+  .stat-label{font-size:10px}
+  .hero{padding:14px!important}
+  .hero div[style*="font-size:48px"]{font-size:36px!important}
+  .hero div[style*="font-size:40px"]{font-size:32px!important}
+  .quick-links-grid{grid-template-columns:repeat(2,1fr)}
+  .ci{padding:6px 8px}
+  .btn-pill{min-height:40px;padding:8px 14px}
+  .tr{min-height:48px}
+  .filter-chip{min-height:40px;padding:8px 14px}
+}
+
 /* === iPad portrait (768-1024px) === */
 @media(min-width:768px) and (max-width:1024px){
   .sidebar{width:200px;min-width:200px}
@@ -509,7 +523,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 <script>
 'use strict';
 /* ================================================================
-   NestWorth v4.1 — Micro-copy, Data Storytelling & Polish Pass
+   NestWorth v4.2 — Full UX Copy Polish + Mobile Refinement
    ================================================================
    - Dual layout: Mobile (paginated + bottom nav + drawer) / Desktop (sidebar + grid)
    - No fake status bar — uses env(safe-area-inset-top) for real device insets
@@ -1009,7 +1023,7 @@ return '<div class="fi">'+
 '</div>'+
 
 /* === 4 stat cards row === */
-'<div class="stat-row cols-4" style="margin-bottom:16px">'+
+'<div class="stat-row cols-4">'+
 '<div class="stat-card" style="cursor:pointer" onclick="os(\'Flex Budget\',sFlexBudget())"><div class="stat-label">Safe to Spend</div><div class="stat-value" style="color:var(--pos)">$1,680</div><div class="stat-change up">$140/day for 12 more days</div>'+br(63,'var(--pos)',4)+'</div>'+
 '<div class="stat-card" style="cursor:pointer" onclick="gt(\'budget\')"><div class="stat-label">Spent This Month</div><div class="stat-value">$2,920</div><div class="stat-change down">'+trendIndicator(2920,2480,'','')+'vs last month</div></div>'+
 '<div class="stat-card" style="cursor:pointer" onclick="gt(\'goals\')"><div class="stat-label">Saved This Month</div><div class="stat-value" style="color:var(--acc)">$2,760</div><div class="stat-change up">39% rate &mdash; beating 35% goal</div></div>'+
@@ -1206,19 +1220,19 @@ return '<div class="fi">'+
 /* Hero: Budget Summary + comparison bar chart */
 '<div class="hero dash-full" style="padding:24px 28px 20px">'+
 '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px"><div>'+
-'<div style="font-size:13px;opacity:0.85">April Budget</div>'+
+'<div style="font-size:13px;opacity:0.85">April Budget &middot; Halfway Through the Month</div>'+
 '<div style="font-size:48px;font-weight:800;letter-spacing:-3px;margin-top:2px">$'+tA.toLocaleString()+'</div>'+
 '<div style="margin-top:6px;display:flex;gap:20px">'+
-'<div><span style="opacity:0.7;font-size:12px">Spent</span> <span style="font-size:18px;font-weight:800">$'+tS.toLocaleString()+'</span></div>'+
-'<div><span style="opacity:0.7;font-size:12px">Remaining</span> <span style="font-size:18px;font-weight:800;color:rgba(255,255,255,0.9)">$'+(tA-tS).toLocaleString()+'</span></div>'+
+'<div><span style="opacity:0.7;font-size:12px">Spent So Far</span> <span style="font-size:18px;font-weight:800">$'+tS.toLocaleString()+'</span></div>'+
+'<div><span style="opacity:0.7;font-size:12px">Still Available</span> <span style="font-size:18px;font-weight:800;color:rgba(255,255,255,0.9)">$'+(tA-tS).toLocaleString()+'</span></div>'+
 '<div><span style="opacity:0.7;font-size:12px">Used</span> <span style="font-size:18px;font-weight:800">'+budgetPct+'%</span></div>'+
 '</div></div>'+
-'<div style="text-align:right"><div style="font-size:12px;opacity:0.7">Month Comparison</div>'+
+'<div style="text-align:right"><div style="font-size:12px;opacity:0.7">How You Compare</div>'+
 '<div style="display:flex;gap:12px;margin-top:6px">'+
 monthlyBudgetHistory.map(function(mb){var pct=Math.round((mb.spent/mb.budget)*100);return '<div style="text-align:center"><div style="height:60px;width:32px;background:rgba(255,255,255,0.1);border-radius:6px;position:relative;display:flex;align-items:flex-end;overflow:hidden"><div style="width:100%;height:'+pct+'%;background:rgba(255,255,255,'+(pct>90?0.9:0.5)+');border-radius:6px;transition:height 0.4s"></div></div><div style="font-size:10px;margin-top:3px;opacity:0.7">'+mb.m+'</div><div style="font-size:9px;font-weight:700">'+pct+'%</div></div>'}).join('')+
 '</div></div></div>'+
 '<div style="margin-top:4px">'+br(budgetPct,'rgba(255,255,255,0.6)',8)+'</div>'+
-'<div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' remaining &middot; 12 days left &middot; $140/day safe rate</div>'+
+'<div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' remaining &middot; 12 days left &middot; Safe to spend $140/day</div>'+
 '</div>'+
 
 /* Two column layout */
@@ -1234,15 +1248,15 @@ return '<tr style="cursor:pointer" onclick="os(\''+c.n+'\',sCat(\''+c.n+'\','+c.
 
 /* Budget Rollover Tracking (Mint feature) */
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Budget Rollover</span></div>'+
-'<div class="sub" style="margin-bottom:8px">Unspent dollars rolling into next month &mdash; $1,085 total</div>'+
+'<div class="sub" style="margin-bottom:8px">$1,085 in unspent dollars rolling forward &mdash; money you earned back by staying disciplined</div>'+
 '<table class="data-table"><thead><tr><th>Category</th><th style="text-align:right">Unspent</th><th style="text-align:right">Rolled From Mar</th><th style="text-align:right">Running Total</th></tr></thead><tbody>'+
 [{n:'Groceries',u:320,r:180,t:500},{n:'Entertainment',u:65,r:45,t:110},{n:'Transport',u:80,r:30,t:110},{n:'Health',u:105,r:90,t:195},{n:'Personal',u:110,r:60,t:170}].map(function(ro){
 return '<tr><td style="font-weight:600">'+ro.n+'</td><td class="amount" style="color:var(--pos)">+$'+ro.u+'</td><td class="amount" style="color:var(--t2)">$'+ro.r+'</td><td class="amount" style="font-weight:700">$'+ro.t+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
 
 /* Full width: Monthly Spending Trends (6 months by category) */
-'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Your Monthly Spending Trends</span></div>'+
-'<div class="chart-subtitle">December was your peak &mdash; spending has been steadily declining since</div>'+
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Where the Money Goes Each Month</span></div>'+
+'<div class="chart-subtitle">Spending peaked in December and has dropped 18% since &mdash; great momentum</div>'+
 svgStackedBarChart(monthlySpending,600,200,
   ['g','d','s','e','t'],
   ['var(--pos)','var(--warn)','var(--neg)','var(--acc)','var(--info)'],
@@ -1255,30 +1269,30 @@ svgStackedBarChart(monthlySpending,600,200,
 '<div class="dash-side">'+
 
 /* Category Caps */
-'<div class="chart-container dash-section"><div class="chart-title">Category Caps</div>'+
+'<div class="chart-container dash-section"><div class="chart-title">Spending Guardrails</div>'+
 [{c:'Dining Out',l:300,sp:280},{c:'Shopping',l:200,sp:235,o:true},{c:'Entertainment',l:150,sp:148,h:true},{c:'Subscriptions',l:100,sp:62}].map(function(c){var p=Math.round((c.sp/c.l)*100);return '<div class="ci '+(c.h?'pu':'')+'" style="margin-bottom:6px;display:flex;align-items:center;gap:8px;'+(p>=90?'background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)':'')+'"><div style="flex:1"><div class="r" style="justify-content:space-between;margin-bottom:3px"><span style="font-weight:700;font-size:11px">'+c.c+'</span><span style="font-size:10px;font-weight:700;color:'+(p>=90?'var(--neg)':'var(--t2)')+'">$'+c.sp+'/$'+c.l+'</span></div>'+br(p,p>=100?'var(--neg)':p>=90?'var(--warn)':'var(--pos)',3)+(p>=90?'<div style="font-size:9px;font-weight:700;color:var(--neg);margin-top:2px">Both partners alerted</div>':'')+'</div>'+tg(true,p>=90)+'</div>'}).join('')+
 '</div>'+
 
 /* Spending Velocity Chart */
 '<div class="chart-container dash-section"><div class="chart-title">Spending Velocity</div>'+
-'<div class="chart-subtitle">Your spend rate is accelerating week over week</div>'+
-'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--neg)">38%</span><div class="sub">faster than your 4-week average</div></div>'+
+'<div class="chart-subtitle">Your pace is picking up &mdash; spending 38% faster than your 4-week average</div>'+
+'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--neg)">38%</span><div class="sub">faster than normal &mdash; projected $420 overshoot</div></div>'+
 svgLineChart([{m:'W1',v:680},{m:'W2',v:720},{m:'W3',v:850},{m:'W4',v:1066}],340,100,'var(--neg)','Weekly Spend',true)+
 '<div class="sub" style="margin-top:6px">Projected overshoot: $420 over budget</div>'+
 '</div>'+
 
 /* Annual Forecast */
 '<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Annual Forecast\',sFore())"><div class="chart-title">Annual Forecast</div>'+
-'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--pos)">$33.1k</span><div class="sub">projected savings by Dec</div></div>'+
+'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--pos)">$33.1k</span><div class="sub">on track to save $33,120 by December</div></div>'+
 svgLineChart([{m:'Jan',v:2760},{m:'Apr',v:10760},{m:'Jul',v:19320},{m:'Oct',v:27880},{m:'Dec',v:33120}],340,100,'var(--pos)','',true)+
 '</div>'+
 
 /* April Summary */
-'<div class="chart-container dash-section"><div class="chart-title">April Summary</div>'+
+'<div class="chart-container dash-section"><div class="chart-title">April at a Glance</div>'+
 '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'+
-'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Income</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div>'+
-'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div>'+
-'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Saved</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Earned</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent So Far</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">On Track to Save</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div></div>'+
 '</div>'+
 
 renderAd('native')+
@@ -1292,17 +1306,17 @@ relatedPages([{label:'Home',tab:'home'},{label:'Goals',tab:'goals'},{label:'Spen
 
 /* ===== MOBILE BUDGET (unchanged) ===== */
 return '<div class="fi">'+
-'<div class="hero" style="padding:18px"><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:13px;opacity:0.85">Monthly Budget</div><div style="font-size:36px;font-weight:800;letter-spacing:-2px;margin-top:2px">$'+tA.toLocaleString()+'</div></div><div style="text-align:right"><div style="font-size:13px;opacity:0.85">Spent</div><div style="font-size:24px;font-weight:800;margin-top:2px">$'+tS.toLocaleString()+'</div></div></div><div style="margin-top:10px">'+br(Math.round((tS/tA)*100),'rgba(255,255,255,0.6)',6)+'</div><div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' remaining &middot; 12 days left</div></div>'+
+'<div class="hero" style="padding:18px"><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:13px;opacity:0.85">April Budget</div><div style="font-size:36px;font-weight:800;letter-spacing:-2px;margin-top:2px">$'+tA.toLocaleString()+'</div></div><div style="text-align:right"><div style="font-size:13px;opacity:0.85">Spent So Far</div><div style="font-size:24px;font-weight:800;margin-top:2px">$'+tS.toLocaleString()+'</div></div></div><div style="margin-top:10px">'+br(Math.round((tS/tA)*100),'rgba(255,255,255,0.6)',6)+'</div><div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' still available &middot; 12 days left &middot; $140/day safe rate</div></div>'+
 
-'<div class="cs">'+hd('Categories')+
+'<div class="cs">'+hd('How You\'re Tracking')+
 cats.map(function(c){var p=Math.round((c.s/c.a)*100);return '<div style="margin-bottom:12px;cursor:pointer" onclick="os(\''+c.n+'\',sCat(\''+c.n+'\','+c.s+','+c.a+','+Math.round(c.s*0.45)+','+Math.round(c.s*0.55)+'))"><div class="r" style="margin-bottom:3px;gap:4px"><span style="font-size:12px;font-weight:600;flex:1">'+c.n+'</span>'+(c.o?bg('OVER','var(--neg)'):'')+(c.w?bg(p+'%','var(--warn)'):'')+'<span style="font-size:12px;font-weight:800;color:'+(c.o?'var(--neg)':'var(--t1)')+'">$'+c.s+'<span style="font-weight:400;color:var(--t3);font-size:10px">/$'+c.a+'</span></span></div>'+br(p,c.o?'var(--neg)':p>80?'var(--warn)':'var(--pos)')+'<div style="display:flex;gap:8px;margin-top:3px;font-size:9px;color:var(--t2)"><span style="color:var(--acc)">Von $'+Math.round(c.s*0.45)+'</span><span style="color:var(--warn)">Caroline $'+Math.round(c.s*0.55)+'</span></div></div>'}).join('')+'</div>'+
 
-'<div class="cs"><div class="r" style="margin-bottom:10px;gap:6px">'+ic(icons.lock,18,'var(--t1)',1.5)+hd('Category Caps')+'</div>'+
+'<div class="cs"><div class="r" style="margin-bottom:10px;gap:6px">'+ic(icons.lock,18,'var(--t1)',1.5)+hd('Spending Guardrails')+'</div>'+
 [{c:'Dining Out',l:300,sp:280},{c:'Shopping',l:200,sp:235,o:true},{c:'Entertainment',l:150,sp:148,h:true},{c:'Subscriptions',l:100,sp:62}].map(function(c){var p=Math.round((c.sp/c.l)*100);return '<div class="ci '+(c.h?'pu':'')+'" style="margin-bottom:6px;display:flex;align-items:center;gap:8px;'+(p>=90?'background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)':'')+'"><div style="flex:1"><div class="r" style="justify-content:space-between;margin-bottom:3px"><span style="font-weight:700;font-size:11px">'+c.c+'</span><span style="font-size:10px;font-weight:700;color:'+(p>=90?'var(--neg)':'var(--t2)')+'">$'+c.sp+'/$'+c.l+'</span></div>'+br(p,p>=100?'var(--neg)':p>=90?'var(--warn)':'var(--pos)',3)+(p>=90?'<div style="font-size:9px;font-weight:700;color:var(--neg);margin-top:2px">Both partners alerted</div>':'')+'</div>'+tg(true,p>=90)+'</div>'}).join('')+'</div>'+
 
 /* April Summary */
-'<div class="c">'+hd('April Summary')+
-'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Income</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Saved</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div></div>'+
+'<div class="c">'+hd('April at a Glance')+
+'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Earned</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent So Far</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">On Track to Save</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div></div>'+
 '<div class="ci" style="margin-top:8px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="os(\'Annual Forecast\',sFore())"><div style="flex:1"><div style="font-weight:700;font-size:11px">Annual Forecast</div><div class="sub">At this pace: $33,120 saved by Dec</div></div><span style="font-weight:800;font-size:14px;color:var(--pos)">$33.1k</span></div></div>'+
 
 renderAd('native')+
@@ -1323,15 +1337,16 @@ return '<div class="fi">'+
 
 /* Top: Savings overview with donut + savings rate trend */
 '<div class="dash-full" style="display:flex;gap:16px;margin-bottom:16px">'+
-'<div class="chart-container" style="flex:1;margin-bottom:0"><div class="dash-section-header"><span class="shd">Your Savings Progress</span><span class="view-all" onclick="gp(\'nests\')">All Nests &rarr;</span></div>'+
+'<div class="chart-container" style="flex:1;margin-bottom:0"><div class="dash-section-header"><span class="shd">Growing Your Nests</span><span class="view-all" onclick="gp(\'nests\')">All Nests &rarr;</span></div>'+
+'<div class="sub" style="margin-bottom:10px">You\'ve saved '+Math.round((totalSaved/totalGoal)*100)+'% of your goals &mdash; every dollar is building your future</div>'+
 svgDonut(goalDonutSegs,160,'$'+totalSaved.toLocaleString(),'of $'+totalGoal.toLocaleString())+
 '<div style="margin-top:12px;display:flex;gap:12px">'+
-'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Total Saved</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
-'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Total Goals</div><div style="font-size:18px;font-weight:800">$'+totalGoal.toLocaleString()+'</div></div>'+
-'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Overall</div><div style="font-size:18px;font-weight:800;color:var(--acc)">'+Math.round((totalSaved/totalGoal)*100)+'%</div></div>'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Saved So Far</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Total Target</div><div style="font-size:18px;font-weight:800">$'+totalGoal.toLocaleString()+'</div></div>'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Progress</div><div style="font-size:18px;font-weight:800;color:var(--acc)">'+Math.round((totalSaved/totalGoal)*100)+'%</div></div>'+
 '</div></div>'+
 '<div class="chart-container" style="flex:1;margin-bottom:0"><div class="chart-title">Your Savings Rate Over Time</div>'+
-'<div class="chart-subtitle">Climbing steadily &mdash; 39% this month vs 27% in December</div>'+
+'<div class="chart-subtitle">Up from 27% in December to 39% now &mdash; you\'re keeping more of what you earn</div>'+
 svgLineChart(savingsRateHistory.map(function(d){return {m:d.m,v:d.r}}),400,140,'var(--pos)','Savings Rate %',true)+
 '<div style="text-align:center;margin-top:8px"><span style="font-size:28px;font-weight:900;color:var(--pos)">39%</span><span style="font-size:12px;color:var(--t2);margin-left:6px">this month &middot; </span>'+trendIndicator(39,38,'','')+
 '</div></div>'+
@@ -1343,6 +1358,7 @@ svgLineChart(savingsRateHistory.map(function(d){return {m:d.m,v:d.r}}),400,140,'
 /* LEFT: All nests with details */
 '<div class="dash-main">'+
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Your Savings Nests</span><button class="btn-pill" onclick="os(\'New Nest\',sNewNest())">+ Create Nest</button></div>'+
+'<div class="sub" style="margin-bottom:8px">5 nests active &mdash; each one funding a specific dream</div>'+
 '<table class="data-table"><thead><tr><th>Nest</th><th>Funding</th><th>Target Date</th><th style="text-align:right">Saved</th><th style="text-align:right">Goal</th><th style="width:120px">Progress</th></tr></thead><tbody>'+
 nests.map(function(n){var p=Math.round((n.c/n.g)*100);var ne=n.n.replace(/'/g,"&#39;");
 return '<tr style="cursor:pointer" onclick="os(\''+ne+'\',sNest(\''+ne+'\','+n.c+','+n.g+'))"><td style="font-weight:600">'+n.n+(n.p?' '+bg('Personal','var(--warn)'):'')+'</td><td style="color:var(--t2)">'+n.f+'</td><td style="color:var(--t2)">'+n.d+'</td><td class="amount" style="color:var(--acc)">$'+n.c.toLocaleString()+'</td><td class="amount" style="color:var(--t2)">$'+n.g.toLocaleString()+'</td><td>'+br(p,'var(--acc)',5)+'<div style="font-size:9px;font-weight:700;color:var(--acc);text-align:right;margin-top:1px">'+p+'%</div></td></tr>'}).join('')+
@@ -1362,21 +1378,21 @@ return '<tr style="cursor:pointer" onclick="os(\''+ne+'\',sNest(\''+ne+'\','+n.c
 '<div class="dash-side">'+
 
 /* Emergency Fund Status */
-'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Emergency Fund\',sEmer())"><div class="chart-title">Emergency Fund</div>'+
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Emergency Fund\',sEmer())"><div class="chart-title">Safety Net Status</div>'+
 '<div style="display:flex;justify-content:space-between;margin-bottom:8px">'+
-'<div><div class="sub" style="font-size:9px">Current</div><div style="font-size:18px;font-weight:800;color:var(--acc)">$3,600</div></div>'+
-'<div style="text-align:center"><div class="sub" style="font-size:9px">Need</div><div style="font-size:18px;font-weight:800">$12,960</div></div>'+
-'<div style="text-align:right"><div class="sub" style="font-size:9px">Coverage</div><div style="font-size:18px;font-weight:800;color:var(--warn)">0.8 mo</div></div></div>'+
+'<div><div class="sub" style="font-size:9px">Saved</div><div style="font-size:18px;font-weight:800;color:var(--acc)">$3,600</div></div>'+
+'<div style="text-align:center"><div class="sub" style="font-size:9px">3-Month Target</div><div style="font-size:18px;font-weight:800">$12,960</div></div>'+
+'<div style="text-align:right"><div class="sub" style="font-size:9px">Covers</div><div style="font-size:18px;font-weight:800;color:var(--warn)">0.8 mo</div></div></div>'+
 br(28,'var(--warn)',6)+
-'<div class="sub" style="margin-top:4px">Target: 3 months ($12,960)</div></div>'+
+'<div class="sub" style="margin-top:4px">28% there &mdash; at current pace, fully funded by Feb 2027</div></div>'+
 
 /* Debt Paydown */
-'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Debt Paydown\',sDebt())"><div class="chart-title">Debt Paydown</div>'+
-'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total Debt</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Payoff ETA</div><div style="font-size:16px;font-weight:800">8 months</div></div></div>'+
-'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Avalanche</div><div style="font-size:14px;font-weight:800;color:var(--pos);margin-top:2px">7.5 mo</div></div><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Snowball</div><div style="font-size:14px;font-weight:800;margin-top:2px">8.2 mo</div></div></div></div>'+
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Debt Paydown\',sDebt())"><div class="chart-title">Debt-Free Countdown</div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Remaining Balance</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Debt-Free By</div><div style="font-size:16px;font-weight:800">Dec 2026</div></div></div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Avalanche (saves more)</div><div style="font-size:14px;font-weight:800;color:var(--pos);margin-top:2px">7.5 mo</div></div><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Snowball (quick wins)</div><div style="font-size:14px;font-weight:800;margin-top:2px">8.2 mo</div></div></div></div>'+
 
 /* Upcoming Moves Timeline */
-'<div class="chart-container dash-section"><div class="chart-title">Upcoming Moves</div>'+
+'<div class="chart-container dash-section"><div class="chart-title">Money in Motion</div>'+
 [{l:'$15 &rarr; Emergency Fund',d:'TODAY',h:true},{l:'$100 &rarr; Hawaii Trip',d:'Apr 26'},{l:'$150 &rarr; Mortgage',d:'Apr 27'},{l:'$25 &rarr; Von\'s Tech',d:'Apr 28'},{l:'$20 &rarr; Caroline\'s Fun',d:'Apr 29'}].map(function(m){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div style="width:6px;height:6px;border-radius:3px;background:'+(m.h?'var(--neg)':'var(--pos)')+';flex-shrink:0;margin-top:4px"></div><span style="flex:1;font-weight:600;font-size:11px">'+m.l+'</span><span style="font-size:10px;font-weight:700;color:'+(m.h?'var(--neg)':'var(--t2)')+';'+(m.h?'background:var(--negBg);padding:2px 8px;border-radius:6px':'')+'">'+m.d+'</span></div>'}).join('')+
 '</div>'+
 
@@ -1388,7 +1404,7 @@ br(28,'var(--warn)',6)+
 
 /* Full width: Savings Growth Projection */
 '<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Savings Growth Projection</span></div>'+
-'<div class="chart-subtitle">On track for $28,320 by December at your current savings rate</div>'+
+'<div class="chart-subtitle">At your current pace, you\'ll have $28,320 by December &mdash; that\'s real momentum</div>'+
 '<div style="display:flex;gap:16px;margin-bottom:8px">'+
 '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--acc)"></span> Actual</span>'+
 '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--t3)"></span> Projected</span>'+
@@ -1404,7 +1420,7 @@ relatedPages([{label:'Home',tab:'home'},{label:'Budget',tab:'budget'},{label:'Ne
 
 /* ===== MOBILE GOALS (unchanged) ===== */
 return '<div class="fi">'+
-'<div class="c"><div style="font-size:26px;font-weight:800;letter-spacing:-0.5px">Your Goals</div><div class="sub" style="margin-top:2px">Reach milestones one "Nest" at a time.</div></div>'+
+'<div class="c"><div style="font-size:26px;font-weight:800;letter-spacing:-0.5px">Growing Your Nests</div><div class="sub" style="margin-top:2px">5 goals, $'+totalSaved.toLocaleString()+' saved &mdash; every dollar is building your future.</div></div>'+
 
 '<div class="c tap" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--gold) 12%,transparent)" onclick="os(\'Money Date\',sMD())"><div class="r">'+ic(icons.heart,16,'var(--gold)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:12px">Money Date Mode</div><div class="sub">Side-by-side review for couples</div></div>'+bg('NEW','var(--gold)')+'</div></div>'+
 
@@ -1414,15 +1430,15 @@ nests.map(function(n,i){var p=Math.round((n.c/n.g)*100);var ne=n.n.replace(/'/g,
 '<div style="border:2px dashed var(--sep);border-radius:20px;padding:14px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;margin-bottom:10px;transition:background var(--fast) ease,transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.97)\';this.style.background=\'var(--accS)\'" onmouseup="this.style.transform=\'\';this.style.background=\'\'" onmouseleave="this.style.transform=\'\';this.style.background=\'\'" onclick="os(\'New Nest\',sNewNest())" role="button" tabindex="0">+ Add a New Nest</div>'+
 
 /* Emergency Fund */
-'<div class="c tap" onclick="os(\'Emergency Fund\',sEmer())">'+hd('Emergency Fund')+
-'<div class="r" style="justify-content:space-between;margin-bottom:8px"><div><div class="sub" style="font-size:9px">Current</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$3,600</div></div><div style="text-align:center"><div class="sub" style="font-size:9px">Need</div><div style="font-size:16px;font-weight:800">$12,960</div></div><div style="text-align:right"><div class="sub" style="font-size:9px">Coverage</div><div style="font-size:16px;font-weight:800;color:var(--warn)">0.8 mo</div></div></div>'+
-br(28,'var(--warn)')+'<div class="sub" style="margin-top:4px">Target: 3 months ($12,960) &middot; Currently 28%</div></div>'+
+'<div class="c tap" onclick="os(\'Emergency Fund\',sEmer())">'+hd('Safety Net')+
+'<div class="r" style="justify-content:space-between;margin-bottom:8px"><div><div class="sub" style="font-size:9px">Saved</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$3,600</div></div><div style="text-align:center"><div class="sub" style="font-size:9px">3-Month Target</div><div style="font-size:16px;font-weight:800">$12,960</div></div><div style="text-align:right"><div class="sub" style="font-size:9px">Covers</div><div style="font-size:16px;font-weight:800;color:var(--warn)">0.8 mo</div></div></div>'+
+br(28,'var(--warn)')+'<div class="sub" style="margin-top:4px">28% funded &middot; Fully covered by Feb 2027 at current pace</div></div>'+
 
 /* Debt Paydown */
-'<div class="c tap" onclick="os(\'Debt Paydown\',sDebt())">'+hd('Debt Paydown')+'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total Debt</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Payoff ETA</div><div style="font-size:16px;font-weight:800">8 months</div></div></div></div>'+
+'<div class="c tap" onclick="os(\'Debt Paydown\',sDebt())">'+hd('Debt-Free Countdown')+'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Remaining</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Debt-Free By</div><div style="font-size:16px;font-weight:800">Dec 2026</div></div></div></div>'+
 
 /* Upcoming Moves */
-'<div class="c">'+hd('Upcoming Moves')+[{l:'$15 &rarr; Emergency Fund',d:'TODAY',h:true},{l:'$100 &rarr; Hawaii Trip',d:'Apr 26'},{l:'$150 &rarr; Mortgage',d:'Apr 27'},{l:'$25 &rarr; Von\'s Tech',d:'Apr 28'}].map(function(m){return '<div class="r" style="padding:7px 0;border-bottom:0.5px solid var(--sep)"><span style="flex:1;font-weight:600;font-size:11px">'+m.l+'</span><span style="font-size:10px;font-weight:700;color:'+(m.h?'var(--neg)':'var(--t2)')+';'+(m.h?'background:var(--negBg);padding:2px 8px;border-radius:6px':'')+'">'+m.d+'</span></div>'}).join('')+'</div>'+
+'<div class="c">'+hd('Money in Motion')+[{l:'$15 &rarr; Emergency Fund',d:'TODAY',h:true},{l:'$100 &rarr; Hawaii Trip',d:'Apr 26'},{l:'$150 &rarr; Mortgage',d:'Apr 27'},{l:'$25 &rarr; Von\'s Tech',d:'Apr 28'}].map(function(m){return '<div class="r" style="padding:7px 0;border-bottom:0.5px solid var(--sep)"><span style="flex:1;font-weight:600;font-size:11px">'+m.l+'</span><span style="font-size:10px;font-weight:700;color:'+(m.h?'var(--neg)':'var(--t2)')+';'+(m.h?'background:var(--negBg);padding:2px 8px;border-radius:6px':'')+'">'+m.d+'</span></div>'}).join('')+'</div>'+
 
 /* Autosave */
 '<div class="cs">'+hd('Autosave','Set & Forget')+
@@ -1451,7 +1467,7 @@ return '<div class="fi">'+
 /* Hero with allocation donut */
 '<div class="hero dash-full" style="padding:24px 28px 20px">'+
 '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
-'<div><div style="font-size:13px;opacity:0.85">Total Assets Under Management</div>'+
+'<div><div style="font-size:13px;opacity:0.85">Your Accounts at a Glance</div>'+
 '<div style="font-size:48px;font-weight:800;letter-spacing:-3px;margin-top:4px">$290,000</div>'+
 '<div style="margin-top:8px;display:flex;gap:20px">'+
 [{l:'Investments',v:'$180.5k'},{l:'401(k)',v:'$68.4k'},{l:'Real Estate',v:'$29.2k'},{l:'Other',v:'$11.9k'}].map(function(s){return '<div><span style="opacity:0.6;font-size:11px">'+s.l+'</span> <span style="font-size:15px;font-weight:800">'+s.v+'</span></div>'}).join('')+
@@ -1470,12 +1486,14 @@ return '<div class="fi">'+
 
 /* Full Accounts Table */
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Your Accounts</span><span class="view-all" onclick="gp(\'accounts\')">Manage &rarr;</span></div>'+
+'<div class="sub" style="margin-bottom:8px">6 accounts linked &middot; 4 syncing healthy &middot; 1 needs attention</div>'+
 '<table class="data-table"><thead><tr><th>Account</th><th>Owner</th><th>Last Sync</th><th>Status</th><th style="text-align:right">Balance</th></tr></thead><tbody>'+
 accounts.map(function(x){return '<tr style="cursor:pointer" onclick="gp(\'accounts\')"><td style="font-weight:600">'+x.l+'</td><td style="color:var(--t2)">'+x.who+'</td><td style="color:var(--t2)">'+x.t+'</td><td>'+(x.s==='g'?bg('Synced','var(--pos)'):x.s==='y'?bg('Slow','var(--warn)'):bg('Stale','var(--neg)'))+'</td><td class="amount" style="color:'+(x.v<0?'var(--neg)':'var(--t1)')+'">'+x.a+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
 
 /* Transaction Search & Filter (Mint feature) */
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Recent Transactions</span><span class="view-all" onclick="gp(\'transactions\')">View All &rarr;</span></div>'+
+'<div class="sub" style="margin-bottom:8px">9 transactions this week &middot; 1 flagged &middot; 1 possible duplicate</div>'+
 '<div class="filter-bar"><input class="filter-input" placeholder="Search transactions..." onkeydown="event.stopPropagation()">'+
 ['All','This Month','Last Month','Last 3 Mo','YTD'].map(function(f,i){return '<button class="filter-chip'+(i===1?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+
 '</div>'+
@@ -1506,7 +1524,7 @@ accounts.map(function(x){return '<tr style="cursor:pointer" onclick="gp(\'accoun
 '<div class="dash-side">'+
 
 /* Asset Allocation Donut */
-'<div class="chart-container dash-section"><div class="chart-title">Asset Allocation</div>'+
+'<div class="chart-container dash-section"><div class="chart-title">How Your Money Is Invested</div>'+
 svgDonut(allocSegs,160,'$290k','total assets')+
 '</div>'+
 
@@ -1517,24 +1535,25 @@ buildBillsCalendarSVG()+
 '<div style="margin-top:8px;display:flex;gap:8px;justify-content:space-between">'+
 '<div><span class="sub">Due this month</span> <span style="font-weight:700;font-size:13px">$3,378</span></div>'+
 '<div><span class="sub">Paid</span> <span style="font-weight:700;font-size:13px;color:var(--pos)">$2,184</span></div></div>'+
+'<div class="sub" style="margin-top:4px">$1,194 remaining &middot; 7 of 9 on autopay</div>'+
 '</div>'+
 
 /* Subscription Audit */
-'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'subscriptions\')"><div class="dash-section-header"><span class="chart-title" style="margin-bottom:0">Subscriptions</span>'+bg('3 issues','var(--neg)')+'</div>'+
-'<div style="margin-bottom:6px"><span class="sub">12 active</span> <span style="font-weight:700">$287/mo</span></div>'+
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'subscriptions\')"><div class="dash-section-header"><span class="chart-title" style="margin-bottom:0">Subscription Pulse</span>'+bg('3 issues','var(--neg)')+'</div>'+
+'<div style="margin-bottom:6px"><span class="sub">12 active &middot; 3 barely used</span> <span style="font-weight:700">$287/mo</span></div>'+
 [{n:'Netflix',a:'$15.49',ok:true},{n:'Hulu',a:'$17.99',i:'Low use'},{n:'Disney+',a:'$13.99',i:'<5%'},{n:'Headspace',a:'$14.99',i:'60d idle'}].map(function(s){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;font-weight:600;flex:1">'+s.n+'</span>'+(s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)'))+'<span style="font-size:11px;font-weight:700;width:48px;text-align:right">'+s.a+'</span></div>'}).join('')+
 '</div>'+
 
 /* Fee Analyzer */
-'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'feeanalyzer\')"><div class="chart-title">Fee Analyzer</div>'+
-'<div style="text-align:center;margin-bottom:6px"><span style="font-size:24px;font-weight:900;color:var(--warn)">0.42%</span><div class="sub">weighted avg expense ratio</div></div>'+
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'feeanalyzer\')"><div class="chart-title">Hidden Fee Impact</div>'+
+'<div style="text-align:center;margin-bottom:6px"><span style="font-size:24px;font-weight:900;color:var(--warn)">0.42%</span><div class="sub">your fees are costing $47k over 30 years</div></div>'+
 '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">'+
 [{l:'7yr',v:'$5.4k'},{l:'15yr',v:'$18.2k'},{l:'30yr',v:'$47k'}].map(function(p){return '<div class="ci" style="text-align:center;padding:6px"><div class="sub" style="font-size:8px">'+p.l+' drag</div><div style="font-size:12px;font-weight:800;color:var(--neg)">'+p.v+'</div></div>'}).join('')+
 '</div></div>'+
 
 /* Tax Deductions */
 '<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'taxdeductions\')"><div class="chart-title">Tax Deductions YTD</div>'+
-'<div style="text-align:center;margin-bottom:6px"><span style="font-size:22px;font-weight:900;color:var(--pos)">$1,240</span><div class="sub">deductible expenses found</div></div>'+
+'<div style="text-align:center;margin-bottom:6px"><span style="font-size:22px;font-weight:900;color:var(--pos)">$1,240</span><div class="sub">found so far &mdash; saving ~$310 at tax time</div></div>'+
 [{n:'Charitable',a:'$450'},{n:'Medical',a:'$320'},{n:'Home Office',a:'$180'},{n:'Education',a:'$150'},{n:'Tax Prep',a:'$140'}].map(function(t){return '<div class="r" style="padding:3px 0;font-size:11px"><span style="flex:1">'+t.n+'</span><span style="font-weight:700">'+t.a+'</span></div>'}).join('')+
 '</div>'+
 
@@ -1544,11 +1563,12 @@ renderAd('partner')+
 '</div>'+/* end dash-row */
 
 /* Full-width Cash Flow Chart */
-'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Cash Flow (6 Months)</span></div>'+
+'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Cash Flow Story (6 Months)</span></div>'+
+'<div class="chart-subtitle" style="margin-bottom:8px">You\'ve earned $42.9k and spent $27.8k &mdash; that\'s a $15k surplus working for your goals</div>'+
 '<div style="display:flex;gap:24px;margin-bottom:8px">'+
-'<div><span style="font-size:11px;color:var(--t2)">Total Income</span> <span style="font-size:14px;font-weight:800;color:var(--pos)">$42,880</span></div>'+
-'<div><span style="font-size:11px;color:var(--t2)">Total Expenses</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$27,840</span></div>'+
-'<div><span style="font-size:11px;color:var(--t2)">Net Surplus</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$15,040</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Total Earned</span> <span style="font-size:14px;font-weight:800;color:var(--pos)">$42,880</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Total Spent</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$27,840</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Kept</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$15,040</span></div>'+
 '</div>'+
 svgAreaChart(cashFlow,700,180,'var(--pos)','var(--neg)','Income','Expenses')+
 '</div>'+
@@ -1560,20 +1580,21 @@ relatedPages([{label:'Home',tab:'home'},{label:'Accounts',pg:'accounts'},{label:
 
 /* ===== MOBILE TRACK (unchanged) ===== */
 return '<div class="fi">'+
-'<div class="hero" style="padding:18px"><div style="font-size:40px;font-weight:800;letter-spacing:-2.5px">$290k</div><div style="font-size:13px;opacity:0.85;margin-top:2px">invested across all assets</div><div style="margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px">'+[{l:'Investments',v:'$180.5k',cl:'#fff'},{l:'401(k)',v:'$68.4k',cl:'var(--gold)'},{l:'Real Estate',v:'$29.2k',cl:'var(--warn)'},{l:'Other',v:'$11.9k',cl:'rgba(255,255,255,0.5)'}].map(function(s){return '<div class="r" style="gap:4px"><div class="dot" style="width:6px;height:6px;background:'+s.cl+'"></div><span style="font-size:11px;font-weight:600;flex:1">'+s.l+'</span><span style="font-size:11px;font-weight:700">'+s.v+'</span></div>'}).join('')+'</div></div>'+
+'<div class="hero" style="padding:18px"><div style="font-size:40px;font-weight:800;letter-spacing:-2.5px">$290k</div><div style="font-size:13px;opacity:0.85;margin-top:2px">across all accounts &middot; +8.2% this year</div><div style="margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px">'+[{l:'Investments',v:'$180.5k',cl:'#fff'},{l:'401(k)',v:'$68.4k',cl:'var(--gold)'},{l:'Real Estate',v:'$29.2k',cl:'var(--warn)'},{l:'Other',v:'$11.9k',cl:'rgba(255,255,255,0.5)'}].map(function(s){return '<div class="r" style="gap:4px"><div class="dot" style="width:6px;height:6px;background:'+s.cl+'"></div><span style="font-size:11px;font-weight:600;flex:1">'+s.l+'</span><span style="font-size:11px;font-weight:700">'+s.v+'</span></div>'}).join('')+'</div></div>'+
 
 /* Accounts */
-'<div class="c tap" onclick="gp(\'accounts\')"><div class="r" style="margin-bottom:10px">'+hd('Accounts')+'<span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--acc)">View All</span></div>'+
+'<div class="c tap" onclick="gp(\'accounts\')"><div class="r" style="margin-bottom:10px">'+hd('Your Accounts')+'<span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--acc)">View All</span></div>'+
 '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">'+
 [{l:'Chase Checking',a:'$5,360',s:'g'},{l:'Chase Savings',a:'$12,400',s:'g'},{l:'Capital One',a:'$2,100',s:'y'},{l:'Cap One Savings',a:'$8,200',s:'r'},{l:'Ally Invest',a:'$26,500',s:'g'},{l:'Credit Cards',a:'-$1,200',s:'g'}].map(function(x){return '<div class="ci" style="padding:8px 10px;position:relative"><div class="dot" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:'+(x.s==='g'?'var(--pos)':x.s==='y'?'var(--warn)':'var(--neg)')+'"></div><div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:2px">'+x.l+'</div><div style="font-size:15px;font-weight:800;color:'+(x.s==='r'?'var(--neg)':'var(--t1)')+'">'+x.a+'</div>'+(x.s==='r'?'<div style="font-size:9px;font-weight:700;color:var(--neg)">47d stale</div>':'')+'</div>'}).join('')+'</div></div>'+
 
 /* Transactions */
-'<div class="c">'+hd('Transactions')+
+'<div class="c">'+hd('Recent Activity')+
 [{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true},{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},{w:'T',n:'Chase to Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true}].map(function(tx){return '<div class="tr" style="'+(tx.tr?'opacity:0.5':'')+'" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))">'+av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='T'?'var(--t2)':'var(--acc)')+'<div style="flex:1;min-width:0"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">'+tx.n+'</span>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.rc?bg('Recurring','var(--info)'):'')+(tx.rf?bg('Refund','var(--pos)'):'')+(tx.tr?bg('Transfer','var(--t2)'):'')+'</div><div class="sub">'+tx.c+' &middot; '+tx.t+'</div></div><span style="font-weight:800;font-size:12px;color:'+(tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)')+';flex-shrink:0">'+tx.a+'</span></div>'}).join('')+
 '<div class="ci" style="margin-top:8px;display:flex;align-items:center;gap:8px;background:var(--warnBg);border:0.5px solid color-mix(in srgb,var(--warn) 12%,transparent);cursor:pointer" onclick="os(\'Duplicate Detected\',sDup())">'+ic(icons.warn,14,'var(--warn)',2.5)+'<div style="flex:1"><div style="font-weight:700;font-size:11px;color:var(--warn)">Possible duplicate</div><div class="sub">Whole Foods $67.43 appeared twice</div></div><button class="btn-pill" style="background:var(--warnBg);color:var(--warn)">Review</button></div></div>'+
 
 /* Bills */
-'<div class="c"><div class="r" style="margin-bottom:10px">'+hd('Bills Due')+bg('3 this week','var(--warn)')+'</div>'+
+'<div class="c"><div class="r" style="margin-bottom:10px">'+hd('Bills Coming Up')+bg('3 this week','var(--warn)')+'</div>'+
+'<div class="sub" style="margin-bottom:8px;margin-top:-6px">3 bills due this week &mdash; 2 on autopay</div>'+
 [{n:'Electric Bill',a:145,d:'Tomorrow',at:false},{n:'Internet',a:89,d:'Apr 15',at:true},{n:'Car Payment',a:385,d:'Apr 15',at:true}].map(function(b){return '<div class="tr" onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+b.a+','+b.at+',\''+b.d+'\'))"><div style="width:30px;height:30px;border-radius:10px;background:'+(b.at?'var(--posBg)':'var(--warnBg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(b.at?ic(icons.check,12,'var(--pos)',3):ic(icons.warn,12,'var(--warn)',2.5))+'</div><div style="flex:1"><div class="r" style="gap:4px"><span style="font-weight:600;font-size:12px">'+b.n+'</span>'+(b.at?bg('Auto','var(--pos)'):bg('Manual','var(--warn)'))+'</div><div class="sub">Due '+b.d+'</div></div><span style="font-weight:800;font-size:13px;flex-shrink:0">$'+b.a+'</span></div>'}).join('')+'</div>'+
 
 /* Receipt Scanner */
@@ -1593,9 +1614,9 @@ return '<div class="fi"><div class="dash-coach-row">'+
 /* LEFT: Chat area (70%) */
 '<div class="dash-coach-main">'+
 '<div class="chart-container" style="flex:1;display:flex;flex-direction:column;margin-bottom:0">'+
-'<div class="r" style="gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--sep)"><div style="width:32px;height:32px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">NestWorth Intelligence</div><div class="sub">AI financial coach monitoring both partners</div></div>'+pendingBadge('LLM API integration')+'<div style="display:flex;gap:3px">'+av('V',22)+av('C',22,'var(--warn)')+'</div></div>'+
+'<div class="r" style="gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--sep)"><div style="width:32px;height:32px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">NestWorth Intelligence</div><div class="sub">Your household AI &mdash; always watching, never judging</div></div>'+pendingBadge('LLM API integration')+'<div style="display:flex;gap:3px">'+av('V',22)+av('C',22,'var(--warn)')+'</div></div>'+
 '<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0;min-height:400px">'+
-'<div class="msg-in" style="max-width:70%">Household pulse:<br><br>&bull; Net worth: $82,450 (+$1,250 this month)<br>&bull; Health: 74/100<br>&bull; Cap One Savings — 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster<br>&bull; Von\'s paycheck on track<br>&bull; Found $147/mo bill savings<br>&bull; 1 duplicate detected<br>&bull; Emergency fund: 0.8 months<br><br>What should we dig into?</div></div>'+
+'<div class="msg-in" style="max-width:70%">Good morning, Von. Here\'s your household pulse for April 15:<br><br>&bull; <strong>Net worth</strong>: $82,450 &mdash; up $1,250 this month<br>&bull; <strong>Health score</strong>: 74/100 &mdash; getting stronger<br>&bull; <strong>Heads up</strong>: Cap One Savings hasn\'t synced in 47 days<br>&bull; <strong>Shopping</strong> is $35 over cap &mdash; both partners notified<br>&bull; <strong>Velocity</strong>: spending 38% faster than usual<br>&bull; Von\'s ALTA paycheck lands Apr 25 &mdash; on track<br>&bull; I found <strong>$147/mo in bill savings</strong> worth claiming<br>&bull; Possible duplicate: Whole Foods $67.43<br>&bull; Emergency fund covers 0.8 months &mdash; 28% to goal<br><br>What would you like to explore?</div></div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Spending','Sync','Bills','Save','Audit','Forecast','Net Worth','Tax Deductions'].map(function(q){return '<button class="btn-pill" onclick="sC(\''+q+'\')">'+q+'</button>'}).join('')+'</div>'+
 '<div class="r" style="gap:8px"><input id="ci" maxlength="500" placeholder="Ask about your household finances..." style="flex:1;min-width:0;padding:14px 20px;border-radius:20px;font-size:14px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:48px;height:48px;border-radius:24px;background:var(--acc);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
 '</div></div>'+
@@ -1604,7 +1625,7 @@ return '<div class="fi"><div class="dash-coach-row">'+
 '<div class="dash-coach-side">'+
 
 /* Quick Stats */
-'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Quick Stats</div>'+
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Your Numbers Today</div>'+
 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
 [{l:'Net Worth',v:'$82.4k',c:'var(--t1)'},{l:'Health',v:'74',c:'var(--acc)'},{l:'Savings Rate',v:'39%',c:'var(--pos)'},{l:'Debt',v:'$3.2k',c:'var(--neg)'}].map(function(s){return '<div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">'+s.l+'</div><div style="font-size:16px;font-weight:800;color:'+s.c+'">'+s.v+'</div></div>'}).join('')+
 '</div>'+
@@ -1612,12 +1633,12 @@ return '<div class="fi"><div class="dash-coach-row">'+
 '</div>'+
 
 /* Recent Insights */
-'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Recent Insights</div>'+
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">What I\'m Watching</div>'+
 [{t:'Bill audit found $147/mo savings',c:'var(--pos)'},{t:'Spending 38% faster than average',c:'var(--neg)'},{t:'Cap One Savings stale 47 days',c:'var(--warn)'},{t:'Emergency fund at 0.8 months',c:'var(--warn)'},{t:'Duplicate: Whole Foods $67.43',c:'var(--neg)'}].map(function(ins){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div style="width:4px;height:4px;border-radius:2px;background:'+ins.c+';flex-shrink:0;margin-top:5px"></div><div style="font-size:11px;font-weight:500;color:var(--t1);flex:1">'+ins.t+'</div></div>'}).join('')+
 '</div>'+
 
 /* Suggested Actions */
-'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Suggested Actions</div>'+
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Recommended Next Steps</div>'+
 [{a:'Reconnect Cap One Savings',p:'High',c:'var(--neg)',pg:'synchealth'},{a:'Review TreatYoSelf $650 flag',p:'Med',c:'var(--warn)',pg:'transactions'},{a:'Set up autopay for Electric',p:'Med',c:'var(--warn)',pg:'billscalendar'},{a:'Increase emergency fund save',p:'Low',c:'var(--acc)',pg:'emergencyfund'}].map(function(act){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="gp(\''+act.pg+'\')"><div style="flex:1"><div style="font-size:11px;font-weight:600">'+act.a+'</div></div>'+bg(act.p,act.c)+'</div>'}).join('')+
 '</div>'+
 
@@ -1627,9 +1648,9 @@ return '<div class="fi"><div class="dash-coach-row">'+
 
 /* ===== MOBILE COACH (unchanged) ===== */
 return '<div class="fi" style="display:flex;flex-direction:column;min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px)">'+
-'<div class="ci" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--accS);border-color:color-mix(in srgb,var(--acc) 12%,transparent)"><div style="width:30px;height:30px;border-radius:15px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:12px">NestWorth Intelligence</div><div class="sub">Monitoring both partners</div></div><div style="display:flex;gap:2px">'+av('V',18)+av('C',18,'var(--warn)')+'</div></div>'+
+'<div class="ci" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--accS);border-color:color-mix(in srgb,var(--acc) 12%,transparent)"><div style="width:30px;height:30px;border-radius:15px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:12px">NestWorth Intelligence</div><div class="sub">Always watching, never judging</div></div><div style="display:flex;gap:2px">'+av('V',18)+av('C',18,'var(--warn)')+'</div></div>'+
 pendingBadge('LLM API integration')+
-'<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0"><div class="msg-in">Household pulse:<br><br>&bull; Net worth: $82,450 (+$1,250 this month)<br>&bull; Health: 74/100<br>&bull; Cap One Savings — 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster<br>&bull; Von\'s paycheck on track<br>&bull; Found $147/mo bill savings<br>&bull; 1 duplicate detected<br>&bull; Emergency fund: 0.8 months<br><br>What should we dig into?</div></div>'+
+'<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0"><div class="msg-in">Morning, Von. Quick pulse:<br><br>&bull; Net worth: <strong>$82,450</strong> (+$1,250)<br>&bull; Health: 74/100 &mdash; improving<br>&bull; Cap One Savings &mdash; 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster than normal<br>&bull; Found <strong>$147/mo in savings</strong><br>&bull; 1 duplicate to review<br>&bull; Emergency fund: 28% to goal<br><br>What should we dig into?</div></div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'+['Spending','Sync','Bills','Save','Audit','Forecast'].map(function(q){return '<button class="btn-pill" onclick="sC(\''+q+'\')">'+q+'</button>'}).join('')+'</div>'+
 '<div class="r" style="gap:6px"><input id="ci" maxlength="500" placeholder="Ask about your household..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
 '</div>'}
@@ -1825,7 +1846,7 @@ pendingBadge('Plaid integration')+'</div>'+
 ['Export All Data (CSV/PDF)','Download Audit Trail','Print Budget Report','Request Data Deletion','Privacy Policy','Security (SOC 2 / Plaid)'].map(function(item){return '<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">'+item+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+
 pendingBadge('server-side generation')+'</div>'+
 
-'<div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v4.1 &middot; Built for two, trusted by both</div></div>'+
+'<div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v4.2 &middot; Built for two, trusted by both</div></div>'+
 '<button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-weight:700;font-size:13px">Sign Out</button>'+
 '</div>'}
 
@@ -1899,23 +1920,23 @@ var mobileList=syncAccounts.map(function(a){return '<div class="ci" style="margi
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Total Accounts</div><div class="stat-value">6</div></div>'+
-'<div class="stat-card"><div class="stat-label">Healthy</div><div class="stat-value" style="color:var(--pos)">4</div></div>'+
-'<div class="stat-card"><div class="stat-label">Warning</div><div class="stat-value" style="color:var(--warn)">1</div></div>'+
-'<div class="stat-card"><div class="stat-label">Stale</div><div class="stat-value" style="color:var(--neg)">1</div></div>'+
+'<div class="stat-card"><div class="stat-label">Linked Accounts</div><div class="stat-value">6</div><div class="sub">across 3 institutions</div></div>'+
+'<div class="stat-card"><div class="stat-label">Syncing Well</div><div class="stat-value" style="color:var(--pos)">4</div><div class="sub">data is fresh</div></div>'+
+'<div class="stat-card"><div class="stat-label">Needs Refresh</div><div class="stat-value" style="color:var(--warn)">1</div><div class="sub">3 days behind</div></div>'+
+'<div class="stat-card"><div class="stat-label">Disconnected</div><div class="stat-value" style="color:var(--neg)">1</div><div class="sub">47 days stale</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Account Sync Status</div>'+
+'<div class="chart-container"><div class="chart-title">Connection Health</div>'+
 '<table class="data-table"><thead><tr><th>Account</th><th>Last Sync</th><th>Status</th><th>Balance</th><th>Actions</th></tr></thead><tbody>'+
 syncAccounts.map(function(a){return '<tr onclick="os(\''+a.b+'\',sSyncD(\''+a.b+'\',\''+a.l+'\',\''+a.s+'\',\''+a.v+'\'))" style="cursor:pointer"><td style="font-weight:600">'+a.b+'</td><td>'+a.l+' ago</td><td><div class="dot" style="width:8px;height:8px;display:inline-block;background:'+(a.s==='g'?'var(--pos)':a.s==='y'?'var(--warn)':'var(--neg)')+'"></div> '+(a.s==='g'?'Healthy':a.s==='y'?'Warning':'Stale')+'</td><td class="amount">'+a.v+'</td><td>'+(a.s!=='g'?'<button class="btn-pill" style="font-size:10px">'+(a.s==='r'?'Reconnect':'Refresh')+'</button>':'<span class="sub">OK</span>')+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Sync Events (Last 6 Weeks)</div><div class="chart-subtitle">Number of successful syncs per week</div>'+
+'<div class="chart-container"><div class="chart-title">Sync Activity (6 Weeks)</div><div class="chart-subtitle">Fewer syncs recently &mdash; Cap One disconnect is pulling the average down</div>'+
 svgLineChart(syncHistory,500,160,'var(--acc)','Syncs/Week')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Stale Account Alerts</div>'+
+'<div class="chart-container"><div class="chart-title">Accounts That Need You</div>'+
 '<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:var(--neg)">Cap One Savings</div><div class="sub">47 days without sync</div><div class="sub">Balance may be inaccurate by $200+</div><button class="btn-pill" style="margin-top:8px;font-size:10px;background:var(--negBg);color:var(--neg)">Force Reconnect</button></div>'+
 '<div class="ci" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--warn) 12%,transparent)"><div style="font-weight:700;font-size:12px;color:var(--warn)">Capital One</div><div class="sub">3 days since last sync</div><button class="btn-pill" style="margin-top:8px;font-size:10px">Refresh Now</button></div></div>'+
-'<div class="chart-container"><div class="chart-title">Cross-Reference Status</div>'+
+'<div class="chart-container"><div class="chart-title">Data Integrity Checks</div>'+
 [{n:'Transaction matching',s:true},{n:'Balance reconciliation',s:true},{n:'Category sync',s:true},{n:'Duplicate detection',s:true},{n:'Transfer recognition',s:false}].map(function(cr){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:12px;flex:1">'+cr.n+'</span>'+(cr.s?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</div>'}).join('')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Reconnection History</div>'+
 [{d:'Mar 14',a:'Cap One Savings',w:'Von',r:'Success'},{d:'Feb 20',a:'Chase Checking',w:'System',r:'Auto'},{d:'Jan 15',a:'Ally Invest',w:'Von',r:'Success'}].map(function(rh){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span class="sub" style="width:48px">'+rh.d+'</span><span style="font-size:11px;flex:1;font-weight:600">'+rh.a+'</span>'+bg(rh.r,'var(--pos)')+'</div>'}).join('')+'</div>'+
@@ -1956,7 +1977,7 @@ svgLineChart(incomeHistory,500,140,'var(--pos)','Actual')+
 '<div class="ci" style="margin-top:8px;background:var(--accS)"><div style="font-weight:700;font-size:11px">Income Smoothing Buffer</div><div class="sub" style="line-height:1.5">Recommended buffer: $2,400. When income exceeds $7,760/mo, excess goes to buffer. When below, buffer covers the gap. Current buffer: $1,200.</div></div></div>'+
 '</div><div class="dash-side">'+
 '<div class="chart-container"><div class="chart-title">Income by Source</div>'+
-svgDonut([{label:'ALTA Payroll',value:4280,color:'var(--acc)'},{label:'Freelance',value:2800,color:'var(--warn)'},{label:'Rental',value:1200,color:'var(--pos)'}],150,'$8.3k','Monthly')+'</div>'+
+svgDonut([{label:'ALTA Payroll',value:4280,color:'var(--acc)'},{label:'Freelance',value:2800,color:'var(--warn)'},{label:'Rental',value:1200,color:'var(--pos)'}],160,'$8.3k','Monthly')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Payment Calendar</div><div class="chart-subtitle">April 2026</div>'+
 buildBillsCalendarSVG()+
 '<div style="margin-top:8px;font-size:10px;color:var(--t2)"><div class="dot" style="width:6px;height:6px;background:var(--pos);display:inline-block"></div> Income days marked</div></div>'+
@@ -2018,24 +2039,24 @@ var catBreak={};subs.forEach(function(s){catBreak[s.cat]=(catBreak[s.cat]||0)+s.
 var catSegs=Object.keys(catBreak).map(function(k,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--neg)','var(--info)','var(--gold)'];return {label:k,value:Math.round(catBreak[k]*100)/100,color:colors[i%colors.length]}});
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Active Subs</div><div class="stat-value">'+subs.length+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Monthly Cost</div><div class="stat-value" style="color:var(--neg)">$287</div></div>'+
-'<div class="stat-card"><div class="stat-label">Annual Cost</div><div class="stat-value" style="color:var(--neg)">$3,444</div></div>'+
-'<div class="stat-card"><div class="stat-label">Unused</div><div class="stat-value" style="color:var(--warn)">4</div></div>'+
+'<div class="stat-card"><div class="stat-label">Active Subscriptions</div><div class="stat-value">'+subs.length+'</div><div class="sub">across both partners</div></div>'+
+'<div class="stat-card"><div class="stat-label">Monthly Cost</div><div class="stat-value" style="color:var(--neg)">$287</div><div class="sub">$9.43/day in recurring charges</div></div>'+
+'<div class="stat-card"><div class="stat-label">Annual Cost</div><div class="stat-value" style="color:var(--neg)">$3,444</div><div class="sub">that\'s a vacation worth of subs</div></div>'+
+'<div class="stat-card"><div class="stat-label">Barely Used</div><div class="stat-value" style="color:var(--warn)">4</div><div class="sub">worth reviewing</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Subscription Table with Usage Scores</div>'+
+'<div class="chart-container"><div class="chart-title">All Subscriptions &mdash; Ranked by Usage</div>'+
 '<table class="data-table"><thead><tr><th>Service</th><th>Category</th><th>User</th><th>Usage Score</th><th>Status</th><th style="text-align:right">Cost/mo</th></tr></thead><tbody>'+
 subs.map(function(s){var dc=s.decay>=7?'var(--pos)':s.decay>=4?'var(--warn)':'var(--neg)';return '<tr style="cursor:pointer" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))"><td style="font-weight:700">'+s.n+'</td><td>'+bg(s.cat,'var(--info)')+'</td><td>'+s.w+'</td><td title="Usage score: '+s.decay+'/10. '+(s.decay>=7?'Good usage - keep it.':s.decay>=4?'Moderate usage - review needed.':'Low usage - consider canceling.')+'"><div class="r" style="gap:4px">'+br(s.decay*10,dc,4)+'<span style="font-size:10px;font-weight:800;color:'+dc+'">'+s.decay+'/10</span></div></td><td>'+(s.i?bg(s.i,'var(--neg)'):bg('Active','var(--pos)'))+'</td><td class="amount">$'+s.a.toFixed(2)+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Monthly Subscription Cost Trend</div>'+
+'<div class="chart-container"><div class="chart-title">Cost Trend &mdash; Creeping Up Since November</div>'+
 svgLineChart(costHistory,500,160,'var(--neg)','Total Cost')+'</div>'+
 '</div><div class="dash-side">'+
 '<div class="chart-container"><div class="chart-title">Category Breakdown</div>'+
 svgDonut(catSegs,160,'$287','/month')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Unused Subscription Alerts</div>'+
+'<div class="chart-container"><div class="chart-title">Subscriptions Worth Canceling</div>'+
 subs.filter(function(s){return s.decay<=3}).map(function(s){return '<div class="ci" style="margin-bottom:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)"><div class="r"><div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--neg)">'+s.n+'</div><div class="sub">Usage: '+s.decay+'/10 &middot; $'+(s.a*12).toFixed(0)+'/yr wasted</div></div></div><button class="btn-pill" style="margin-top:6px;font-size:10px;background:var(--negBg);color:var(--neg)" onclick="event.stopPropagation();os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))">Review</button></div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Quick Cancel Panel</div><div class="sub" style="margin-bottom:8px">Cancel unused subs to save:</div>'+
+'<div class="chart-container"><div class="chart-title">One-Tap Cleanup</div><div class="sub" style="margin-bottom:8px">Cancel these and start saving instantly:</div>'+
 '<div style="text-align:center;margin-bottom:10px"><div style="font-size:28px;font-weight:900;color:var(--pos)">$'+subs.filter(function(s){return s.decay<=3}).reduce(function(a,s){return a+s.a},0).toFixed(2)+'</div><div class="sub">per month potential savings</div></div>'+
 subs.filter(function(s){return s.decay<=3}).map(function(s){return '<button class="btn-danger btn-full" style="border-radius:12px;padding:10px;font-size:12px;margin-bottom:4px" onclick="os(\''+s.n+'\',sSub(\''+s.n+'\','+s.a+',\''+s.w+'\',\''+(s.i||'')+'\'))">Cancel '+s.n+' ($'+s.a+'/mo)</button>'}).join('')+
 pendingBadge('subscription cancellation service')+'</div>'+
@@ -2109,7 +2130,7 @@ deductions.map(function(d){return '<tr><td style="font-weight:700">'+d.n+'</td><
 svgLineChart(ytdData,500,160,'var(--pos)','Cumulative')+'</div>'+
 '</div><div class="dash-side">'+
 '<div class="chart-container"><div class="chart-title">Category Breakdown</div>'+
-svgDonut(catSegs,150,'$1,240','YTD')+'</div>'+
+svgDonut(catSegs,160,'$1,240','YTD')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Estimated Tax Savings</div>'+
 '<div style="text-align:center;margin:8px 0"><div style="font-size:28px;font-weight:900;color:var(--pos)">$310</div><div class="sub">at 25% marginal rate</div></div>'+
 [{r:'22%',s:'$273'},{r:'24%',s:'$298'},{r:'32%',s:'$397'}].map(function(b){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="flex:1">At '+b.r+' bracket</span><span style="font-weight:700;font-size:12px;color:var(--pos)">'+b.s+'</span></div>'}).join('')+'</div>'+
@@ -2302,13 +2323,13 @@ var streakDays=[1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1];
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Current Streak</div><div class="stat-value" style="color:var(--gold)">14 days</div></div>'+
-'<div class="stat-card"><div class="stat-label">Earned</div><div class="stat-value" style="color:var(--pos)">5</div></div>'+
-'<div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warn)">5</div></div>'+
-'<div class="stat-card"><div class="stat-label">Von vs Caroline</div><div class="stat-value">3 - 2</div></div>'+
+'<div class="stat-card"><div class="stat-label">Current Streak</div><div class="stat-value" style="color:var(--gold)">14 days</div><div class="sub">under budget for 2 weeks</div></div>'+
+'<div class="stat-card"><div class="stat-label">Badges Earned</div><div class="stat-value" style="color:var(--pos)">5</div><div class="sub">halfway to 10</div></div>'+
+'<div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warn)">5</div><div class="sub">keep going</div></div>'+
+'<div class="stat-card"><div class="stat-label">Von vs Caroline</div><div class="stat-value">3 - 2</div><div class="sub">Von leads this quarter</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Achievement Grid</div>'+
+'<div class="chart-container"><div class="chart-title">Your Badges &amp; Milestones</div>'+
 '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">'+
 achievements.map(function(a){
 var ringPct=a.done?100:(a.p||0);
@@ -2316,7 +2337,7 @@ var ringColor=a.done?'var(--gold)':ringPct>=60?'var(--pos)':'var(--warn)';
 return '<div class="ci" style="text-align:center;padding:10px;'+(a.done?'border-color:color-mix(in srgb,var(--gold) 20%,transparent);background:color-mix(in srgb,var(--gold) 5%,transparent)':'')+'">'+
 '<div style="width:40px;height:40px;border-radius:20px;background:conic-gradient('+ringColor+' '+ringPct+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:30px;height:30px;border-radius:15px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:'+ringColor+'">'+(a.done?ic(icons.check,12,ringColor,3):ringPct+'%')+'</div></div>'+
 '<div style="font-weight:700;font-size:12px;margin-top:6px">'+a.n+'</div><div class="sub" style="font-size:10px">'+a.d+'</div>'+(a.done?'<div style="font-size:9px;color:var(--gold);font-weight:600;margin-top:2px">'+a.date+'</div>':'')+'</div>'}).join('')+'</div></div>'+
-'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Budget streak calendar heatmap -- green = under budget, red = over</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Green means you stayed under budget that day &mdash; keep the streak alive</div>'+
 '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">'+
 ['S','M','T','W','T','F','S'].map(function(d){return '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--t3);padding:4px">'+d+'</div>'}).join('')+
 '<div class="cal-day empty" style="opacity:0"></div><div class="cal-day empty" style="opacity:0"></div>'+
@@ -2325,7 +2346,7 @@ streakDays.map(function(v,i){return '<div style="aspect-ratio:1;border-radius:4p
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Progress Points Over Time</div><div class="chart-subtitle">Points earned from achievements and streaks</div>'+
 svgLineChart([{m:'Jan',v:120},{m:'Feb',v:280},{m:'Mar',v:520},{m:'Apr',v:740}],500,140,'var(--gold)','Total Points')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Milestone Timeline</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Your Journey So Far</div>'+
 achievements.filter(function(a){return a.done}).sort(function(a,b){return new Date(b.date)-new Date(a.date)}).map(function(a,i){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:8px"><div style="width:24px;height:24px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.check,10,'#fff',3)+'</div><div style="flex:1"><div style="font-weight:700;font-size:11px">'+a.n+'</div><div class="sub">'+a.d+' &middot; '+a.date+'</div></div><span style="font-weight:700;font-size:11px;color:var(--gold)">+50 pts</span></div>'}).join('')+'</div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Leaderboard</div>'+
 '<div style="display:flex;gap:12px;margin-bottom:8px"><div class="ci" style="flex:1;text-align:center;border-color:color-mix(in srgb,var(--acc) 20%,transparent)">'+av('V',32)+'<div style="font-size:20px;font-weight:900;color:var(--acc);margin-top:4px">3</div><div class="sub">Von &middot; 420 pts</div></div>'+
@@ -2334,7 +2355,7 @@ achievements.filter(function(a){return a.done}).sort(function(a,b){return new Da
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Badges Earned</div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
 [{b:'Budget Boss',d:'14-day streak'},{b:'Saver',d:'$5k auto-saved'},{b:'Nest Builder',d:'Created first nest'},{b:'Scanner',d:'10 receipts scanned'},{b:'Date Night',d:'4 money dates'}].map(function(badge){return '<div style="padding:6px 10px;border-radius:20px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 20%,transparent);font-size:10px;font-weight:700;color:var(--gold)" title="'+badge.d+'">'+badge.b+'</div>'}).join('')+'</div></div>'+
-'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Next Unlocks</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Almost There</div>'+
 achievements.filter(function(a){return !a.done}).slice(0,4).map(function(a){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:11px;flex:1">'+a.n+'</span><span style="font-size:10px;font-weight:700;color:var(--warn)">'+a.p+'%</span></div><div style="margin-top:3px">'+br(a.p,'var(--warn)',3)+'</div><div class="sub" style="margin-top:2px">'+a.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
@@ -2373,7 +2394,7 @@ svgBarChart(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(
 '<button class="btn-gold btn-full" style="border-radius:16px;margin-bottom:10px" onclick="os(\'New Nest\',sNewNest())">+ Create New Nest</button>'+
 nests.slice(0,3).map(function(n){return '<div class="ci" style="margin-bottom:6px;cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+n.n+'</span><button class="btn-pill" style="font-size:10px">Edit</button></div></div>'}).join('')+'</div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Nest Distribution</div>'+
-svgDonut(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--info)','var(--neg)','var(--gold)'];return {label:n.n,value:n.c,color:colors[i%colors.length]}}),150,'$'+totalSaved.toLocaleString(),'Saved')+'</div>'+
+svgDonut(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--info)','var(--neg)','var(--gold)'];return {label:n.n,value:n.c,color:colors[i%colors.length]}}),160,'$'+totalSaved.toLocaleString(),'Saved')+'</div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Monthly Auto-Save Summary</div>'+
 '<div class="ci" style="margin-bottom:8px;background:var(--posBg)"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">Total Monthly Auto-Save</span><span style="font-weight:800;font-size:14px;color:var(--pos)">$'+nests.reduce(function(a,n){return a+n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2)},0).toLocaleString()+'</span></div></div>'+
 nests.map(function(n){var monthly=n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2);return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1;font-weight:600">'+n.n+'</span><span style="font-size:11px;font-weight:700;color:var(--pos)">$'+monthly+'/mo</span></div>'}).join('')+'</div>'+
@@ -2609,26 +2630,26 @@ var sampleCharges=[
 
 if(isDesktop()){
 return '<div class="fi">'+
-'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.search,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">ChargeIQ</div><div style="opacity:0.8;font-size:12px">Expense Forensics &mdash; Identify unknown bank charges</div></div></div>'+pendingBadge('LLM + merchant database API')+'</div>'+
+'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.search,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">ChargeIQ</div><div style="opacity:0.8;font-size:12px">Decode any mysterious charge on your statement in seconds</div></div></div>'+pendingBadge('LLM + merchant database API')+'</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Search Unknown Charges</div>'+
+'<div class="chart-container"><div class="chart-title">Look Up Any Charge</div>'+
 '<div class="filter-bar" style="margin-bottom:0"><input class="filter-input" placeholder="Look up a mysterious charge... (e.g. APCR*DIGITALRVRM)" style="flex:1"><button class="btn" style="height:38px;padding:0 16px;border-radius:10px;font-size:12px">'+ic(icons.search,14,'#fff',2)+' Identify</button></div></div>'+
-'<div class="chart-container"><div class="chart-title">Recently Identified Charges</div>'+
+'<div class="chart-container"><div class="chart-title">Recently Decoded</div>'+
 '<table class="data-table"><thead><tr><th>Original Charge</th><th>Identified As</th><th>Category</th><th>Confidence</th><th>Actions</th></tr></thead><tbody>'+
 sampleCharges.map(function(c){return '<tr><td style="font-family:monospace;font-size:11px;color:var(--neg);font-weight:600">'+c.raw+'</td><td><div style="font-weight:700">'+c.merchant+'</div><div class="sub" style="font-size:10px">'+c.desc+'</div></td><td>'+bg(c.cat,'var(--info)')+'</td><td title="Confidence: '+c.conf+'%. '+(c.conf>=95?'Very high - almost certain match.':c.conf>=90?'High confidence match.':'Moderate confidence - verify manually.')+'"><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></td><td><div style="display:flex;gap:4px"><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto;background:var(--posBg);color:var(--pos)">'+ic(icons.check,10,'var(--pos)',2)+' Identified</button><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto">Not This</button></div></td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Spending Autopsy &mdash; Regret Index</div><div class="chart-subtitle">How much of your spending would you do again?</div>'+
+'<div class="chart-container"><div class="chart-title">Spending Autopsy &mdash; Would You Buy It Again?</div><div class="chart-subtitle">How much of your spending would you do again?</div>'+
 '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">'+
 [{label:'No Regret',pct:62,color:'var(--pos)',amt:'$475'},{label:'Mild Regret',pct:28,color:'var(--warn)',amt:'$215'},{label:'Full Regret',pct:10,color:'var(--neg)',amt:'$75'}].map(function(r){return '<div class="ci" style="text-align:center;padding:12px"><div style="font-size:24px;font-weight:900;color:'+r.color+'">'+r.pct+'%</div><div style="font-weight:700;font-size:11px">'+r.label+'</div><div class="sub">'+r.amt+' this month</div></div>'}).join('')+'</div>'+
 svgBarChart([{label:'Groceries',value:95,color:'var(--pos)'},{label:'Bills',value:100,color:'var(--pos)'},{label:'Dining',value:65,color:'var(--warn)'},{label:'Shopping',value:40,color:'var(--neg)'},{label:'Impulse',value:15,color:'var(--neg)'}],400,180)+'<div class="sub" style="margin-top:4px">Regret score by category (100 = no regret)</div></div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Charge History</div>'+
+'<div class="chart-container"><div class="chart-title">Identification History</div>'+
 '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;margin-bottom:4px">This Month</div>'+
 [{raw:'APCR*DIGITALRVRM',id:'Apple Card',s:true},{raw:'SQ *EBC CO LLC',id:'East Bay Coffee',s:true},{raw:'PAYPAL *STEAMGAMES',id:'Steam',s:true},{raw:'DD *DOORDASH',id:null,s:false}].map(function(h){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep);gap:4px"><span style="font-family:monospace;font-size:9px;flex:1;color:var(--t2)">'+h.raw+'</span>'+(h.s?bg(h.id,'var(--pos)'):bg('Unknown','var(--warn)'))+'</div>'}).join('')+'</div></div>'+
-'<div class="chart-container"><div class="chart-title">Stats</div>'+
-'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Charges Identified</div><div style="font-size:28px;font-weight:900;color:var(--pos)">24</div></div>'+
-'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Avg Confidence</div><div style="font-size:28px;font-weight:900;color:var(--acc)">93%</div></div>'+
-'<div class="ci" style="text-align:center"><div class="sub">Unidentified</div><div style="font-size:28px;font-weight:900;color:var(--warn)">2</div></div></div>'+
+'<div class="chart-container"><div class="chart-title">Your Track Record</div>'+
+'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Decoded This Year</div><div style="font-size:28px;font-weight:900;color:var(--pos)">24</div></div>'+
+'<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Match Accuracy</div><div style="font-size:28px;font-weight:900;color:var(--acc)">93%</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub">Still Unknown</div><div style="font-size:28px;font-weight:900;color:var(--warn)">2</div></div></div>'+
 '<div class="chart-container"><div class="chart-title">Verified Contacts</div>'+
 sampleCharges.slice(0,3).map(function(c){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:700;font-size:11px">'+c.merchant+'</div><div class="sub">'+ic(icons.phone,10,'var(--t2)',1.5)+' '+c.phone+'</div><div class="sub">'+ic('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',10,'var(--t2)',1.5)+' '+c.web+'</div></div>'}).join('')+'</div>'+
 pendingBadge('LLM + merchant database API')+
@@ -2670,21 +2691,21 @@ for(var wk=0;wk<13;wk++){
 
 if(isDesktop()){
 return '<div class="fi">'+
-'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.cloudSun,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">Financial Weather Forecast</div><div style="opacity:0.8;font-size:12px">90-day cash flow prediction</div></div></div></div>'+
+'<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.cloudSun,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">Financial Weather Forecast</div><div style="opacity:0.8;font-size:12px">See if financial storms are heading your way over the next 90 days</div></div></div></div>'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card" title="Sunny: Balance above $8,000 - cash flow is healthy"><div class="stat-label">Today</div><div class="stat-value" style="color:var(--pos)">Sunny</div><div class="sub">Balance: $5,360</div></div>'+
+'<div class="stat-card" title="Sunny: Balance above $8,000 - cash flow is healthy"><div class="stat-label">Today\'s Forecast</div><div class="stat-value" style="color:var(--pos)">Sunny</div><div class="sub">Cash flow is healthy at $5,360</div></div>'+
 '<div class="stat-card" title="Partly Cloudy: Balance between $4,000-$8,000"><div class="stat-label">30-Day Outlook</div><div class="stat-value" style="color:var(--acc)">Partly</div><div class="sub">Expected: $'+forecast[29].bal.toLocaleString()+'</div></div>'+
 '<div class="stat-card" title="Cloudy: Balance between $1,500-$4,000 - watch spending"><div class="stat-label">60-Day</div><div class="stat-value" style="color:var(--warn)">Cloudy</div><div class="sub">Expected: $'+forecast[59].bal.toLocaleString()+'</div></div>'+
 '<div class="stat-card"><div class="stat-label">90-Day</div><div class="stat-value" style="color:'+(forecast[89].bal>4000?'var(--pos)':'var(--neg)')+'">$'+forecast[89].bal.toLocaleString()+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Cash Flow Projection (13 Weeks)</div>'+
+'<div class="chart-container"><div class="chart-title">13-Week Cash Flow Outlook</div>'+
 svgLineChart(weeklyData,600,200,'var(--acc)','Projected Balance')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Daily Weather Indicators (Next 30 Days)</div>'+
+'<div class="chart-container"><div class="chart-title">Day-by-Day Forecast (Next 30 Days)</div>'+
 '<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px">'+
 forecast.slice(0,30).map(function(f){var emoji=f.w==='sunny'?'&#9728;':f.w==='partly'?'&#9925;':f.w==='cloudy'?'&#9729;':'&#9928;';var col=f.w==='sunny'?'var(--pos)':f.w==='partly'?'var(--acc)':f.w==='cloudy'?'var(--warn)':'var(--neg)';var wLabel=f.w==='sunny'?'Sunny (>$8k)':f.w==='partly'?'Partly Cloudy ($4k-$8k)':f.w==='cloudy'?'Cloudy ($1.5k-$4k)':'Stormy (<$1.5k)';return '<div style="text-align:center;padding:4px;border-radius:6px;background:color-mix(in srgb,'+col+' 8%,transparent)" title="Day '+f.d+': '+wLabel+'. Balance: $'+f.bal.toLocaleString()+'"><div style="font-size:14px">'+emoji+'</div><div style="font-size:8px;font-weight:700;color:'+col+'">D'+f.d+'</div></div>'}).join('')+'</div></div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Danger Zone Alerts</div>'+
+'<div class="chart-container"><div class="chart-title">Storm Warnings</div>'+
 (forecast.filter(function(f){return f.w==='stormy'}).length>0?
 forecast.filter(function(f){return f.w==='stormy'}).slice(0,3).map(function(f){return '<div class="ci" style="margin-bottom:6px;background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)"><div style="font-weight:700;font-size:12px;color:var(--neg)">Day '+f.d+': Stormy</div><div class="sub">Balance drops to $'+f.bal.toLocaleString()+'</div></div>'}).join(''):
 '<div class="ci" style="background:var(--posBg)"><div style="font-weight:700;font-size:12px;color:var(--pos)">No danger zones detected</div><div class="sub">Cash flow looks healthy for 90 days</div></div>')+
@@ -2717,12 +2738,12 @@ return '<div class="fi">'+
 '<div style="width:130px;height:130px;border-radius:65px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:102px;height:102px;border-radius:51px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:36px;font-weight:900">'+totalScore+'</div><div style="font-size:10px;opacity:0.7">of 1,000</div></div></div>'+
 '<div style="font-size:13px;font-weight:600;margin-top:4px">'+(totalScore>=800?'Excellent':totalScore>=650?'Good':totalScore>=500?'Fair':'Needs Work')+'</div></div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Sub-Score Breakdown (8 Categories)</div>'+
+'<div class="chart-container"><div class="chart-title">What Makes Up Your Score</div>'+
 subScores.map(function(s){var pct=Math.round(s.s/s.max*100);var col=pct>=80?'var(--pos)':pct>=50?'var(--warn)':'var(--neg)';return '<div style="margin-bottom:10px" title="'+s.n+': '+s.s+'/'+s.max+' ('+pct+'%). '+s.tip+'"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+s.n+'</span><span style="font-size:12px;font-weight:800;color:'+col+'">'+s.s+'/'+s.max+'</span></div>'+br(pct,col,5)+'<div class="sub" style="margin-top:2px;font-size:10px">'+s.tip+'</div></div>'}).join('')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Score History</div>'+
 svgLineChart(scoreHistory,500,160,'var(--pos)','NestWorth Score')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Improvement Actions (by Impact)</div>'+
+'<div class="chart-container"><div class="chart-title">Fastest Ways to Improve</div>'+
 '<table class="data-table"><thead><tr><th>Action</th><th>Impact</th><th>Effort</th></tr></thead><tbody>'+
 improvements.sort(function(a,b){return parseInt(b.impact)-parseInt(a.impact)}).map(function(imp){return '<tr><td style="font-weight:600">'+imp.action+'</td><td style="font-weight:800;color:var(--pos)">'+imp.impact+'</td><td>'+bg(imp.effort,imp.effort==='Easy'?'var(--pos)':imp.effort==='Medium'?'var(--warn)':'var(--neg)')+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
@@ -2745,20 +2766,20 @@ var factors=[{n:'Payment History',w:35,s:currentScore?'Excellent':'N/A',c:'var(-
 
 if(isDesktop()){
 return '<div class="fi">'+
-'<div class="hero" style="text-align:center;margin-bottom:16px;padding:18px 20px"><div style="font-size:13px;font-weight:600;opacity:0.8">Credit Health Dashboard</div>'+
+'<div class="hero" style="text-align:center;margin-bottom:16px;padding:18px 20px"><div style="font-size:13px;font-weight:600;opacity:0.8">Your Credit at a Glance</div>'+
 (currentScore?'<div style="width:120px;height:120px;border-radius:60px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:94px;height:94px;border-radius:47px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:32px;font-weight:900">'+currentScore+'</div><div style="font-size:10px;opacity:0.7">300-850 scale</div></div></div>':'<div style="font-size:15px;margin:16px 0">Enter your credit score below to get started</div>')+
 pendingBadge('TransUnion/Experian API partnership')+'</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Self-Reported Credit Score</div>'+
-'<div class="sub" style="margin-bottom:10px">Enter your score from Credit Karma, Experian, or your bank</div>'+
+'<div class="chart-container"><div class="chart-title">Track Your Credit Score</div>'+
+'<div class="sub" style="margin-bottom:10px">Paste your latest score from Credit Karma, Experian, or your bank app</div>'+
 '<div class="r" style="gap:8px;margin-bottom:12px"><input id="creditScoreInput" type="number" min="300" max="850" placeholder="Enter score (300-850)" value="'+(currentScore||'')+'" style="flex:1;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:16px;font-weight:700;outline:none;color:var(--t1)"><select id="creditSource" style="padding:12px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;color:var(--t1)"><option>Credit Karma</option><option>Experian</option><option>TransUnion</option><option>Bank App</option><option>Other</option></select><button class="btn" style="height:48px;padding:0 20px;border-radius:12px;font-size:13px" onclick="saveCreditScore()">Save</button></div>'+
 '<div style="background:var(--sep);height:8px;border-radius:4px;position:relative;margin:20px 0"><div style="position:absolute;left:0;top:0;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neg),var(--warn) 40%,var(--pos) 75%);width:100%"></div>'+(currentScore?'<div style="position:absolute;top:-6px;left:'+Math.round((currentScore-300)/550*100)+'%;width:20px;height:20px;border-radius:10px;background:var(--bgE);border:3px solid var(--acc);transform:translateX(-50%)"></div>':'')+
 '<div style="display:flex;justify-content:space-between;margin-top:12px"><span class="sub">300</span><span class="sub">500</span><span class="sub">670</span><span class="sub">740</span><span class="sub">850</span></div></div></div>'+
 (creditScoreHistory.length>1?'<div class="chart-container"><div class="chart-title">Score History</div>'+svgLineChart(creditScoreHistory.map(function(h){return {m:h.date,v:h.score}}),500,160,'var(--acc)','Credit Score')+'</div>':'')+
-'<div class="chart-container"><div class="chart-title">Credit Factor Breakdown</div>'+
+'<div class="chart-container"><div class="chart-title">What Drives Your Score</div>'+
 factors.map(function(f){return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+f.n+' ('+f.w+'%)</span><span style="font-weight:700;font-size:12px;color:'+f.c+'">'+f.s+'</span></div>'+br(f.w*2,f.c,5)+'<div class="sub" style="margin-top:2px;font-size:10px">'+f.d+'</div></div>'}).join('')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Credit Monitoring</div>'+
+'<div class="chart-container"><div class="chart-title">Your Credit Habits</div>'+
 [{n:'Check Credit Karma weekly',s:true},{n:'Review credit report annually',s:false},{n:'Set up fraud alerts',s:true},{n:'Monitor utilization ratio',s:true}].map(function(m){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)">'+(m.s?ic(icons.check,12,'var(--pos)',3):ic('<circle cx="12" cy="12" r="10"/>',12,'var(--t3)',1.5))+'<span style="font-size:11px;flex:1;font-weight:600;margin-left:6px">'+m.n+'</span></div>'}).join('')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Free Credit Report Links</div>'+
 '<div class="ci" style="margin-bottom:6px;cursor:pointer"><div style="font-weight:700;font-size:12px">AnnualCreditReport.com</div><div class="sub">Free yearly from all 3 bureaus</div></div>'+
@@ -2941,7 +2962,7 @@ function renderDrawerSection(title,items,isNav){
 function buildDrawer(){
   var d=$('drawer');
   if(!d)return;
-  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v4.1</div></div></div><button onclick="closeDrawer()" aria-label="Close menu" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
+  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v4.2</div></div></div><button onclick="closeDrawer()" aria-label="Close menu" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
   renderDrawerSection('Main',drawerItems.main,true)+
   renderDrawerSection('Features A\u2013Z',drawerItems.features,false)+
   renderDrawerSection('Support',drawerItems.support,false)+
