@@ -5,12 +5,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>NestWorth</title>
 <meta name="description" content="Household net worth tracker built for couples. Full transparency, shared goals, smart savings.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="theme-color" content="#1a5e3a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NestWorth">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icon-192.png">
+<style>
+/* ═══ CSS Loading State ═══ */
+#app-loader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#f0f6ec;transition:opacity 0.3s ease}
+[data-theme="dark"] #app-loader,[data-theme="midnight"] #app-loader,[data-theme="gold"] #app-loader{background:#000}
+#app-loader .ld{width:40px;height:40px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--acc,#2a7050);border-radius:50%;animation:spin 0.8s linear infinite}
+.loaded #app-loader{opacity:0;pointer-events:none}
+</style>
 <style>
 /* ═══ Theme System ═══ */
 :root,[data-theme="emerald"]{
@@ -27,7 +35,7 @@
   --bodyGrad:linear-gradient(172deg,#1a5e3a 0%,#3a9068 16%,#6ac098 38%,#a8dcc0 58%,#d4eed8 78%,#eef8ee 92%,#f4faf2);
   --sh:0 2px 8px rgba(0,0,0,0.04),0 0 1px rgba(0,0,0,0.06);--shM:0 4px 14px rgba(0,0,0,0.06);--shL:0 12px 40px rgba(0,0,0,0.08);
   --barBg:rgba(248,252,244,0.92);--barBorder:rgba(0,0,0,0.04);
-  --heroTxt:#fff;--stBarC:#fff;
+  --heroTxt:#fff;--stBarC:#fff;--info:#208080;
 }
 [data-theme="light"]{
   --bg1:#f2f2f7;--bg2:#e5e5ea;--bg3:#d1d1d6;--bgE:#fff;
@@ -43,7 +51,7 @@
   --bodyGrad:linear-gradient(180deg,#f2f2f7,#fff);
   --sh:0 1px 3px rgba(0,0,0,0.04);--shM:0 4px 14px rgba(0,0,0,0.06);--shL:0 12px 40px rgba(0,0,0,0.08);
   --barBg:rgba(255,255,255,0.92);--barBorder:rgba(0,0,0,0.06);
-  --heroTxt:#fff;--stBarC:#000;
+  --heroTxt:#fff;--stBarC:#000;--info:#208080;
 }
 [data-theme="dark"]{
   --bg1:#000;--bg2:#1c1c1e;--bg3:#2c2c2e;--bgE:#1c1c1e;
@@ -59,7 +67,7 @@
   --bodyGrad:linear-gradient(180deg,#000,#0a0a0a);
   --sh:0 1px 4px rgba(0,0,0,0.3);--shM:0 4px 16px rgba(0,0,0,0.4);--shL:0 12px 40px rgba(0,0,0,0.5);
   --barBg:rgba(28,28,30,0.92);--barBorder:rgba(255,255,255,0.06);
-  --heroTxt:#fff;--stBarC:#fff;
+  --heroTxt:#fff;--stBarC:#fff;--info:#40b4b4;
 }
 [data-theme="midnight"]{
   --bg1:#0a0e1a;--bg2:#111827;--bg3:#1e2740;--bgE:#151d30;
@@ -75,7 +83,7 @@
   --bodyGrad:linear-gradient(180deg,#0a0e1a,#111827);
   --sh:0 1px 4px rgba(0,0,0,0.4);--shM:0 4px 16px rgba(0,0,0,0.5);--shL:0 12px 40px rgba(0,0,0,0.6);
   --barBg:rgba(15,23,42,0.92);--barBorder:rgba(108,143,255,0.08);
-  --heroTxt:#e0e7ff;--stBarC:#e0e7ff;
+  --heroTxt:#e0e7ff;--stBarC:#e0e7ff;--info:#60c0c0;
 }
 [data-theme="gold"]{
   --bg1:#12100b;--bg2:#1c1814;--bg3:#2a241c;--bgE:#1e1a14;
@@ -91,7 +99,7 @@
   --bodyGrad:linear-gradient(180deg,#12100b,#1c1814);
   --sh:0 1px 4px rgba(0,0,0,0.4);--shM:0 4px 16px rgba(0,0,0,0.5);--shL:0 12px 40px rgba(0,0,0,0.6);
   --barBg:rgba(18,16,11,0.92);--barBorder:rgba(212,168,83,0.08);
-  --heroTxt:#fff5e0;--stBarC:#fff5e0;
+  --heroTxt:#fff5e0;--stBarC:#fff5e0;--info:#50b0a0;
 }
 
 /* ═══ Timing ═══ */
@@ -108,29 +116,32 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;
   background:var(--bodyGrad);color:var(--t1);
   min-height:100vh;max-width:430px;margin:0 auto;position:relative;overflow-x:hidden;
-  -webkit-tap-highlight-color:transparent;padding-bottom:90px;
+  -webkit-tap-highlight-color:transparent;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px));
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   transition:background 0.5s ease,color 0.3s ease;
 }
 button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
-input,textarea{font-family:inherit}
+input,textarea{font-family:inherit;color:var(--t1)}
+input::placeholder,textarea::placeholder{color:var(--t3)}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--t3);border-radius:2px}
 
 /* ═══ Cards ═══ */
 .c{
   background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));
   border:0.5px solid var(--cardBorder);border-radius:16px;padding:16px;margin-bottom:10px;
-  position:relative;z-index:1;box-shadow:var(--sh);
+  position:relative;z-index:1;box-shadow:var(--sh);contain:content;
   transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease,background var(--fast) ease;
 }
 .c:active{transform:scale(0.98);box-shadow:none;transition-duration:0.08s}
 .c.tap{cursor:pointer}.c.tap:hover{background:var(--cardBgH);box-shadow:var(--shM)}
+.c.tap:focus-visible,.tr:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:16px}
 .cs{
   background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));
   border:0.5px solid var(--cardBorder);border-radius:16px;padding:16px;margin-bottom:10px;
-  position:relative;z-index:1;box-shadow:var(--sh);border-top:2px solid var(--acc);
+  position:relative;z-index:1;box-shadow:var(--sh);border-top:2px solid var(--acc);contain:content;
 }
-.ci{background:var(--accS);border:0.5px solid var(--cardBorder);border-radius:12px;padding:10px}
+.ci{background:var(--accS);border:0.5px solid var(--cardBorder);border-radius:12px;padding:10px;transition:transform var(--fast) var(--spring)}
+.ci[onclick]:active,.ci[style*="cursor:pointer"]:active{transform:scale(0.97);transition-duration:0.08s}
 
 /* ═══ Hero ═══ */
 .hero{
@@ -146,29 +157,32 @@ input,textarea{font-family:inherit}
   height:50px;padding:0 24px;border-radius:14px;font-size:17px;font-weight:600;
   background:var(--acc);color:#fff;border:none;
   transition:transform var(--fast) var(--spring),filter var(--fast) ease;
-  box-shadow:0 4px 16px rgba(0,0,0,0.12);user-select:none;
+  box-shadow:var(--shM);user-select:none;
 }
 .btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(0.96);filter:brightness(0.92);transition-duration:0.08s}
-.btn-gold{background:var(--goldG);color:#fff;font-weight:700;border-radius:22px;padding:10px 20px;font-size:13px;height:auto;box-shadow:0 4px 16px rgba(180,140,50,0.2)}
-.btn-gold:active{transform:scale(0.96)}
-.btn-pill{height:34px;padding:0 16px;border-radius:17px;font-size:13px;font-weight:600;background:var(--accS);color:var(--acc)}
-.btn-pill:active{transform:scale(0.94)}
+.btn-gold{background:var(--goldG);color:#fff;font-weight:700;border-radius:22px;padding:10px 20px;font-size:13px;height:auto;box-shadow:0 4px 16px color-mix(in srgb,var(--gold) 25%,transparent);min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.btn-gold:active{transform:scale(0.96)}.btn-gold:hover{filter:brightness(1.08)}
+.btn-pill{min-height:44px;padding:0 16px;border-radius:17px;font-size:13px;font-weight:600;background:var(--accS);color:var(--acc);display:inline-flex;align-items:center;justify-content:center}
+.btn-pill:active{transform:scale(0.94)}.btn-pill:hover{filter:brightness(1.06)}
 .btn-full{width:100%;display:flex}
-.btn-outline{background:transparent;border:1.5px solid var(--sep);color:var(--t2);font-weight:600;border-radius:14px;padding:12px;font-size:13px}
-.btn-danger{background:var(--negBg);color:var(--neg);border:1px solid rgba(255,59,48,0.12)}
+.btn-outline{background:transparent;border:1.5px solid var(--sep);color:var(--t2);font-weight:600;border-radius:14px;padding:12px;font-size:13px;transition:transform var(--fast) var(--spring),background var(--fast) ease}
+.btn-outline:hover{background:var(--accS)}.btn-outline:active{transform:scale(0.96);transition-duration:0.08s}
+.btn-danger{background:var(--negBg);color:var(--neg);border:1px solid color-mix(in srgb,var(--neg) 12%,transparent);transition:transform var(--fast) var(--spring)}
+.btn-danger:active{transform:scale(0.96);transition-duration:0.08s}
 
 /* ═══ Toggle (iOS) ═══ */
-.tog{width:51px;height:31px;border-radius:15.5px;position:relative;transition:background var(--fast) ease;flex-shrink:0;cursor:pointer}
+.tog{width:51px;height:31px;border-radius:15.5px;position:relative;transition:background var(--fast) ease;flex-shrink:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tog::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;min-width:51px;min-height:44px}
 .tog .th{width:27px;height:27px;border-radius:13.5px;background:#fff;position:absolute;top:2px;left:2px;box-shadow:0 2px 4px rgba(0,0,0,0.15);transition:transform var(--fast) var(--springB)}
 .tog.on{background:var(--pos)}.tog.off{background:var(--t3)}
 .tog.on .th{transform:translateX(20px)}.tog.red.on{background:var(--neg)}
 
 /* ═══ Layout helpers ═══ */
-.r{display:flex;align-items:center;gap:10px}
+.r{display:flex;align-items:center;gap:10px;min-width:0}
 .dot{border-radius:50%;flex-shrink:0}
 .bar-t{border-radius:5px;overflow:hidden;width:100%}
-.bar-f{height:100%;border-radius:5px;transition:width 0.6s var(--spring)}
-.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.3px;white-space:nowrap}
+.bar-f{height:100%;border-radius:5px;transition:width 0.6s var(--spring),transform 0.6s var(--spring)}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.3px;white-space:nowrap}
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;letter-spacing:-0.5px}
 .sep{height:0.5px;background:var(--sep);margin:0 -16px}
 
@@ -177,11 +191,11 @@ input,textarea{font-family:inherit}
 .sub{font-size:13px;font-weight:400;color:var(--t2)}
 
 /* ═══ Bottom Sheet ═══ */
-.sho{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;z-index:999}
+.sho{position:fixed;inset:0;z-index:999;display:flex;align-items:flex-end;justify-content:center;pointer-events:none}
 .sh-bg{position:absolute;inset:0;background:var(--overlay);opacity:0;transition:opacity var(--norm) ease;pointer-events:none}
 .sho.open .sh-bg{opacity:1;pointer-events:auto}
 .sh{position:relative;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
-  background:var(--bgE);border-radius:14px 14px 0 0;padding:8px 20px 40px;
+  background:var(--bgE);border-radius:16px 16px 0 0;padding:8px 20px 40px;
   transform:translateY(100%);transition:transform var(--slow) var(--modalIn);z-index:1000;
   padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
 }
@@ -196,7 +210,7 @@ input,textarea{font-family:inherit}
   border-top:0.5px solid var(--barBorder);display:flex;justify-content:space-around;align-items:flex-start;
   padding:6px 0 calc(22px + env(safe-area-inset-bottom,0px));z-index:100;
 }
-.tb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;min-width:0;
+.tb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;min-width:0;min-height:44px;justify-content:center;
   transition:color 0.1s ease,transform var(--fast) var(--spring);color:var(--t3)}
 .tb.a{color:var(--acc)}.tb:active{transform:scale(0.85)}
 .tb span{font-size:10px;font-weight:500}.tb.a span{font-weight:700}
@@ -212,14 +226,14 @@ input,textarea{font-family:inherit}
 .msg-in{max-width:78%;padding:12px 16px;font-size:13px;line-height:1.55;border-radius:20px 20px 20px 4px;background:var(--cardBg);color:var(--t1);border:0.5px solid var(--cardBorder);box-shadow:var(--sh);margin-bottom:8px;word-break:break-word}
 
 /* ═══ Scanner ═══ */
-.scan-area{border:2px dashed var(--acc);opacity:0.3;border-radius:20px;padding:32px 16px;text-align:center;cursor:pointer;transition:all 0.2s ease}
+.scan-area{border:2px dashed var(--acc);opacity:0.3;border-radius:20px;padding:32px 16px;text-align:center;cursor:pointer;transition:opacity 0.2s ease,background 0.2s ease}
 .scan-area:hover{opacity:0.6;background:var(--accS)}
 
 /* ═══ Animations ═══ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,48,0.2)}50%{box-shadow:0 0 0 6px rgba(255,59,48,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--neg) 20%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--neg) 0%,transparent)}}
 @keyframes shimmer{from{background-position:-200% 0}to{background-position:200% 0}}
 @keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -239,6 +253,9 @@ input,textarea{font-family:inherit}
 /* ═══ Alerts badge ═══ */
 .alert-dot{position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:var(--neg);border:2px solid var(--barBg)}
 
+/* ═══ Hero range buttons ═══ */
+.hero button:active{opacity:0.7;transform:scale(0.95)}
+
 /* ═══ Responsive / A11y ═══ */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
 @media(prefers-contrast:more){:root{--sep:rgba(0,0,0,0.2);--t2:rgba(0,0,0,0.7)}[data-theme="dark"],[data-theme="midnight"],[data-theme="gold"]{--sep:rgba(255,255,255,0.2);--t2:rgba(255,255,255,0.75)}}
@@ -246,10 +263,11 @@ input,textarea{font-family:inherit}
 </style>
 </head>
 <body data-theme="emerald">
+<div id="app-loader"><div class="ld"></div></div>
 
 <div class="st-bar" id="stb"><span>9:41</span><div style="display:flex;gap:4px;align-items:center"><svg width="15" height="10" viewBox="0 0 17 12"><rect x="0" y="6" width="3" height="6" rx="1" fill="currentColor"/><rect x="4.5" y="4" width="3" height="8" rx="1" fill="currentColor"/><rect x="9" y="1.5" width="3" height="10.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><div style="width:22px;height:10px;border-radius:3px;border:1.5px solid currentColor;padding:1px;display:flex;align-items:center"><div style="width:82%;height:100%;border-radius:1px;background:currentColor"></div></div></div></div>
 <div class="app-hd" id="ahd"></div>
-<div id="cnt" style="padding:0 10px 82px;position:relative;z-index:1"></div>
+<div id="cnt" style="padding:0 10px calc(82px + env(safe-area-inset-bottom,0px));position:relative;z-index:1"></div>
 <div class="tab-bar" id="tbar"></div>
 <div class="sho" id="sho"><div class="sh-bg" onclick="cs()"></div><div class="sh" id="shc"></div></div>
 
@@ -261,10 +279,9 @@ const T=['home','grow','plan','track','trust','coach'];
 document.body.setAttribute('data-theme',theme);
 
 /* Alert prefs (persisted) */
-let alertPrefs=JSON.parse(localStorage.getItem('nw-alerts')||'null')||{
-  email:true,sms:false,emailAddr:'von@example.com',phone:'',
-  types:{overspend:true,sync:true,bills:true,goals:true,anomaly:true,velocity:true,weekly:true}
-};
+const alertDefault={email:true,sms:false,emailAddr:'von@example.com',phone:'',types:{overspend:true,sync:true,bills:true,goals:true,anomaly:true,velocity:true,weekly:true}};
+let alertPrefs=alertDefault;
+try{const _ap=JSON.parse(localStorage.getItem('nw-alerts')||'null');if(_ap&&typeof _ap==='object')alertPrefs=_ap}catch(e){console.warn('Alert prefs corrupted, using defaults')}
 function saveAlerts(){localStorage.setItem('nw-alerts',JSON.stringify(alertPrefs))}
 
 /* ═══════════ HELPERS ═══════════ */
@@ -274,7 +291,7 @@ function av(l,s=26,c='var(--acc)'){return`<div class="av" style="width:${s}px;he
 function bg(t,c='var(--acc)'){return`<span class="badge" style="color:${c};background:color-mix(in srgb,${c} 8%,transparent)">${t}</span>`}
 function tg(on,red=false,id=''){return`<div class="tog ${on?'on':'off'} ${red&&on?'red':''}" ${id?`id="${id}"`:''}onclick="event.stopPropagation();this.classList.toggle('on');this.classList.toggle('off')"><div class="th"></div></div>`}
 function hd(t,sub=''){return`<div style="margin-bottom:12px"><span class="shd">${t}</span>${sub?`<span class="sub" style="margin-left:6px">${sub}</span>`:''}</div>`}
-function ic(d,s=16,c='var(--acc)',sw=2){return`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`}
+function ic(d,s=16,c='var(--acc)',sw=1.5){return`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`}
 function sp(){const d=[81200,81400,81100,81800,82000,82130,82450],w=150,h=48,mn=Math.min(...d),mx=Math.max(...d),rg=mx-mn||1;const pts=d.map((v,i)=>`${(i/(d.length-1))*w},${h-((v-mn)/rg)*h*.7-h*.15}`).join(' ');const lp=pts.split(' ').pop().split(',');return`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="sf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0.25"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h} ${pts} ${w},${h}" fill="url(#sf)"/><polyline points="${pts}" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${lp[0]}" cy="${lp[1]}" r="4" fill="#fff" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/></svg>`}
 
 /* Sheet */
@@ -323,7 +340,7 @@ return`<div class="fi">
   <div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>
   <div style="font-size:42px;font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-top:3px;font-variant-numeric:tabular-nums" id="nwVal">$82,450</div>
   <div class="r" style="margin-top:4px;gap:6px"><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>${bg('+1.2%','rgba(255,255,255,0.8)')}</div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">${sp()}<div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">${['7D','30D','90D','1Y'].map((r,i)=>`<button style="padding:5px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,${i===0?1:0.5});background:${i===0?'rgba(255,255,255,0.15)':'transparent'}">${r}</button>`).join('')}</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px">${sp()}<div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">${['7D','30D','90D','1Y'].map((r,i)=>`<button style="padding:8px 12px;font-size:10px;font-weight:700;color:rgba(255,255,255,${i===0?1:0.5});background:${i===0?'rgba(255,255,255,0.15)':'transparent'};min-height:36px">${r}</button>`).join('')}</div></div>
 </div>
 
 <!-- Flex Budget -->
@@ -351,8 +368,8 @@ return`<div class="fi">
 <!-- Today's Move -->
 <div class="c">
   <div class="r">
-    <div style="width:40px;height:40px;border-radius:13px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.plus,16,'var(--pos)',2.5)}</div>
-    <div style="flex:1"><div style="font-weight:700;font-size:15px">Today's Move</div><div class="sub">Move $15 to Emergency Fund</div></div>
+    <div style="width:40px;height:40px;border-radius:12px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.plus,16,'var(--pos)',2.5)}</div>
+    <div style="flex:1"><div style="font-weight:700;font-size:14px">Today's Move</div><div class="sub">Move $15 to Emergency Fund</div></div>
     <button class="btn-gold" onclick="os('Done!',sDone('Moved $15 to Emergency Fund'))">Do It</button>
   </div>
 </div>
@@ -360,7 +377,7 @@ return`<div class="fi">
 <!-- Messages -->
 <div class="c tap" onclick="gs('msg')">
   <div class="r">
-    <div style="width:36px;height:36px;border-radius:18px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.msg,16,'var(--acc)')}</div>
+    <div style="width:36px;height:36px;border-radius:18px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.msg,16,'var(--acc)',1.5)}</div>
     <div style="flex:1"><div style="font-weight:700;font-size:13px">Messages</div><div class="sub">Chat with Caroline &middot; 2 unread</div></div>
     <div style="width:20px;height:20px;border-radius:10px;background:var(--neg);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
   </div>
@@ -375,8 +392,8 @@ return`<div class="fi">
 <!-- Accounts -->
 <div class="c tap" onclick="gs('acct')">
   <div class="r" style="margin-bottom:10px">${hd('Accounts')}<span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--acc)">View All</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-    ${[{l:'Chase Checking',a:'$5,360',s:'g'},{l:'Chase Savings',a:'$12,400',s:'g'},{l:'Capital One',a:'$2,100',s:'y'},{l:'Cap One Savings',a:'$8,200',s:'r'},{l:'Ally Invest',a:'$26,500',s:'g'},{l:'Credit Cards',a:'-$1,200',s:'g'}].map(x=>`<div class="ci" style="padding:8px 10px;position:relative"><div class="dot" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:${x.s==='g'?'var(--pos)':x.s==='y'?'var(--warn)':'var(--neg)'}"></div><div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:2px">${x.l}</div><div style="font-size:15px;font-weight:800;color:${x.s==='r'?'var(--neg)':'var(--t1)'}">${x.a}</div>${x.s==='r'?`<div style="font-size:8px;font-weight:700;color:var(--neg)">47d stale</div>`:''}</div>`).join('')}
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">
+    ${[{l:'Chase Checking',a:'$5,360',s:'g'},{l:'Chase Savings',a:'$12,400',s:'g'},{l:'Capital One',a:'$2,100',s:'y'},{l:'Cap One Savings',a:'$8,200',s:'r'},{l:'Ally Invest',a:'$26,500',s:'g'},{l:'Credit Cards',a:'-$1,200',s:'g'}].map(x=>`<div class="ci" style="padding:8px 10px;position:relative"><div class="dot" style="position:absolute;top:6px;right:6px;width:6px;height:6px;background:${x.s==='g'?'var(--pos)':x.s==='y'?'var(--warn)':'var(--neg)'}"></div><div style="font-size:10px;font-weight:600;color:var(--t2);margin-bottom:2px">${x.l}</div><div style="font-size:15px;font-weight:800;color:${x.s==='r'?'var(--neg)':'var(--t1)'}">${x.a}</div>${x.s==='r'?`<div style="font-size:9px;font-weight:700;color:var(--neg)">47d stale</div>`:''}</div>`).join('')}
   </div>
 </div>
 
@@ -389,14 +406,14 @@ return`<div class="fi">
 <!-- Transactions -->
 <div class="c">
   ${hd('Transactions')}
-  ${[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true},{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},{w:'→',n:'Chase → Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true}].map(tx=>`<div class="tr" style="${tx.tr?'opacity:0.5':''}" onclick="os('Transaction',sTx('${tx.n}','${tx.a}','${tx.c}','${tx.w}'))"><div>${av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'#3068a0':tx.w==='→'?'var(--t2)':'var(--acc)')}</div><div style="flex:1;min-width:0"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">${tx.n}</span>${tx.f?bg('FLAG','var(--neg)'):''}${tx.rc?bg('Recurring','#208080'):''}${tx.rf?bg('Refund','var(--pos)'):''}${tx.tr?bg('Transfer','var(--t2)'):''}</div><div class="sub">${tx.c} &middot; ${tx.t}</div></div><span style="font-weight:800;font-size:12px;color:${tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)'};flex-shrink:0">${tx.a}</span></div>`).join('')}
+  ${[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true},{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},{w:'→',n:'Chase → Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true}].map(tx=>`<div class="tr" style="${tx.tr?'opacity:0.5':''}" onclick="os('Transaction',sTx('${tx.n}','${tx.a}','${tx.c}','${tx.w}'))"><div>${av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='→'?'var(--t2)':'var(--acc)')}</div><div style="flex:1;min-width:0"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">${tx.n}</span>${tx.f?bg('FLAG','var(--neg)'):''}${tx.rc?bg('Recurring','var(--info)'):''}${tx.rf?bg('Refund','var(--pos)'):''}${tx.tr?bg('Transfer','var(--t2)'):''}</div><div class="sub">${tx.c} &middot; ${tx.t}</div></div><span style="font-weight:800;font-size:12px;color:${tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)'};flex-shrink:0">${tx.a}</span></div>`).join('')}
   <div class="ci" style="margin-top:8px;display:flex;align-items:center;gap:8px;background:var(--warnBg);border:0.5px solid color-mix(in srgb,var(--warn) 12%,transparent);cursor:pointer" onclick="os('Duplicate Detected',sDup())">${ic(icons.warn,14,'var(--warn)',2.5)}<div style="flex:1"><div style="font-weight:700;font-size:11px;color:var(--warn)">Possible duplicate</div><div class="sub">Whole Foods $67.43 appeared twice</div></div><button class="btn-pill" style="background:var(--warnBg);color:var(--warn)">Review</button></div>
 </div>
 
 <!-- Nests -->
 <div class="c">
   ${hd('Your Nests')}
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">
     ${[{n:'Emergency',c:3600,g:5000},{n:'Hawaii',c:1800,g:4000},{n:'Mortgage',c:2100,g:10000},{n:'College',c:450,g:20000}].map(n=>`<div class="ci" style="padding:10px;cursor:pointer" onclick="os('${n.n}',sNest('${n.n}',${n.c},${n.g}))"><div style="font-size:11px;font-weight:700;margin-bottom:4px">${n.n}</div><div style="font-size:10px;color:var(--t2);margin-bottom:4px"><strong style="color:var(--acc)">$${n.c.toLocaleString()}</strong> / $${n.g.toLocaleString()}</div>${br((n.c/n.g)*100,'var(--acc)',4)}</div>`).join('')}
   </div>
 </div>
@@ -413,7 +430,7 @@ return`<div class="fi">
 <!-- Summary -->
 <div class="c">
   ${hd('April Summary')}
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px">
     <div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Income</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div>
     <div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div>
     <div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Saved</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div>
@@ -427,7 +444,7 @@ function rGrow(){return`<div class="fi">
 <div class="hero" style="padding:22px 18px 18px"><div style="font-size:42px;font-weight:800;letter-spacing:-2.5px;line-height:1">$6,130</div><div style="font-size:14px;opacity:0.85;margin-top:5px">auto-saved so far</div><div style="font-size:11px;opacity:0.6;margin-top:2px">$320 this month &middot; $3,840 YTD</div><div style="margin-top:12px">${br(64,'rgba(255,255,255,0.45)',6)}</div></div>
 
 <div class="cs">${hd('Autosave','Set & Forget')}
-${[{t:'Round-Ups',d:'Spare change → savings',v:'~$45/mo',on:true},{t:'Set & Forget',d:'Auto-save $15 daily',v:'$15/day',on:true},{t:'Paycheck Boost',d:'5% each payday',v:'5%',on:true},{t:'Weekly Transfer',d:'$15 → Emergency Fund',v:'$15/wk',on:false},{t:'Weekend 2x',d:'Double round-ups Sat–Sun',v:'2x',on:false}].map(f=>`<div class="tr"onclick="os('${f.t}',sAutoRule('${f.t}','${f.d}','${f.v}'))"><div style="width:36px;height:36px;border-radius:11px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.plus,14,'var(--pos)')}</div><div style="flex:1"><div style="font-weight:700;font-size:12px">${f.t}</div><div class="sub">${f.d} &middot; ${f.v}</div></div>${tg(f.on)}</div>`).join('')}
+${[{t:'Round-Ups',d:'Spare change → savings',v:'~$45/mo',on:true},{t:'Set & Forget',d:'Auto-save $15 daily',v:'$15/day',on:true},{t:'Paycheck Boost',d:'5% each payday',v:'5%',on:true},{t:'Weekly Transfer',d:'$15 → Emergency Fund',v:'$15/wk',on:false},{t:'Weekend 2x',d:'Double round-ups Sat–Sun',v:'2x',on:false}].map(f=>`<div class="tr" onclick="os('${f.t}',sAutoRule('${f.t}','${f.d}','${f.v}'))"><div style="width:36px;height:36px;border-radius:11px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.plus,14,'var(--pos)')}</div><div style="flex:1"><div style="font-weight:700;font-size:12px">${f.t}</div><div class="sub">${f.d} &middot; ${f.v}</div></div>${tg(f.on)}</div>`).join('')}
 </div>
 
 <div class="cs"><div class="r" style="margin-bottom:10px;gap:6px">${ic(icons.lock,18,'var(--t1)',1.5)}${hd('Category Caps')}</div>
@@ -452,33 +469,33 @@ function rPlan(){return`<div class="fi">
 
 <div class="c tap" onclick="os('Budget',sBudget())"><div class="r">${ic(icons.grid,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Monthly Budget</div><div class="sub">$4,320 of $4,600 &middot; 10 categories</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
 
-${[{n:'Emergency Fund',c:3700,g:5000,f:'$15/wk',d:'Dec 2024',sh:true},{n:'Hawaii Trip',c:1800,g:4000,f:'$100/2wk',d:'Mar 2025',sh:true},{n:'Mortgage Extra',c:2100,g:10000,f:'$150/wk',d:'Aug 2025',sh:true},{n:"Von's Tech",c:800,g:2000,f:'$25/wk',d:'Jun 2025',p:true},{n:"Caroline's Fun",c:320,g:1000,f:'$20/wk',d:'Jul 2025',p:true}].map((n,i)=>{const p=Math.round((n.c/n.g)*100);return`<div class="${i===0?'cs':'c'} tap" onclick="os('${n.n}',sNest('${n.n}',${n.c},${n.g}))"><div class="r"><div style="flex:1"><div class="r" style="gap:4px"><span style="font-weight:${i===0?800:700};font-size:${i===0?15:12}px">${n.n}</span>${n.p?bg('Personal','var(--warn)'):''}</div><div class="sub">${n.f} &middot; ${n.d}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:${i===0?14:11}px;color:var(--acc)">$${n.c.toLocaleString()}<span style="font-weight:400;color:var(--t3);font-size:10px"> / $${n.g.toLocaleString()}</span></div><div style="margin-top:3px;width:${i===0?85:65}px">${br(p,'var(--acc)',i===0?6:3)}</div></div></div></div>`}).join('')}
+${[{n:'Emergency Fund',c:3700,g:5000,f:'$15/wk',d:'Dec 2024',sh:true},{n:'Hawaii Trip',c:1800,g:4000,f:'$100/2wk',d:'Mar 2025',sh:true},{n:'Mortgage Extra',c:2100,g:10000,f:'$150/wk',d:'Aug 2025',sh:true},{n:"Von's Tech",c:800,g:2000,f:'$25/wk',d:'Jun 2025',p:true},{n:"Caroline's Fun",c:320,g:1000,f:'$20/wk',d:'Jul 2025',p:true}].map((n,i)=>{const p=Math.round((n.c/n.g)*100);const ne=n.n.replace(/'/g,"&#39;");return`<div class="${i===0?'cs':'c'} tap" onclick="os('${ne}',sNest('${ne}',${n.c},${n.g}))"><div class="r"><div style="flex:1"><div class="r" style="gap:4px"><span style="font-weight:${i===0?800:700};font-size:${i===0?15:12}px">${n.n}</span>${n.p?bg('Personal','var(--warn)'):''}</div><div class="sub">${n.f} &middot; ${n.d}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:${i===0?14:11}px;color:var(--acc)">$${n.c.toLocaleString()}<span style="font-weight:400;color:var(--t3);font-size:10px"> / $${n.g.toLocaleString()}</span></div><div style="margin-top:3px;width:${i===0?85:65}px">${br(p,'var(--acc)',i===0?6:3)}</div></div></div></div>`}).join('')}
 
-<div style="border:2px dashed var(--sep);border-radius:20px;padding:14px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;margin-bottom:10px" onclick="os('New Nest',sNewNest())">+ Add a New Nest</div>
+<div style="border:2px dashed var(--sep);border-radius:20px;padding:14px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;margin-bottom:10px;transition:background var(--fast) ease,transform var(--fast) var(--spring)" onmousedown="this.style.transform='scale(0.97)';this.style.background='var(--accS)'" onmouseup="this.style.transform='';this.style.background=''" onmouseleave="this.style.transform='';this.style.background=''" onclick="os('New Nest',sNewNest())" role="button" tabindex="0">+ Add a New Nest</div>
 
-<div class="c tap" onclick="os('Debt Paydown',sDebt())">${hd('Debt Paydown')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total Debt</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Payoff ETA</div><div style="font-size:16px;font-weight:800">8 months</div></div></div></div>
+<div class="c tap" onclick="os('Debt Paydown',sDebt())">${hd('Debt Paydown')}<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total Debt</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Payoff ETA</div><div style="font-size:16px;font-weight:800">8 months</div></div></div></div>
 
 <div class="c">${hd('Upcoming Moves')}${[{l:'$15 → Emergency Fund',d:'TODAY',h:true},{l:'$100 → Hawaii Trip',d:'Apr 26'},{l:'$150 → Mortgage',d:'Apr 27'},{l:"$25 → Von's Tech",d:'Apr 28'}].map(m=>`<div class="r" style="padding:7px 0;border-bottom:0.5px solid var(--sep)"><span style="flex:1;font-weight:600;font-size:11px">${m.l}</span><span style="font-size:10px;font-weight:700;color:${m.h?'var(--neg)':'var(--t2)'};${m.h?'background:var(--negBg);padding:2px 8px;border-radius:6px':''}">${m.d}</span></div>`).join('')}</div>
 </div>`}
 
 /* ═══════════════ TRACK ═══════════════ */
 function rTrack(){return`<div class="fi">
-<div class="hero" style="padding:18px"><div style="font-size:40px;font-weight:800;letter-spacing:-2.5px">$290k</div><div style="font-size:13px;opacity:0.85;margin-top:2px">invested across all assets</div><div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:4px">${[{l:'Investments',v:'$180.5k',cl:'#fff'},{l:'401(k)',v:'$68.4k',cl:'var(--gold)'},{l:'Real Estate',v:'$29.2k',cl:'var(--warn)'},{l:'Other',v:'$11.9k',cl:'rgba(255,255,255,0.5)'}].map(s=>`<div class="r" style="gap:4px"><div class="dot" style="width:6px;height:6px;background:${s.cl}"></div><span style="font-size:11px;font-weight:600;flex:1">${s.l}</span><span style="font-size:11px;font-weight:700">${s.v}</span></div>`).join('')}</div></div>
+<div class="hero" style="padding:18px"><div style="font-size:40px;font-weight:800;letter-spacing:-2.5px">$290k</div><div style="font-size:13px;opacity:0.85;margin-top:2px">invested across all assets</div><div style="margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px">${[{l:'Investments',v:'$180.5k',cl:'#fff'},{l:'401(k)',v:'$68.4k',cl:'var(--gold)'},{l:'Real Estate',v:'$29.2k',cl:'var(--warn)'},{l:'Other',v:'$11.9k',cl:'rgba(255,255,255,0.5)'}].map(s=>`<div class="r" style="gap:4px"><div class="dot" style="width:6px;height:6px;background:${s.cl}"></div><span style="font-size:11px;font-weight:600;flex:1">${s.l}</span><span style="font-size:11px;font-weight:700">${s.v}</span></div>`).join('')}</div></div>
 
-<div class="c tap" onclick="gs('scan')"><div class="r">${ic(icons.cam,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:13px">Receipt Scanner</div><div class="sub">Snap, match, attach to any transaction</div></div>${bg('NEW','var(--gold)')}</div></div>
+<div class="c tap" onclick="gs('scan')"><div class="r">${ic(icons.cam,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Receipt Scanner</div><div class="sub">Snap, match, attach to any transaction</div></div>${bg('NEW','var(--gold)')}</div></div>
 
 <div class="c tap" onclick="os('Recurring Bills',sRBills())"><div class="r">${ic(icons.calendar,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Recurring Bills</div><div class="sub">9 bills &middot; $1,178 remaining</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
 
-<div class="cs">${hd('Bill Audit')}<div style="float:right;background:var(--posBg);border-radius:14px;padding:3px 10px;margin-top:-30px"><span style="font-size:12px;font-weight:800;color:var(--pos)">$147</span><span class="sub">/mo</span></div>
+<div class="cs">${hd('Bill Audit')}<div style="float:right;background:var(--posBg);border-radius:17px;padding:3px 10px;margin-top:-30px"><span style="font-size:12px;font-weight:800;color:var(--pos)">$147</span><span class="sub">/mo</span></div>
 ${[{n:'Car Insurance',p:'Bundle',sv:38,e:'Easy'},{n:'Streaming',p:'Drop 2',sv:24,e:'Easy'},{n:'Internet',p:'Renegotiate',sv:25,e:'Med'},{n:'Phone',p:'Switch Mint',sv:60,e:'Med'}].map(b=>`<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="os('${b.n}',sBillA('${b.n}',${b.sv}))"><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:700;font-size:11px">${b.n}</span>${bg(b.e,b.e==='Easy'?'var(--pos)':'var(--warn)')}</div><div class="sub">${b.p}</div></div><span style="font-weight:800;font-size:12px;color:var(--pos);flex-shrink:0">-$${b.sv}</span></div>`).join('')}
 <div class="ci" style="margin-top:6px;text-align:center;background:var(--posBg)"><span class="sub">Annual: </span><span style="font-size:14px;font-weight:800;color:var(--pos)">$1,764</span></div></div>
 
 <div class="c">${hd('Subscriptions')}<div class="r" style="justify-content:space-between;margin-bottom:8px;margin-top:-8px"><span class="sub">12 active &middot; $287/mo</span>${bg('3 issues','var(--neg)')}</div>
-${[{n:'Netflix',a:15.49,w:'Shared',ok:true},{n:'Hulu',a:17.99,w:'Shared',i:'Low use'},{n:'Disney+',a:13.99,w:'Caroline',i:'<5%'},{n:'Headspace',a:14.99,w:'Von',i:'60d'},{n:'Adobe CC',a:22.99,w:'Caroline',i:'90d'},{n:'Spotify',a:16.99,w:'Shared',ok:true}].map(s=>`<div class="tr" onclick="os('${s.n}',sSub('${s.n}',${s.a},'${s.w}','${s.i||''}'))"><span style="font-weight:600;font-size:11px;flex:1">${s.n}</span><span class="sub">${s.w}</span>${s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)')}<span style="font-weight:700;font-size:11px;width:48px;text-align:right;flex-shrink:0">$${s.a}</span></div>`).join('')}</div>
+${[{n:'Netflix',a:15.49,w:'Shared',ok:true},{n:'Hulu',a:17.99,w:'Shared',i:'Low use'},{n:'Disney+',a:13.99,w:'Caroline',i:'&lt;5%'},{n:'Headspace',a:14.99,w:'Von',i:'60d'},{n:'Adobe CC',a:22.99,w:'Caroline',i:'90d'},{n:'Spotify',a:16.99,w:'Shared',ok:true}].map(s=>`<div class="tr" onclick="os('${s.n}',sSub('${s.n}',${s.a},'${s.w}','${s.i||''}'))"><span style="font-weight:600;font-size:11px;flex:1">${s.n}</span><span class="sub">${s.w}</span>${s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)')}<span style="font-weight:700;font-size:11px;width:48px;text-align:right;flex-shrink:0">$${s.a}</span></div>`).join('')}</div>
 
 <div class="c tap" onclick="os('Investment Fees',sFees())"><div class="r">${ic(icons.trending,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Fee Analyzer</div><div class="sub">0.42% avg &middot; $47k projected drag over 30yr</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
 
-<div class="c tap" onclick="os('Tax Deductible',sTax())"><div class="r">${ic(icons.receipt,14,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Tax-Deductible</div><div class="sub">$1,240 tagged YTD &middot; 14 items</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
+<div class="c tap" onclick="os('Tax Deductible',sTax())"><div class="r">${ic(icons.receipt,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Tax-Deductible</div><div class="sub">$1,240 tagged YTD &middot; 14 items</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
 </div>`}
 
 /* ═══════════════ TRUST ═══════════════ */
@@ -495,7 +512,7 @@ ${[{a:'Disconnected',d:'Cap One Savings',w:'Caroline',t:'Mar 12',f:true},{a:'Tx 
 <div class="cs">${hd('Income','Cadence')}
 ${[{s:'ALTA Payroll (Von)',f:'Biweekly',n:'Apr 25',a:'$4,280',st:'ok'},{s:'Freelance (Caroline)',f:'Monthly',n:'Apr 15',a:'~$2,800',st:'due'},{s:'Rental',f:'Monthly 1st',n:'May 1',a:'$1,200',st:'ok'}].map(p=>`<div class="ci" style="margin-bottom:4px;${p.st==='due'?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':''};padding:8px 10px"><div class="r" style="margin-bottom:1px"><span style="font-weight:600;font-size:11px;flex:1">${p.s}</span><span style="font-weight:800;font-size:11px;color:var(--pos);flex-shrink:0">${p.a}</span></div><div class="r" style="gap:4px"><div class="dot" style="width:5px;height:5px;background:${p.st==='ok'?'var(--pos)':'var(--warn)'}"></div><span style="font-size:9px;color:${p.st==='ok'?'var(--pos)':'var(--warn)'}">${p.st==='ok'?'On Track':'Expected Today'}</span><span class="sub" style="margin-left:auto;font-size:9px">${p.f} &middot; Next: ${p.n}</span></div></div>`).join('')}</div>
 
-<div class="c tap" onclick="os('Transaction Notes',sNotes())"><div class="r">${ic(icons.msg,14,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Transaction Notes</div><div class="sub">Both partners comment &middot; 4 threads</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
+<div class="c tap" onclick="os('Transaction Notes',sNotes())"><div class="r">${ic(icons.msg,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Transaction Notes</div><div class="sub">Both partners comment &middot; 4 threads</div></div>${ic(icons.chev,14,'var(--t3)')}</div></div>
 </div>`}
 
 /* ═══════════════ COACH ═══════════════ */
@@ -503,17 +520,18 @@ function rCoach(){return`<div class="fi" style="display:flex;flex-direction:colu
 <div class="ci" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--accS);border-color:color-mix(in srgb,var(--acc) 12%,transparent)"><div style="width:30px;height:30px;border-radius:15px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic('<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>',14,'#fff',2)}</div><div style="flex:1"><div style="font-weight:700;font-size:12px">NestWorth Intelligence</div><div class="sub">Monitoring both partners</div></div><div style="display:flex;gap:2px">${av('V',18)}${av('C',18,'var(--warn)')}</div></div>
 <div id="cmsgs" style="flex:1;overflow-y:auto;padding-bottom:8px"><div class="msg-in">Household pulse:<br><br>&bull; Net worth: $82,450 (+$1,250 this month)<br>&bull; Health: 74/100<br>&bull; Cap One Savings — 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster<br>&bull; Von's paycheck on track<br>&bull; Found $147/mo bill savings<br>&bull; 1 duplicate detected<br>&bull; Emergency fund: 0.8 months<br><br>What should we dig into?</div></div>
 <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">${['Spending','Sync','Bills','Save','Audit','Forecast'].map(q=>`<button class="btn-pill" onclick="sC('${q}')">${q}</button>`).join('')}</div>
-<div class="r" style="gap:6px"><input id="ci" placeholder="Ask about your household..." style="flex:1;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key==='Enter')sC()"><button onclick="sC()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform=''">↑</button></div>
+<div class="r" style="gap:6px"><input id="ci" maxlength="500" placeholder="Ask about your household..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key==='Enter')sC()"><button onclick="sC()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform=''">↑</button></div>
 </div>`}
 
 const CA={Spending:"This week:\n\n● Von: $145\n● Caroline: $755 (TreatYoSelf $650)\n\nSpending 38% faster than average. May exceed budget by $420.",Sync:"Cap One Savings disconnected by Caroline Mar 12. 47 days stale. Cross-reference shows 3 unmatched ($342).\n\nMonarch shows stale numbers silently. We flag it.",Bills:"4 savings opportunities:\n1. Insurance: -$38\n2. Streaming: -$24\n3. Internet: -$25\n4. Phone: -$60\n\n+3 unused subs: $62\nTotal: $209/mo → $2,508/yr",Save:"7 moves for $409/mo ($4,908/yr):\n1. Bill audit $147\n2. Drop subs $62\n3. Tighten Shopping\n4. Tighten Dining\n5. Round-Ups for Caroline\n6. Bump daily save\n7. Switch phone",Audit:"Mar 12 — Caroline disconnected Cap One\nMar 10 — Caroline deleted Target $84.50\nMar 14 — Von reconnected\nFeb 25 — Recategorized Amazon\nFeb 20 — Von exported Q1",Forecast:"At current pace:\n• End of April: $84,800\n• End of Q2: $89,200\n• End of Year: $115,400\n\nWith bill audit savings applied:\n• End of Year: $117,200 (+$1,764)"};
-function sC(t){const i=$('ci');const m=t||i.value.trim();if(!m)return;i.value='';const c=$('cmsgs');c.innerHTML+=`<div class="msg-out">${m}</div>`;setTimeout(()=>{c.innerHTML+=`<div class="msg-in">${(CA[m]||'Net worth grew $320 today. Monitoring all accounts for gaps and anomalies.').replace(/\n/g,'<br>')}</div>`;c.scrollTop=c.scrollHeight},600)}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function sC(t){const i=$('ci');const m=t||i.value.trim();if(!m)return;i.value='';const c=$('cmsgs');c.innerHTML+=`<div class="msg-out">${esc(m)}</div>`;setTimeout(()=>{c.innerHTML+=`<div class="msg-in">${(CA[m]||'Net worth grew $320 today. Monitoring all accounts for gaps and anomalies.').replace(/\n/g,'<br>')}</div>`;c.scrollTop=c.scrollHeight},600)}
 
 /* ═══════════════ SUB-SCREENS ═══════════════ */
 function rMsg(){return`<div class="fi">
-<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px">← Back</button>
+<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">← Back</button>
 <div class="cs" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:12px"><div style="display:flex;gap:4px">${av('V',32)}${av('C',32,'var(--warn)')}</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Von & Caroline</div><div class="sub">Private household chat</div></div></div>
-<div id="mmsg" style="min-height:300px;padding-bottom:10px">
+<div id="mmsg" style="min-height:300px;padding-bottom:10px;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div class="sub" style="text-align:center;margin-bottom:12px">Today</div>
   <div class="msg-in"><strong>Caroline:</strong> Hey did you see the TreatYoSelf charge? It was mom's birthday gift</div>
   <div class="msg-out">Yeah I saw it — flagged in the app. Makes sense, should I dismiss the flag?</div>
@@ -524,12 +542,12 @@ function rMsg(){return`<div class="fi">
   <div class="msg-out">Perfect. Bills are all tracked now</div>
 </div>
 <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${['Send Receipt','Split Request','Bill Reminder','Nest Check-in'].map(q=>`<button class="btn-pill">${q}</button>`).join('')}</div>
-<div class="r" style="gap:6px"><button onclick="gs('scan')" style="width:44px;height:44px;border-radius:22px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.cam,18,'var(--acc)',1.5)}</button><input id="mi" placeholder="Message Caroline..." style="flex:1;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key==='Enter')sMsg()"><button onclick="sMsg()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0">↑</button></div>
+<div class="r" style="gap:6px"><button onclick="gs('scan')" style="width:44px;height:44px;border-radius:22px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform=''">${ic(icons.cam,18,'var(--acc)',1.5)}</button><input id="mi" maxlength="500" placeholder="Message Caroline..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key==='Enter')sMsg()"><button onclick="sMsg()" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform=''">↑</button></div>
 </div>`}
-function sMsg(){const i=$('mi');const m=i.value.trim();if(!m)return;i.value='';$('mmsg').innerHTML+=`<div class="msg-out">${m}</div>`;setTimeout(()=>{$('mmsg').innerHTML+=`<div class="msg-in"><strong>Caroline:</strong> Got it!</div>`;$('mmsg').scrollTop=$('mmsg').scrollHeight},1200)}
+function sMsg(){const i=$('mi');const m=i.value.trim();if(!m)return;i.value='';$('mmsg').innerHTML+=`<div class="msg-out">${esc(m)}</div>`;setTimeout(()=>{$('mmsg').innerHTML+=`<div class="msg-in"><strong>Caroline:</strong> Got it!</div>`;$('mmsg').scrollTop=$('mmsg').scrollHeight},1200)}
 
 function rScan(){return`<div class="fi">
-<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px">← Back</button>
+<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">← Back</button>
 <div class="cs" style="text-align:center;padding:20px">${hd('Receipt Scanner')}<div class="sub" style="margin-top:-8px;margin-bottom:16px">Snap a receipt, auto-match it to a transaction</div>
 <div class="scan-area" id="scanArea" onclick="doScan()">
   ${ic(icons.cam,40,'var(--acc)',1.5)}
@@ -543,10 +561,10 @@ function rScan(){return`<div class="fi">
 <div id="scanResult" style="display:none">
 <div class="cs">${hd('Receipt Detected')}
 <div class="ci" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:50px;height:65px;border-radius:8px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icons.receipt,24,'var(--acc)',1.5)}</div><div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--pos)">$145.00</div><div style="font-weight:700;font-size:14px;margin-top:2px">Pepco Electric</div><div class="sub" style="margin-top:2px">Apr 13 &middot; Account ending 4821</div></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${[{l:'Merchant',v:'Pepco'},{l:'Amount',v:'$145.00'},{l:'Date',v:'Apr 13'},{l:'Category',v:'Utilities'}].map(f=>`<div class="ci" style="padding:8px"><div class="sub" style="font-size:9px">${f.l}</div><div style="font-size:12px;font-weight:700">${f.v}</div></div>`).join('')}</div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px">${[{l:'Merchant',v:'Pepco'},{l:'Amount',v:'$145.00'},{l:'Date',v:'Apr 13'},{l:'Category',v:'Utilities'}].map(f=>`<div class="ci" style="padding:8px"><div class="sub" style="font-size:9px">${f.l}</div><div style="font-size:12px;font-weight:700">${f.v}</div></div>`).join('')}</div></div>
 <div class="cs"><div style="font-weight:700;font-size:13px;margin-bottom:8px">Match to Transaction</div>
 <div class="ci" style="display:flex;align-items:center;gap:8px;border:2px solid var(--pos);background:var(--posBg);margin-bottom:6px;cursor:pointer">${ic(icons.check,14,'var(--pos)',3)}<div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--pos)">Electric Bill — $145.00</div><div class="sub">Tomorrow &middot; Chase Joint &middot; Best match</div></div>${bg('98%','var(--pos)')}</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-full" style="border-radius:22px;height:46px;font-size:13px" onclick="os('Attached!',sDone('Receipt matched to Electric Bill $145.00'))">Attach</button><button class="btn-outline btn-full" style="border-radius:22px">Send to Caroline</button></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><button class="btn btn-full" style="border-radius:22px;height:46px;font-size:13px" onclick="os('Attached!',sDone('Receipt matched to Electric Bill $145.00'))">Attach</button><button class="btn-outline btn-full" style="border-radius:22px">Send to Caroline</button></div>
 </div>
 <div class="c">${hd('Recent Scans')}${[{n:'Whole Foods Receipt',a:'$67.43',d:'Today',m:true},{n:'Gas Station Receipt',a:'$48.20',d:'Yesterday',m:true},{n:'Amazon Return Label',a:'$84.50',d:'Apr 10',m:true}].map(s=>`<div class="tr">${ic(icons.receipt,14,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:600;font-size:12px">${s.n}</div><div class="sub">${s.d} &middot; ${s.a}</div></div>${s.m?bg('Matched','var(--pos)'):bg('Unmatched','var(--warn)')}</div>`).join('')}</div>
 </div>`}
@@ -554,14 +572,14 @@ function doScan(){const a=$('scanArea');a.innerHTML=`<div style="padding:20px"><
 
 /* ═══════════════ SETTINGS ═══════════════ */
 function rSet(){return`<div class="fi">
-<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px">← Back</button>
+<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">← Back</button>
 <div class="cs"><div class="r" style="gap:12px;margin-bottom:14px"><div style="width:48px;height:48px;border-radius:24px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:800">VS</div><div style="flex:1"><div style="font-size:16px;font-weight:800">Von & Caroline</div><div class="sub">Household &middot; Since Jan 2024</div></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:8px">Net Worth</div><div style="font-size:14px;font-weight:800;color:var(--acc)">$82.4k</div></div><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:8px">Nests</div><div style="font-size:14px;font-weight:800">6</div></div><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:8px">Saved</div><div style="font-size:14px;font-weight:800;color:var(--pos)">$6.1k</div></div></div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px"><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">Net Worth</div><div style="font-size:14px;font-weight:800;color:var(--acc)">$82.4k</div></div><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">Nests</div><div style="font-size:14px;font-weight:800">6</div></div><div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">Saved</div><div style="font-size:14px;font-weight:800;color:var(--pos)">$6.1k</div></div></div></div>
 
 <!-- Theme Picker -->
 <div class="cs">${hd('Appearance')}
-<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
-${[{n:'Emerald',k:'emerald',c1:'#1a5e3a',c2:'#c8a848'},{n:'Light',k:'light',c1:'#f2f2f7',c2:'#007aff'},{n:'Dark',k:'dark',c1:'#000',c2:'#0a84ff'},{n:'Midnight',k:'midnight',c1:'#0a0e1a',c2:'#6c8fff'},{n:'Gold',k:'gold',c1:'#12100b',c2:'#d4a853'}].map(t=>`<div style="text-align:center;cursor:pointer" onclick="setTheme('${t.k}')"><div style="width:100%;aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,${t.c1},${t.c2});border:2.5px solid ${theme===t.k?'var(--acc)':'transparent'};transition:border 0.2s ease;display:flex;align-items:center;justify-content:center">${theme===t.k?ic(icons.check,16,'#fff',3):''}</div><div style="font-size:9px;font-weight:600;margin-top:4px;color:${theme===t.k?'var(--acc)':'var(--t2)'}">${t.n}</div></div>`).join('')}
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">
+${[{n:'Emerald',k:'emerald',c1:'#1a5e3a',c2:'#c8a848'},{n:'Light',k:'light',c1:'#f2f2f7',c2:'#007aff'},{n:'Dark',k:'dark',c1:'#000',c2:'#0a84ff'},{n:'Midnight',k:'midnight',c1:'#0a0e1a',c2:'#6c8fff'},{n:'Gold',k:'gold',c1:'#12100b',c2:'#d4a853'}].map(t=>`<div style="text-align:center;cursor:pointer;min-width:0" onclick="setTheme('${t.k}')"><div style="width:100%;aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,${t.c1},${t.c2});border:2.5px solid ${theme===t.k?'var(--acc)':'transparent'};transition:border 0.2s ease;display:flex;align-items:center;justify-content:center">${theme===t.k?ic(icons.check,16,'#fff',3):''}</div><div style="font-size:10px;font-weight:600;margin-top:4px;color:${theme===t.k?'var(--acc)':'var(--t2)'}">${t.n}</div></div>`).join('')}
 </div></div>
 
 <!-- Alerts -->
@@ -569,7 +587,7 @@ ${[{n:'Emerald',k:'emerald',c1:'#1a5e3a',c2:'#c8a848'},{n:'Light',k:'light',c1:'
 <div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">${ic(icons.mail,16,'var(--acc)',1.5)}<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">${alertPrefs.emailAddr}</div></div></div>${tg(alertPrefs.email,false,'togEmail')}</div>
 <div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">${ic(icons.phone,16,'var(--acc)',1.5)}<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">${alertPrefs.phone||'Add phone number'}</div></div></div>${tg(alertPrefs.sms,false,'togSMS')}</div>
 <div style="margin-top:10px;font-weight:700;font-size:11px;margin-bottom:6px">Alert Types</div>
-${Object.entries({overspend:'Category Overspend',sync:'Account Sync Issues',bills:'Bill Due Reminders',goals:'Goal Milestones',anomaly:'Anomaly Detection',velocity:'Spending Velocity',weekly:'Weekly Summary'}).map(([k,v])=>`<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:12px;flex:1">${v}</span>${tg(alertPrefs.types[k],false,'togAlert_'+k)}</div>`).join('')}
+${Object.entries({overspend:'Category Overspend',sync:'Account Sync Issues',bills:'Bill Due Reminders',goals:'Goal Milestones',anomaly:'Anomaly Detection',velocity:'Spending Velocity',weekly:'Weekly Summary'}).map(([k,v])=>`<div class="r" style="padding:8px 0;min-height:44px;border-bottom:0.5px solid var(--sep)"><span style="font-size:12px;flex:1">${v}</span>${tg(alertPrefs.types[k],false,'togAlert_'+k)}</div>`).join('')}
 <button class="btn btn-full" style="margin-top:12px;border-radius:22px;height:44px;font-size:13px" onclick="saveAlertSettings()">Save Alert Preferences</button>
 </div>
 
@@ -587,59 +605,61 @@ ${['Transparency Mode','Notifications','Biometric Lock','Smart Categories','Dupl
 ${['Export All Data (CSV/PDF)','Download Audit Trail','Print Budget Report','Request Data Deletion','Privacy Policy','Security (SOC 2 / Plaid)'].map(item=>`<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">${item}</span>${ic(icons.chev,14,'var(--t3)')}</div>`).join('')}</div>
 
 <div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v2.0 &middot; Built for two, trusted by both</div></div>
-<button class="btn-danger btn-full" style="border-radius:20px;padding:12px;font-weight:700;font-size:13px">Sign Out</button>
+<button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-weight:700;font-size:13px">Sign Out</button>
 </div>`}
 
-function setTheme(t){theme=t;localStorage.setItem('nw-theme',t);document.body.setAttribute('data-theme',t);rr()}
+const themeColors={emerald:'#1a5e3a',light:'#f2f2f7',dark:'#000000',midnight:'#0a0e1a',gold:'#12100b'};
+function updateThemeColor(t){const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',themeColors[t]||'#1a5e3a')}
+function setTheme(t){theme=t;localStorage.setItem('nw-theme',t);document.body.setAttribute('data-theme',t);updateThemeColor(t);rr()}
 function saveAlertSettings(){
   const e=$('togEmail'),s=$('togSMS');
   if(e)alertPrefs.email=e.classList.contains('on');
   if(s)alertPrefs.sms=s.classList.contains('on');
   Object.keys(alertPrefs.types).forEach(k=>{const el=$('togAlert_'+k);if(el)alertPrefs.types[k]=el.classList.contains('on')});
-  saveAlerts();os('Saved',sDone('Alert preferences saved successfully.\\n\\n'+(alertPrefs.email?'Email: ON — '+alertPrefs.emailAddr:'Email: OFF')+'\\n'+(alertPrefs.sms?'SMS: ON':'SMS: OFF')));
+  saveAlerts();os('Saved',sDone('Alert preferences saved successfully.\n\n'+(alertPrefs.email?'Email: ON — '+alertPrefs.emailAddr:'Email: OFF')+'\n'+(alertPrefs.sms?'SMS: ON':'SMS: OFF')));
 }
 
 /* ═══════════════ SHEET GENERATORS ═══════════════ */
 function sDone(msg){return`<div style="text-align:center;padding:20px"><div style="width:48px;height:48px;border-radius:24px;background:var(--posBg);display:flex;align-items:center;justify-content:center;margin:0 auto">${ic(icons.check,24,'var(--pos)',3)}</div><div style="font-size:15px;font-weight:700;margin-top:12px;white-space:pre-line">${msg}</div></div>`}
 
 function sFlexBudget(){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:800;color:var(--pos);letter-spacing:-2px">$1,680</div><div class="sub">safe to spend through Apr 30</div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Budget</div><div style="font-size:14px;font-weight:800">$4,600</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:14px;font-weight:800;color:var(--warn)">$2,920</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Per Day</div><div style="font-size:14px;font-weight:800;color:var(--pos)">$140</div></div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Budget</div><div style="font-size:14px;font-weight:800">$4,600</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:14px;font-weight:800;color:var(--warn)">$2,920</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Per Day</div><div style="font-size:14px;font-weight:800;color:var(--pos)">$140</div></div></div>
 ${br(63,'var(--pos)',8)}
 <div class="sub" style="margin-top:6px">12 days remaining &middot; $140/day safe spend rate</div>
 <div class="ci" style="margin-top:12px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;margin-bottom:4px">YNAB-Style Insight</div><div class="sub" style="line-height:1.5">Every dollar has a job. Your "flex" money is what's left after bills ($2,400) and savings ($520) are covered. You're doing great.</div></div>`}
 
 function sHS(){return`<div style="text-align:center;margin-bottom:16px"><div style="width:80px;height:80px;border-radius:40px;background:conic-gradient(var(--pos) 74%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:60px;height:60px;border-radius:30px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--acc)">74</div></div><div class="sub" style="margin-top:8px">Good — room for improvement</div></div>${[{n:'Savings Rate',s:82},{n:'Debt Ratio',s:90},{n:'Account Health',s:55},{n:'Budget Adherence',s:60},{n:'Emergency Fund',s:28},{n:'Spending Velocity',s:65},{n:'Bill Payment',s:95},{n:'Net Worth Trend',s:88}].map(i=>`<div style="margin-bottom:8px"><div class="r" style="justify-content:space-between;margin-bottom:2px"><span style="font-size:11px;font-weight:600">${i.n}</span><span style="font-size:11px;font-weight:800;color:${i.s>=80?'var(--pos)':i.s>=50?'var(--warn)':'var(--neg)'}">${i.s}/100</span></div>${br(i.s,i.s>=80?'var(--pos)':i.s>=50?'var(--warn)':'var(--neg)',3)}</div>`).join('')}<div class="ci" style="margin-top:12px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;margin-bottom:4px">How to improve</div><div class="sub" style="line-height:1.5">1. Reconnect Cap One Savings (+15)<br>2. Get Shopping under cap (+5)<br>3. Build emergency fund (+20)</div></div>`}
 
-function sVel(){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:900;color:var(--neg)">38%</div><div class="sub">faster than your average week</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">This Week</div><div style="font-size:18px;font-weight:800;color:var(--neg)">$1,066</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Avg Week</div><div style="font-size:18px;font-weight:800">$772</div></div></div><div class="sub" style="line-height:1.5">At this pace you'll spend $4,740 — $420 over budget. The TreatYoSelf $650 purchase is the primary driver.</div>`}
+function sVel(){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:900;color:var(--neg)">38%</div><div class="sub">faster than your average week</div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">This Week</div><div style="font-size:18px;font-weight:800;color:var(--neg)">$1,066</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Avg Week</div><div style="font-size:18px;font-weight:800">$772</div></div></div><div class="sub" style="line-height:1.5">At this pace you'll spend $4,740 — $420 over budget. The TreatYoSelf $650 purchase is the primary driver.</div>`}
 
-function sCat(n,a,m,v,c){const p=Math.round((a/m)*100);return`<div class="r" style="justify-content:space-between;margin-bottom:10px"><div><div style="font-size:24px;font-weight:800;color:${p>100?'var(--neg)':'var(--t1)'}">$${a}</div><div class="sub">of $${m}</div></div><div style="font-size:20px;font-weight:800;color:${p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)'}">${p}%</div></div>${br(p,p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">Per Person</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ci" style="display:flex;align-items:center;gap:6px">${av('V',22)}<div><div style="font-size:10px;font-weight:700">Von</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$${v}</div></div></div><div class="ci" style="display:flex;align-items:center;gap:6px">${av('C',22,'var(--warn)')}<div><div style="font-size:10px;font-weight:700">Caroline</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$${c}</div></div></div></div>`}
+function sCat(n,a,m,v,c){const p=Math.round((a/m)*100);return`<div class="r" style="justify-content:space-between;margin-bottom:10px"><div><div style="font-size:24px;font-weight:800;color:${p>100?'var(--neg)':'var(--t1)'}">$${a}</div><div class="sub">of $${m}</div></div><div style="font-size:20px;font-weight:800;color:${p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)'}">${p}%</div></div>${br(p,p>100?'var(--neg)':p>80?'var(--warn)':'var(--pos)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">Per Person</div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><div class="ci" style="display:flex;align-items:center;gap:6px">${av('V',22)}<div><div style="font-size:10px;font-weight:700">Von</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$${v}</div></div></div><div class="ci" style="display:flex;align-items:center;gap:6px">${av('C',22,'var(--warn)')}<div><div style="font-size:10px;font-weight:700">Caroline</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$${c}</div></div></div></div>`}
 
-function sTx(n,a,c,w){const wn=w==='V'?'Von':w==='C'?'Caroline':w==='J'?'Joint':'Transfer';return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;font-weight:900">${a}</div><div style="font-size:15px;font-weight:700;margin-top:4px">${n}</div><div class="sub" style="margin-top:2px">${c} &middot; ${wn}</div></div><div style="font-weight:700;font-size:12px;margin-bottom:8px">Actions</div>${['Re-categorize','Split Transaction','Add Note','Tag Tax-Deductible','Flag for Review','Attach Receipt'].map(a=>`<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">${a}</span>${ic(icons.chev,14,'var(--t3)')}</div>`).join('')}<div style="margin-top:12px;font-weight:700;font-size:12px;margin-bottom:6px">Partner Notes</div><div class="ci" style="font-size:11px;color:var(--t2)">No notes yet.</div><div class="r" style="gap:6px;margin-top:8px"><input placeholder="Add a note..." style="flex:1;padding:10px 14px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:12px;outline:none;color:var(--t1)"><button class="btn-gold" style="padding:8px 14px;font-size:11px">Send</button></div>`}
+function sTx(n,a,c,w){const wn=w==='V'?'Von':w==='C'?'Caroline':w==='J'?'Joint':'Transfer';return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;font-weight:900">${a}</div><div style="font-size:15px;font-weight:700;margin-top:4px">${n}</div><div class="sub" style="margin-top:2px">${c} &middot; ${wn}</div></div><div style="font-weight:700;font-size:12px;margin-bottom:8px">Actions</div>${['Re-categorize','Split Transaction','Add Note','Tag Tax-Deductible','Flag for Review','Attach Receipt'].map(a=>`<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">${a}</span>${ic(icons.chev,14,'var(--t3)')}</div>`).join('')}<div style="margin-top:12px;font-weight:700;font-size:12px;margin-bottom:6px">Partner Notes</div><div class="ci" style="font-size:11px;color:var(--t2)">No notes yet.</div><div class="r" style="gap:6px;margin-top:8px"><input placeholder="Add a note..." style="flex:1;min-width:0;padding:10px 14px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:12px;outline:none;color:var(--t1)"><button class="btn-gold" style="padding:8px 14px;font-size:11px">Send</button></div>`}
 
-function sDup(){return`<div class="ci" style="margin-bottom:8px;display:flex;align-items:center;gap:8px">${av('V',26)} <strong>Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:15 PM</div></div><div class="ci" style="margin-bottom:14px;border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg);display:flex;align-items:center;gap:8px">${av('V',26)} <strong style="color:var(--warn)">Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:17 PM</div></div><div class="sub" style="line-height:1.5;margin-bottom:14px">Same amount, same merchant, 2 minutes apart. Possible duplicate charge.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Keep Both</button><button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-size:13px">Hide Duplicate</button></div>`}
+function sDup(){return`<div class="ci" style="margin-bottom:8px;display:flex;align-items:center;gap:8px">${av('V',26)} <strong>Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:15 PM</div></div><div class="ci" style="margin-bottom:14px;border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg);display:flex;align-items:center;gap:8px">${av('V',26)} <strong style="color:var(--warn)">Whole Foods</strong> -$67.43<div class="sub" style="margin-left:auto">2:17 PM</div></div><div class="sub" style="line-height:1.5;margin-bottom:14px">Same amount, same merchant, 2 minutes apart. Possible duplicate charge.</div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Keep Both</button><button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-size:13px">Hide Duplicate</button></div>`}
 
-function sNest(n,c,g){const p=Math.round((c/g)*100);return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--acc)">$${c.toLocaleString()}</div><div class="sub">of $${g.toLocaleString()} &middot; ${p}%</div></div>${br(p,'var(--acc)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">History</div>${[{d:'Apr 11',a:'+$15',w:'Auto'},{d:'Apr 4',a:'+$15',w:'Auto'},{d:'Mar 28',a:'+$200',w:'Von'},{d:'Mar 21',a:'+$15',w:'Auto'}].map(h=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:48px">${h.d}</span><span style="font-size:12px;font-weight:700;color:var(--pos);flex:1">${h.a}</span><span class="sub">${h.w}</span></div>`).join('')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px"><button class="btn-gold btn-full" style="padding:12px">Boost</button><button class="btn-outline btn-full">Settings</button></div>`}
+function sNest(n,c,g){const p=Math.round((c/g)*100);return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--acc)">$${c.toLocaleString()}</div><div class="sub">of $${g.toLocaleString()} &middot; ${p}%</div></div>${br(p,'var(--acc)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">History</div>${[{d:'Apr 11',a:'+$15',w:'Auto'},{d:'Apr 4',a:'+$15',w:'Auto'},{d:'Mar 28',a:'+$200',w:'Von'},{d:'Mar 21',a:'+$15',w:'Auto'}].map(h=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:48px">${h.d}</span><span style="font-size:12px;font-weight:700;color:var(--pos);flex:1">${h.a}</span><span class="sub">${h.w}</span></div>`).join('')}<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:14px"><button class="btn-gold btn-full" style="padding:12px">Boost</button><button class="btn-outline btn-full">Settings</button></div>`}
 
-function sNewNest(){return`<div style="text-align:center;margin-bottom:14px">${ic(icons.plus,32,'var(--acc)',1.5)}<div style="font-size:16px;font-weight:800;margin-top:8px">Create a New Nest</div></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Name</div><input placeholder="e.g., Vacation, Car Fund..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Goal Amount</div><input type="number" placeholder="$5,000" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Auto-Save</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">${['$10/wk','$25/wk','$50/wk','Custom'].map((v,i)=>`<button class="btn-pill" style="${i===1?'background:var(--acc);color:#fff':''}">${v}</button>`).join('')}</div></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Shared with</div><div style="display:flex;gap:6px">${['Both','Von Only','Caroline Only'].map((v,i)=>`<button class="btn-pill" style="${i===0?'background:var(--acc);color:#fff':''}">${v}</button>`).join('')}</div></div><button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px">Create Nest</button>`}
+function sNewNest(){return`<div style="text-align:center;margin-bottom:14px">${ic(icons.plus,32,'var(--acc)',1.5)}<div style="font-size:16px;font-weight:800;margin-top:8px">Create a New Nest</div></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Name</div><input placeholder="e.g., Vacation, Car Fund..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Goal Amount</div><input type="number" placeholder="$5,000" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Auto-Save</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px">${['$10/wk','$25/wk','$50/wk','Custom'].map((v,i)=>`<button class="btn-pill" style="${i===1?'background:var(--acc);color:#fff':''}">${v}</button>`).join('')}</div></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Shared with</div><div style="display:flex;gap:6px">${['Both','Von Only','Caroline Only'].map((v,i)=>`<button class="btn-pill" style="${i===0?'background:var(--acc);color:#fff':''}">${v}</button>`).join('')}</div></div><button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px">Create Nest</button>`}
 
 function sFore(){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:900;color:var(--pos)">$33,120</div><div class="sub">projected savings by Dec 2024</div></div>${['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m,i)=>{const v=2760*(i+2);return`<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:36px">${m}</span><div style="flex:1">${br(v/33120*100,'var(--pos)',3)}</div><span style="font-size:11px;font-weight:700;color:var(--pos);width:50px;text-align:right">$${v.toLocaleString()}</span></div>`}).join('')}<div class="ci" style="margin-top:12px;background:var(--posBg);font-size:11px;color:var(--t2);line-height:1.5">Based on $2,760/mo. Bill audit savings would push to $34,884.</div>`}
 
 function sBill(n,a,at,d){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;font-weight:900">$${a}</div><div style="font-size:14px;font-weight:700;margin-top:4px">${n}</div><div class="sub">Due ${d} &middot; ${at?'Autopay on':'Manual'}</div></div>${['Mar','Feb','Jan','Dec'].map(m=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:40px">${m}</span><span style="font-size:11px;font-weight:700;color:var(--pos)">$${a}</span><span style="margin-left:auto">${bg('Paid','var(--pos)')}</span></div>`).join('')}${!at?`<button class="btn btn-full" style="margin-top:14px;border-radius:22px;height:48px;font-size:14px">Set Up Autopay</button>`:''}`}
 
-function sEmer(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:14px;font-weight:800;color:var(--warn)">0.8 months coverage</div><div class="sub">Recommended: 3–6 months</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Monthly Expenses</div><div style="font-size:18px;font-weight:800">$4,320</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">3-Month Target</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$12,960</div></div></div>${br(28,'var(--warn)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">How to get there faster</div>${[{a:'Bump daily save to $20',i:'+$150/mo',t:'62 wk'},{a:'Add bill audit savings',i:'+$147/mo',t:'32 wk'},{a:'$500 boost now',i:'Immediate',t:'28 wk'}].map(i=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1">${i.a}</span><span style="font-size:10px;color:var(--pos);margin-right:6px">${i.i}</span><span style="font-size:10px;font-weight:700">${i.t}</span></div>`).join('')}`}
+function sEmer(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:14px;font-weight:800;color:var(--warn)">0.8 months coverage</div><div class="sub">Recommended: 3–6 months</div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Monthly Expenses</div><div style="font-size:18px;font-weight:800">$4,320</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">3-Month Target</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$12,960</div></div></div>${br(28,'var(--warn)',8)}<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">How to get there faster</div>${[{a:'Bump daily save to $20',i:'+$150/mo',t:'62 wk'},{a:'Add bill audit savings',i:'+$147/mo',t:'32 wk'},{a:'$500 boost now',i:'Immediate',t:'28 wk'}].map(i=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1">${i.a}</span><span style="font-size:10px;color:var(--pos);margin-right:6px">${i.i}</span><span style="font-size:10px;font-weight:700">${i.t}</span></div>`).join('')}`}
 
 function sMD(){return`<div style="text-align:center;margin-bottom:14px">${ic(icons.heart,32,'var(--gold)',1.5)}<div style="font-size:16px;font-weight:800;margin-top:6px">Money Date Mode</div><div class="sub">Designed for sitting down together</div></div><div class="sub" style="line-height:1.6;margin-bottom:14px">Guided couples review: spending comparison, goal progress, upcoming decisions, and wins.</div>${['Weekly spending comparison','Per-person breakdown','Goal check-ins','Upcoming decisions','Celebrate wins'].map(i=>`<div class="r" style="padding:4px 0;gap:6px">${ic(icons.check,12,'var(--pos)',3)}<span style="font-size:11px">${i}</span></div>`).join('')}<button class="btn btn-full" style="margin-top:14px;border-radius:22px;height:48px;font-size:14px">Start Money Date</button>`}
 
 function sBudget(){const cats=[{n:'Housing',a:2400,s:2000,f:true},{n:'Groceries',a:800,s:480},{n:'Dining',a:300,s:280},{n:'Shopping',a:200,s:235,o:true},{n:'Entertainment',a:150,s:85},{n:'Transport',a:200,s:120},{n:'Subs',a:100,s:62},{n:'Health',a:150,s:45},{n:'Personal',a:200,s:90},{n:'Misc',a:100,s:30}];const tA=cats.reduce((a,c)=>a+c.a,0),tS=cats.reduce((a,c)=>a+c.s,0);return`<div class="r" style="justify-content:space-between;margin-bottom:6px"><div><div class="sub" style="font-size:10px">Budgeted</div><div style="font-size:20px;font-weight:800">$${tA.toLocaleString()}</div></div><div style="text-align:right"><div class="sub" style="font-size:10px">Spent</div><div style="font-size:20px;font-weight:800;color:var(--warn)">$${tS.toLocaleString()}</div></div></div>${br((tS/tA)*100,'var(--warn)',6)}<div style="font-size:10px;color:var(--pos);font-weight:600;margin-top:4px;margin-bottom:14px">$${(tA-tS).toLocaleString()} remaining</div>${cats.map(c=>{const p=Math.round((c.s/c.a)*100);return`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px"><span style="font-size:11px;font-weight:600;width:70px">${c.n}</span><div style="flex:1">${br(p,c.o?'var(--neg)':p>80?'var(--warn)':'var(--pos)',3)}</div><span style="font-size:10px;font-weight:700;color:${c.o?'var(--neg)':'var(--t2)'};width:65px;text-align:right">$${c.s}/$${c.a}</span>${c.o?bg('OVER','var(--neg)'):c.f?bg('Fixed','var(--t3)'):''}</div>`}).join('')}<button class="btn-gold btn-full" style="margin-top:12px;padding:12px;font-size:13px;border-radius:22px">Edit Budget</button>`}
 
-function sDebt(){return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total</div><div style="font-size:20px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Min</div><div style="font-size:20px;font-weight:800">$85/mo</div></div></div>${[{n:'Chase CC',b:1800,r:'22.99%'},{n:'Student Loan',b:1400,r:'5.5%'}].map(d=>`<div class="ci" style="margin-bottom:6px"><div class="r" style="justify-content:space-between;margin-bottom:3px"><span style="font-weight:700;font-size:12px">${d.n}</span><span style="font-weight:800;font-size:14px;color:var(--neg)">$${d.b.toLocaleString()}</span></div><div class="sub">${d.r} APR</div></div>`).join('')}<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px"><div class="ci" style="text-align:center;padding:10px"><div style="font-size:11px;font-weight:700">Avalanche</div><div class="sub" style="font-size:9px">Highest interest first</div><div style="font-size:16px;font-weight:800;color:var(--pos);margin-top:4px">7.5 mo</div></div><div class="ci" style="text-align:center;padding:10px"><div style="font-size:11px;font-weight:700">Snowball</div><div class="sub" style="font-size:9px">Smallest first</div><div style="font-size:16px;font-weight:800;margin-top:4px">8.2 mo</div></div></div>`}
+function sDebt(){return`<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total</div><div style="font-size:20px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Min</div><div style="font-size:20px;font-weight:800">$85/mo</div></div></div>${[{n:'Chase CC',b:1800,r:'22.99%'},{n:'Student Loan',b:1400,r:'5.5%'}].map(d=>`<div class="ci" style="margin-bottom:6px"><div class="r" style="justify-content:space-between;margin-bottom:3px"><span style="font-weight:700;font-size:12px">${d.n}</span><span style="font-weight:800;font-size:14px;color:var(--neg)">$${d.b.toLocaleString()}</span></div><div class="sub">${d.r} APR</div></div>`).join('')}<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:12px"><div class="ci" style="text-align:center;padding:10px"><div style="font-size:11px;font-weight:700">Avalanche</div><div class="sub" style="font-size:9px">Highest interest first</div><div style="font-size:16px;font-weight:800;color:var(--pos);margin-top:4px">7.5 mo</div></div><div class="ci" style="text-align:center;padding:10px"><div style="font-size:11px;font-weight:700">Snowball</div><div class="sub" style="font-size:9px">Smallest first</div><div style="font-size:16px;font-weight:800;margin-top:4px">8.2 mo</div></div></div>`}
 
 function sRBills(){const bills=[{n:'Mortgage',a:2000,d:'1st',at:true,pd:true},{n:'Insurance',a:184,d:'5th',at:true,pd:true},{n:'Electric',a:145,d:'10th',at:false},{n:'Water',a:65,d:'12th',at:false},{n:'Internet',a:89,d:'15th',at:true},{n:'Car Payment',a:385,d:'15th',at:true},{n:'Phone',a:140,d:'18th',at:true},{n:'Gym',a:50,d:'20th',at:true},{n:'Student Loans',a:320,d:'25th',at:true}];return`<div class="r" style="justify-content:space-between;margin-bottom:12px"><div><div class="sub" style="font-size:10px">Remaining</div><div style="font-size:20px;font-weight:800;color:var(--warn)">$${bills.filter(b=>!b.pd).reduce((a,b)=>a+b.a,0).toLocaleString()}</div></div><div style="text-align:right"><div class="sub" style="font-size:10px">Paid</div><div style="font-size:20px;font-weight:800;color:var(--pos)">$${bills.filter(b=>b.pd).reduce((a,b)=>a+b.a,0).toLocaleString()}</div></div></div>${bills.map(b=>`<div class="r" style="padding:7px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div style="width:30px;text-align:center;flex-shrink:0"><div style="font-size:14px;font-weight:800;color:${b.pd?'var(--pos)':'var(--t1)'}">${b.d}</div></div><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:12px">${b.n}</span>${b.at?bg('Auto','var(--pos)'):bg('Manual','var(--warn)')}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:13px;color:${b.pd?'var(--pos)':'var(--t1)'}">$${b.a}</div><div style="font-size:9px;color:${b.pd?'var(--pos)':'var(--warn)'};font-weight:600">${b.pd?'Paid':'Due'}</div></div></div>`).join('')}`}
 
-function sBillA(n,sv){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--pos)">-$${sv}/mo</div><div class="sub">${n}</div><div class="sub" style="margin-top:4px">Annual: $${sv*12}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Take Action</button><button class="btn-outline btn-full" style="border-radius:22px">Dismiss</button></div>`}
+function sBillA(n,sv){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--pos)">-$${sv}/mo</div><div class="sub">${n}</div><div class="sub" style="margin-top:4px">Annual: $${sv*12}</div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Take Action</button><button class="btn-outline btn-full" style="border-radius:22px">Dismiss</button></div>`}
 function sSub(n,a,w,i){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:24px;font-weight:900">$${a}/mo</div><div style="font-size:14px;font-weight:700;margin-top:4px">${n}</div><div class="sub">Used by: ${w}</div>${i?`<div style="margin-top:6px">${bg(i,'var(--neg)')}</div>`:''}</div>${i?`<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:10px;font-size:11px;color:var(--neg);font-weight:700">Low/no usage detected. Cancel = $${(a*12).toFixed(0)}/yr saved.</div><button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-size:13px;font-weight:700">Cancel Subscription</button>`:''}`}
-function sTax(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--pos)">$1,240</div><div class="sub">YTD tax-deductible</div></div>${[{n:'Goodwill Donation',a:'$450',c:'Charitable'},{n:'Medical Copays',a:'$320',c:'Medical'},{n:'Home Office',a:'$180',c:'Business'},{n:'Professional Dev',a:'$150',c:'Education'},{n:'Tax Prep',a:'$140',c:'Tax'}].map(t=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1">${t.n}</span>${bg(t.c,'#208080')}<span style="font-size:11px;font-weight:700;margin-left:8px">${t.a}</span></div>`).join('')}`}
-function sFees(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:36px;font-weight:900;color:var(--warn)">0.42%</div><div class="sub">weighted avg expense ratio</div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">${[{l:'7yr',v:'$5,400'},{l:'15yr',v:'$18,200'},{l:'30yr',v:'$47,000'}].map(p=>`<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">${p.l} drag</div><div style="font-size:14px;font-weight:800;color:var(--neg)">${p.v}</div></div>`).join('')}</div>${[{n:'Ally Invest',r:'0.08%',v:'$180.5k',q:'Low'},{n:'401(k) Funds',r:'0.65%',v:'$68.4k',q:'High'},{n:'Target Date',r:'0.35%',v:'$41.1k',q:'Med'}].map(f=>`<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:700;font-size:11px">${f.n}</span>${bg(f.q,f.q==='Low'?'var(--pos)':f.q==='High'?'var(--neg)':'var(--warn)')}</div><div class="sub">${f.r} &middot; ${f.v}</div></div></div>`).join('')}<div class="ci" style="margin-top:10px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;margin-bottom:4px">Recommendation</div><div class="sub" style="line-height:1.5">Switching 401(k) to index funds at 0.10% would save $31,000 over 30 years.</div></div>`}
+function sTax(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--pos)">$1,240</div><div class="sub">YTD tax-deductible</div></div>${[{n:'Goodwill Donation',a:'$450',c:'Charitable'},{n:'Medical Copays',a:'$320',c:'Medical'},{n:'Home Office',a:'$180',c:'Business'},{n:'Professional Dev',a:'$150',c:'Education'},{n:'Tax Prep',a:'$140',c:'Tax'}].map(t=>`<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1">${t.n}</span>${bg(t.c,'var(--info)')}<span style="font-size:11px;font-weight:700;margin-left:8px">${t.a}</span></div>`).join('')}`}
+function sFees(){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:36px;font-weight:900;color:var(--warn)">0.42%</div><div class="sub">weighted avg expense ratio</div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:14px">${[{l:'7yr',v:'$5,400'},{l:'15yr',v:'$18,200'},{l:'30yr',v:'$47,000'}].map(p=>`<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">${p.l} drag</div><div style="font-size:14px;font-weight:800;color:var(--neg)">${p.v}</div></div>`).join('')}</div>${[{n:'Ally Invest',r:'0.08%',v:'$180.5k',q:'Low'},{n:'401(k) Funds',r:'0.65%',v:'$68.4k',q:'High'},{n:'Target Date',r:'0.35%',v:'$41.1k',q:'Med'}].map(f=>`<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:700;font-size:11px">${f.n}</span>${bg(f.q,f.q==='Low'?'var(--pos)':f.q==='High'?'var(--neg)':'var(--warn)')}</div><div class="sub">${f.r} &middot; ${f.v}</div></div></div>`).join('')}<div class="ci" style="margin-top:10px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;margin-bottom:4px">Recommendation</div><div class="sub" style="line-height:1.5">Switching 401(k) to index funds at 0.10% would save $31,000 over 30 years.</div></div>`}
 
 function sSyncD(b,l,s,v){return`<div style="text-align:center;margin-bottom:14px"><div class="dot" style="width:12px;height:12px;background:${s==='g'?'var(--pos)':s==='y'?'var(--warn)':'var(--neg)'};margin:0 auto 8px"></div><div style="font-size:18px;font-weight:800">${b}</div><div class="sub">Last synced: ${l} ago</div><div style="font-size:24px;font-weight:900;color:${s==='r'?'var(--neg)':'var(--t1)'};margin-top:6px">${v}</div></div>${s==='r'?`<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:10px;font-size:11px;color:var(--neg);font-weight:700;line-height:1.5">47 days without sync. Balance may be inaccurate.</div><button class="btn btn-full" style="margin-top:8px;border-radius:22px;height:48px;font-size:14px">Force Reconnect</button>`:`<div class="ci" style="background:var(--posBg);font-size:11px;color:var(--pos)">Syncing normally.</div>`}`}
 
@@ -649,7 +669,7 @@ function sNotes(){return`<div class="sub" style="margin-bottom:14px">Both partne
 
 function sAuditDetail(a,d,w,t,f){return`<div style="text-align:center;margin-bottom:14px"><div style="width:48px;height:48px;border-radius:24px;background:${f?'var(--negBg)':'var(--posBg)'};display:flex;align-items:center;justify-content:center;margin:0 auto">${f?ic(icons.flag,20,'var(--neg)',1.5):ic(icons.check,20,'var(--pos)',3)}</div><div style="font-size:16px;font-weight:800;margin-top:8px;color:${f?'var(--neg)':'var(--t1)'}">${a}</div><div class="sub" style="margin-top:4px">${d} &middot; ${w} &middot; ${t}</div></div>${f?`<div class="ci" style="background:var(--negBg);font-size:11px;color:var(--neg);font-weight:600;line-height:1.5">This action was flagged because it may affect household financial visibility. Both partners have been notified.</div>`:`<div class="ci" style="background:var(--posBg);font-size:11px;color:var(--pos);line-height:1.5">This action is logged in the audit trail. No issues detected.</div>`}`}
 
-function sAutoRule(t,d,v){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:20px;font-weight:800">${t}</div><div class="sub" style="margin-top:4px">${d} &middot; ${v}</div></div><div class="ci" style="margin-bottom:8px"><div style="font-weight:700;font-size:12px;margin-bottom:4px">How it works</div><div class="sub" style="line-height:1.5">${t==='Round-Ups'?'Every purchase is rounded up to the nearest dollar. The difference goes to savings. Average $45/month.':t==='Set & Forget'?'A fixed amount is moved to savings every day. Pauses automatically if balance drops below $500.':'This rule runs automatically based on your settings. Adjust anytime.'}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Edit Rule</button><button class="btn-outline btn-full" style="border-radius:22px">Pause</button></div>`}
+function sAutoRule(t,d,v){return`<div style="text-align:center;margin-bottom:14px"><div style="font-size:20px;font-weight:800">${t}</div><div class="sub" style="margin-top:4px">${d} &middot; ${v}</div></div><div class="ci" style="margin-bottom:8px"><div style="font-weight:700;font-size:12px;margin-bottom:4px">How it works</div><div class="sub" style="line-height:1.5">${t==='Round-Ups'?'Every purchase is rounded up to the nearest dollar. The difference goes to savings. Average $45/month.':t==='Set & Forget'?'A fixed amount is moved to savings every day. Pauses automatically if balance drops below $500.':'This rule runs automatically based on your settings. Adjust anytime.'}</div></div><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:12px"><button class="btn btn-full" style="border-radius:22px;height:44px;font-size:13px">Edit Rule</button><button class="btn-outline btn-full" style="border-radius:22px">Pause</button></div>`}
 
 function sAchieve(){return`<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:900;color:var(--gold)">14</div><div class="sub">day streak under budget</div></div>${[{n:'Budget Streak',d:'14 days under budget',done:true},{n:'First Nest',d:'Created first savings goal',done:true},{n:'$1k Saved',d:'Auto-saved over $1,000',done:true},{n:'$5k Saved',d:'Auto-saved over $5,000',done:true},{n:'Net Worth $100k',d:'Reach $100k net worth',done:false,p:82},{n:'3-Month Fund',d:'Emergency fund covers 3 months',done:false,p:28},{n:'Debt Free',d:'Pay off all consumer debt',done:false,p:65}].map(a=>`<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:10px;${!a.done?'opacity:0.6':''}"><div style="width:28px;height:28px;border-radius:14px;background:${a.done?'var(--gold)':'var(--sep)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:12px">${a.done?ic(icons.check,12,'#fff',3):(a.p||0)+'%'}</div><div style="flex:1"><div style="font-weight:700;font-size:12px">${a.n}</div><div class="sub">${a.d}</div></div>${!a.done&&a.p?`<div style="width:40px">${br(a.p,'var(--acc)',3)}</div>`:''}</div>`).join('')}`}
 
@@ -661,12 +681,12 @@ function sExport(){return['Current Month (CSV)','Year-to-Date (CSV)','Tax Summar
 
 /* ═══════════════ ACCOUNTS SUB-SCREEN ═══════════════ */
 function rAcct(){return`<div class="fi">
-<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px">← Accounts</button>
-<div class="cs"><div style="font-size:22px;font-weight:800;margin-bottom:10px">All Accounts</div>
+<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">← Accounts</button>
+<div class="cs"><div class="shd">All Accounts</div>
 <div class="r" style="justify-content:space-between;margin-bottom:8px"><div class="sub">6 accounts linked</div><div class="r" style="gap:2px">${av('V',18)}${av('C',18,'var(--warn)')}</div></div>
 <div style="font-size:30px;font-weight:900;margin-bottom:4px">$53,360</div>
 <div class="sub">Total &middot; Synced mostly healthy</div></div>
-<div class="c">${[{w:'V',n:'Whole Foods',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',a:'-$2,000',t:'Friday'},{w:'V',n:'Netflix',a:'-$15.49',t:'Apr 10'},{w:'C',n:'Amazon',a:'-$150',t:'Apr 10'},{w:'V',n:'ALTA Payroll',a:'+$4,280',t:'Apr 11',inc:true}].map(tx=>`<div class="tr" onclick="os('Transaction',sTx('${tx.n}','${tx.a}','','${tx.w}'))">${av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'#3068a0':'var(--acc)')}<div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:11px">${tx.n}</span>${tx.f?bg('FLAG','var(--neg)'):''}${tx.inc?bg('INCOME','var(--pos)'):''}</div><div class="sub">${tx.t}</div></div><span style="font-weight:800;font-size:12px;color:${tx.inc?'var(--pos)':tx.f?'var(--neg)':'var(--t1)'}">${tx.a}</span></div>`).join('')}</div>
+<div class="c">${[{w:'V',n:'Whole Foods',a:'-$67.43',t:'Today'},{w:'C',n:'TreatYoSelf',a:'-$650',t:'Yesterday',f:true},{w:'V',n:'Shell Gas',a:'-$48.20',t:'Yesterday'},{w:'J',n:'Mortgage',a:'-$2,000',t:'Friday'},{w:'V',n:'Netflix',a:'-$15.49',t:'Apr 10'},{w:'C',n:'Amazon',a:'-$150',t:'Apr 10'},{w:'V',n:'ALTA Payroll',a:'+$4,280',t:'Apr 11',inc:true}].map(tx=>`<div class="tr" onclick="os('Transaction',sTx('${tx.n}','${tx.a}','','${tx.w}'))">${av(tx.w,26,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':'var(--acc)')}<div style="flex:1"><div class="r" style="gap:3px"><span style="font-weight:600;font-size:11px">${tx.n}</span>${tx.f?bg('FLAG','var(--neg)'):''}${tx.inc?bg('INCOME','var(--pos)'):''}</div><div class="sub">${tx.t}</div></div><span style="font-weight:800;font-size:12px;color:${tx.inc?'var(--pos)':tx.f?'var(--neg)':'var(--t1)'}">${tx.a}</span></div>`).join('')}</div>
 <div class="c tap" onclick="os('Export',sExport())"><div class="r">${ic(icons.download,16,'var(--acc)',1.5)}<div style="flex:1"><div style="font-weight:700;font-size:12px">Export</div><div class="sub">CSV/PDF &middot; Mobile</div></div><button class="btn-gold" style="padding:6px 12px;font-size:11px">Export</button></div></div>
 </div>`}
 
@@ -675,9 +695,9 @@ function rr(){
   $('stb').style.color=(ct==='home'&&!cs_)?'var(--heroTxt)':'var(--t1)';
   const h=$('ahd');
   if(ct==='home'&&!cs_){
-    h.innerHTML=`<div class="r" style="gap:7px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div></div><div class="r" style="gap:4px">${av('V',20,'var(--acc)')}${av('C',20,'var(--warn)')}<button onclick="gs('settings')" style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">${icons.gear('var(--t2)')}</button><button onclick="os('Notifications',sNotifs())" style="position:relative;width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">${icons.bell('var(--t2)')}<div class="alert-dot" style="top:2px;right:2px"></div></button></div>`;
+    h.innerHTML=`<div class="r" style="gap:7px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div></div><div class="r" style="gap:4px">${av('V',20,'var(--acc)')}${av('C',20,'var(--warn)')}<button onclick="gs('settings')" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">${icons.gear('var(--t2)')}</div></button><button onclick="os('Notifications',sNotifs())" style="position:relative;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">${icons.bell('var(--t2)')}</div><div class="alert-dot" style="top:4px;right:4px"></div></button></div>`;
   } else if(!cs_){
-    h.innerHTML=`<button onclick="gs('settings')" style="width:32px;display:flex;align-items:center;justify-content:center">${icons.gear('var(--t2)')}</button><span style="font-size:16px;font-weight:700;text-transform:capitalize;letter-spacing:-0.3px">${ct}</span><div style="width:32px"></div>`;
+    h.innerHTML=`<button onclick="gs('settings')" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center">${icons.gear('var(--t2)')}</button><span style="font-size:16px;font-weight:700;text-transform:capitalize;letter-spacing:-0.3px">${ct}</span><div style="width:44px"></div>`;
   } else { h.innerHTML=''; }
 
   const c=$('cnt');
@@ -690,6 +710,8 @@ function rr(){
   $('tbar').innerHTML=T.map(t=>{const a=ct===t&&!cs_;const cl=a?'var(--acc)':'var(--t3)';return`<button class="tb ${a?'a':''}" onclick="gt('${t}')" style="position:relative">${icons[t](cl,a)}<span>${t[0].toUpperCase()+t.slice(1)}</span>${t==='trust'?`<div class="alert-dot"></div>`:''}</button>`}).join('');
 }
 rr();
+updateThemeColor(theme);
+requestAnimationFrame(()=>{document.body.classList.add('loaded')});
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
