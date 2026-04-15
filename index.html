@@ -304,13 +304,90 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .main-area{flex:1;min-width:0;overflow-y:auto;height:100vh;height:100dvh}
   .app-hd{position:sticky;top:0;z-index:50}
   #cnt{
-    padding:16px 24px 40px;max-width:1200px;margin:0 auto;
+    padding:16px 24px 40px;max-width:1400px;margin:0 auto;
   }
-  /* Desktop dashboard grid */
+  /* Desktop dashboard grid (legacy fallback) */
   .desk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
   .desk-grid .c,.desk-grid .cs{margin-bottom:0}
   .desk-grid .desk-full{grid-column:1/-1}
   .desk-grid .desk-span2{grid-column:span 2}
+
+  /* Desktop Dashboard Layout — Monarch Money style */
+  .dash-row{display:flex;gap:16px;margin-bottom:16px}
+  .dash-main{flex:1;min-width:0}
+  .dash-side{width:380px;flex-shrink:0}
+  .dash-full{width:100%;margin-bottom:16px}
+  .dash-section{margin-bottom:20px}
+  .dash-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .dash-section-header .shd{margin-bottom:0}
+  .dash-section-header .view-all{font-size:12px;font-weight:600;color:var(--acc);cursor:pointer;white-space:nowrap}
+  .dash-section-header .view-all:hover{text-decoration:underline}
+  .dash-coach-row{display:flex;gap:16px;margin-bottom:16px;min-height:calc(100vh - 200px);min-height:calc(100dvh - 200px)}
+  .dash-coach-main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .dash-coach-side{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+
+  /* Charts */
+  .chart-container{background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));border:0.5px solid var(--cardBorder);border-radius:16px;padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+  .chart-container svg{width:100%;height:auto}
+  .chart-container:hover{box-shadow:var(--shM)}
+  .chart-title{font-size:13px;font-weight:700;margin-bottom:10px}
+  .chart-subtitle{font-size:11px;color:var(--t2);margin-top:4px}
+
+  /* Data Tables */
+  .data-table{width:100%;border-collapse:collapse;font-size:13px}
+  .data-table th{text-align:left;font-weight:600;font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;border-bottom:0.5px solid var(--sep)}
+  .data-table td{padding:10px 12px;border-bottom:0.5px solid var(--sep)}
+  .data-table tr:hover td{background:var(--accS)}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table .amount{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+
+  /* Filter Bar */
+  .filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .filter-input{padding:8px 14px;border-radius:10px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;outline:none;color:var(--t1);min-width:200px}
+  .filter-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+  .filter-chip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;transition:background var(--fast) ease,color var(--fast) ease}
+  .filter-chip:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+  .filter-chip.active{background:var(--acc);color:#fff}
+
+  /* Date Range Picker */
+  .date-picker{display:flex;gap:0;background:var(--cardBg);border:0.5px solid var(--cardBorder);border-radius:10px;overflow:hidden}
+  .date-picker button{padding:6px 12px;font-size:11px;font-weight:600;color:var(--t2);background:transparent;border:none;cursor:pointer;transition:background var(--fast) ease,color var(--fast) ease}
+  .date-picker button:hover{background:var(--accS)}
+  .date-picker button.active{background:var(--acc);color:#fff}
+
+  /* Stat Cards */
+  .stat-card{background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));border:0.5px solid var(--cardBorder);border-radius:16px;padding:16px;text-align:center;box-shadow:var(--sh);transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease}
+  .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shM)}
+  .stat-value{font-size:28px;font-weight:800;letter-spacing:-1px;margin-top:4px}
+  .stat-label{font-size:11px;font-weight:500;color:var(--t2)}
+  .stat-change{font-size:12px;font-weight:600;margin-top:4px}
+  .stat-change.up{color:var(--pos)}
+  .stat-change.down{color:var(--neg)}
+
+  /* Stat row (horizontal stat cards) */
+  .stat-row{display:grid;gap:12px;margin-bottom:16px}
+  .stat-row.cols-3{grid-template-columns:repeat(3,1fr)}
+  .stat-row.cols-4{grid-template-columns:repeat(4,1fr)}
+
+  /* Trend indicator */
+  .trend{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600}
+  .trend.up{color:var(--pos)}
+  .trend.down{color:var(--neg)}
+  .trend svg{flex-shrink:0}
+
+  /* Calendar grid for bills */
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:10px;text-align:center}
+  .cal-header{font-weight:700;color:var(--t2);padding:4px 0}
+  .cal-day{padding:6px 2px;border-radius:6px;min-height:32px;position:relative}
+  .cal-day.has-bill{background:var(--accS);font-weight:700;color:var(--acc);cursor:pointer}
+  .cal-day.has-bill:hover{background:color-mix(in srgb,var(--acc) 18%,transparent)}
+  .cal-day.today{border:1.5px solid var(--acc)}
+  .cal-day.empty{opacity:0}
+  .cal-dot{width:4px;height:4px;border-radius:2px;background:var(--acc);margin:2px auto 0}
+
+  /* Inline sparkline wrapper */
+  .sparkline-wrap{display:inline-flex;align-items:center;gap:6px}
+  .sparkline-wrap svg{flex-shrink:0}
 }
 
 /* Mobile-only */
@@ -426,6 +503,275 @@ function ic(d,s,c,sw){s=s||16;c=c||'var(--acc)';sw=sw||1.5;return'<svg width="'+
 function pendingBadge(reason){return'<div class="pending-badge">PENDING — Requires '+reason+'</div>'}
 function sp(){var d=[81200,81400,81100,81800,82000,82130,82450],w=150,h=48,mn=Math.min.apply(null,d),mx=Math.max.apply(null,d),rg=mx-mn||1;var pts=d.map(function(v,i){return((i/(d.length-1))*w)+','+( h-((v-mn)/rg)*h*0.7-h*0.15)}).join(' ');var lp=pts.split(' ').pop().split(',');return'<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><defs><linearGradient id="sf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0.25"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><polygon points="0,'+h+' '+pts+' '+w+','+h+'" fill="url(#sf)"/><polyline points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+lp[0]+'" cy="'+lp[1]+'" r="4" fill="#fff" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/></svg>'}
 
+/* ========== CHART DATA (12-month sample) ========== */
+var nwHistory=[
+  {m:'May',v:72400},{m:'Jun',v:73800},{m:'Jul',v:74200},{m:'Aug',v:75600},
+  {m:'Sep',v:76100},{m:'Oct',v:77800},{m:'Nov',v:79200},{m:'Dec',v:80100},
+  {m:'Jan',v:80800},{m:'Feb',v:81200},{m:'Mar',v:81900},{m:'Apr',v:82450}
+];
+var monthlySpending=[
+  {m:'Nov',g:520,d:310,s:180,e:120,t:90},
+  {m:'Dec',g:680,d:420,s:350,e:200,t:95},
+  {m:'Jan',g:490,d:280,s:150,e:100,t:85},
+  {m:'Feb',g:510,d:300,s:190,e:130,t:88},
+  {m:'Mar',g:530,d:290,s:210,e:110,t:92},
+  {m:'Apr',g:480,d:280,s:235,e:85,t:45}
+];
+var cashFlow=[
+  {m:'Nov',inc:7080,exp:4800},{m:'Dec',inc:7080,exp:5200},
+  {m:'Jan',inc:7280,exp:4400},{m:'Feb',inc:7080,exp:4600},
+  {m:'Mar',inc:7280,exp:4520},{m:'Apr',inc:7080,exp:4320}
+];
+var topMerchants=[
+  {n:'Whole Foods',total:1240,count:18,avg:68.89},
+  {n:'Amazon',total:890,count:12,avg:74.17},
+  {n:'Shell Gas',total:580,count:12,avg:48.33},
+  {n:'Target',total:520,count:8,avg:65.00},
+  {n:'Costco',total:480,count:4,avg:120.00}
+];
+var savingsRateHistory=[
+  {m:'Nov',r:32},{m:'Dec',r:27},{m:'Jan',r:40},{m:'Feb',r:35},{m:'Mar',r:38},{m:'Apr',r:39}
+];
+var monthlyBudgetHistory=[
+  {m:'Jan',budget:4400,spent:4100},{m:'Feb',budget:4500,spent:4200},
+  {m:'Mar',budget:4600,spent:4320},{m:'Apr',budget:4600,spent:2920}
+];
+var projectedSavings=[
+  {m:'May',actual:null,proj:9000},{m:'Jun',actual:null,proj:11760},{m:'Jul',actual:null,proj:14520},
+  {m:'Aug',actual:null,proj:17280},{m:'Sep',actual:null,proj:20040},{m:'Oct',actual:null,proj:22800},
+  {m:'Nov',actual:null,proj:25560},{m:'Dec',actual:null,proj:28320}
+];
+var actualSavings=[
+  {m:'Jan',v:2760},{m:'Feb',v:5240},{m:'Mar',v:8000},{m:'Apr',v:10760}
+];
+
+/* ========== SVG CHART HELPERS ========== */
+function svgLineChart(data,w,h,color,label,showArea){
+  if(!data||!data.length)return '';
+  w=w||400;h=h||160;color=color||'var(--acc)';
+  var pad={t:10,r:10,b:28,l:10};
+  var cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  var vals=data.map(function(d){return d.v||d.y||0});
+  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+  var rng=mx-mn||1;
+  var pts=data.map(function(d,i){
+    var x=pad.l+(i/(data.length-1))*cw;
+    var y=pad.t+ch-(((d.v||d.y||0)-mn)/rng)*ch;
+    return {x:x,y:y};
+  });
+  var uid='lc'+Math.random().toString(36).substr(2,6);
+  var pathD='M'+pts.map(function(p){return p.x+','+p.y}).join(' L');
+  var areaD=pathD+' L'+pts[pts.length-1].x+','+(pad.t+ch)+' L'+pts[0].x+','+(pad.t+ch)+' Z';
+  var labels=data.map(function(d,i){
+    var x=pad.l+(i/(data.length-1))*cw;
+    return '<text x="'+x+'" y="'+(h-4)+'" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600">'+(d.m||d.x||'')+'</text>';
+  });
+  var dots=pts.map(function(p,i){
+    var val=vals[i];
+    return '<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+color+'" stroke="var(--cardBg)" stroke-width="2" opacity="0"><animate attributeName="opacity" from="0" to="1" dur="0.3s" begin="'+(0.05*i)+'s" fill="freeze"/></circle>'+
+    '<title>$'+val.toLocaleString()+'</title>';
+  });
+  var gridLines='';
+  for(var gi=0;gi<=3;gi++){
+    var gy=pad.t+(ch/3)*gi;
+    gridLines+='<line x1="'+pad.l+'" y1="'+gy+'" x2="'+(w-pad.r)+'" y2="'+gy+'" stroke="var(--sep)" stroke-width="0.5"/>';
+  }
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">'+
+  '<defs><linearGradient id="'+uid+'" x1="0" y1="0" x2="0" y2="1">'+
+  '<stop offset="0%" stop-color="'+color+'" stop-opacity="0.2"/>'+
+  '<stop offset="100%" stop-color="'+color+'" stop-opacity="0"/>'+
+  '</linearGradient></defs>'+
+  gridLines+
+  (showArea!==false?'<path d="'+areaD+'" fill="url(#'+uid+')"><animate attributeName="opacity" from="0" to="1" dur="0.6s" fill="freeze"/></path>':'')+
+  '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><animate attributeName="stroke-dashoffset" from="2000" to="0" dur="1s" fill="freeze"/></path>'+
+  dots.join('')+
+  labels.join('')+
+  (label?'<text x="'+pad.l+'" y="'+(pad.t-2)+'" fill="var(--t2)" font-size="9" font-weight="600">'+label+'</text>':'')+
+  '</svg>';
+}
+
+function svgBarChart(data,w,h,horizontal){
+  if(!data||!data.length)return '';
+  w=w||400;h=h||200;
+  if(horizontal){
+    var bh=Math.min(28,Math.floor((h-20)/data.length)-6);
+    var pad={t:5,r:60,b:5,l:80};
+    var cw=w-pad.l-pad.r;
+    var maxVal=Math.max.apply(null,data.map(function(d){return d.max||d.value}));
+    var bars=data.map(function(d,i){
+      var y=pad.t+i*(bh+8);
+      var bw=(d.value/(maxVal||1))*cw;
+      var mw=d.max?((d.max/(maxVal||1))*cw):0;
+      var c=d.color||'var(--acc)';
+      var pct=d.max?Math.round((d.value/d.max)*100):100;
+      return (d.max?'<rect x="'+pad.l+'" y="'+y+'" width="'+mw+'" height="'+bh+'" rx="4" fill="var(--sep)" opacity="0.5"/>':'')+
+      '<rect x="'+pad.l+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="4" fill="'+c+'"><animate attributeName="width" from="0" to="'+bw+'" dur="0.5s" begin="'+(0.05*i)+'s" fill="freeze"/></rect>'+
+      '<text x="'+(pad.l-6)+'" y="'+(y+bh/2+4)+'" text-anchor="end" fill="var(--t1)" font-size="11" font-weight="600">'+d.label+'</text>'+
+      '<text x="'+(pad.l+bw+6)+'" y="'+(y+bh/2+4)+'" fill="var(--t2)" font-size="10" font-weight="700">$'+d.value+(d.max?' ('+pct+'%)':'')+'</text>';
+    });
+    var th=pad.t+data.length*(bh+8);
+    return '<svg viewBox="0 0 '+w+' '+th+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">'+bars.join('')+'</svg>';
+  }
+  var pad2={t:10,r:10,b:28,l:10};
+  var cw2=w-pad2.l-pad2.r,ch2=h-pad2.t-pad2.b;
+  var maxV=Math.max.apply(null,data.map(function(d){return d.value||0}));
+  var bw2=Math.min(40,Math.floor(cw2/data.length)-8);
+  var bars2=data.map(function(d,i){
+    var x=pad2.l+(i/(data.length-1||1))*cw2-bw2/2;
+    if(data.length===1)x=pad2.l+cw2/2-bw2/2;
+    var bh2=((d.value||0)/(maxV||1))*ch2;
+    var y=pad2.t+ch2-bh2;
+    var c=d.color||'var(--acc)';
+    return '<rect x="'+x+'" y="'+y+'" width="'+bw2+'" height="'+bh2+'" rx="4" fill="'+c+'"><animate attributeName="height" from="0" to="'+bh2+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/><animate attributeName="y" from="'+(pad2.t+ch2)+'" to="'+y+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/></rect>'+
+    '<text x="'+(x+bw2/2)+'" y="'+(h-4)+'" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600">'+(d.label||'')+'</text>'+
+    '<text x="'+(x+bw2/2)+'" y="'+(y-4)+'" text-anchor="middle" fill="var(--t1)" font-size="9" font-weight="700">$'+(d.value||0)+'</text>';
+  });
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">'+bars2.join('')+'</svg>';
+}
+
+function svgDonut(segments,size,centerText,centerSub){
+  if(!segments||!segments.length)return '';
+  size=size||180;
+  var total=segments.reduce(function(a,s){return a+(s.value||0)},0);
+  if(!total)return '';
+  var cx=size/2,cy=size/2,r=size*0.38,sw=size*0.12;
+  var cumAngle=-90;
+  var paths=segments.map(function(seg){
+    var pct=(seg.value/total);
+    var angle=pct*360;
+    var startAngle=cumAngle;
+    var endAngle=cumAngle+angle;
+    cumAngle=endAngle;
+    var startRad=startAngle*Math.PI/180;
+    var endRad=endAngle*Math.PI/180;
+    var x1=cx+r*Math.cos(startRad);
+    var y1=cy+r*Math.sin(startRad);
+    var x2=cx+r*Math.cos(endRad);
+    var y2=cy+r*Math.sin(endRad);
+    var largeArc=angle>180?1:0;
+    return '<path d="M'+x1+','+y1+' A'+r+','+r+' 0 '+largeArc+' 1 '+x2+','+y2+'" fill="none" stroke="'+(seg.color||'var(--acc)')+'" stroke-width="'+sw+'" stroke-linecap="round"/>';
+  });
+  var legend=segments.map(function(seg){
+    var pct=Math.round((seg.value/total)*100);
+    return '<div style="display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px"><div style="width:8px;height:8px;border-radius:4px;background:'+(seg.color||'var(--acc)')+';flex-shrink:0"></div><span style="flex:1;color:var(--t2)">'+seg.label+'</span><span style="font-weight:700">'+pct+'%</span></div>';
+  });
+  return '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex-shrink:0;position:relative;width:'+size+'px;height:'+size+'px">'+
+  '<svg viewBox="0 0 '+size+' '+size+'" style="width:100%;height:100%">'+
+  '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--sep)" stroke-width="'+sw+'"/>'+
+  paths.join('')+'</svg>'+
+  (centerText?'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:'+Math.round(size*0.15)+'px;font-weight:900;letter-spacing:-1px">'+centerText+'</div>'+(centerSub?'<div style="font-size:'+Math.round(size*0.06)+'px;color:var(--t2);font-weight:500">'+centerSub+'</div>':'')+'</div>':'')+
+  '</div><div style="flex:1;min-width:100px">'+legend.join('')+'</div></div>';
+}
+
+function svgAreaChart(data,w,h,color1,color2,label1,label2){
+  if(!data||!data.length)return '';
+  w=w||400;h=h||180;
+  color1=color1||'var(--pos)';color2=color2||'var(--neg)';
+  var pad={t:10,r:10,b:28,l:10};
+  var cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  var allVals=[];
+  data.forEach(function(d){allVals.push(d.inc||0);allVals.push(d.exp||0)});
+  var mn=0,mx=Math.max.apply(null,allVals);
+  var rng=mx-mn||1;
+  function makePts(key){
+    return data.map(function(d,i){
+      var x=pad.l+(i/(data.length-1||1))*cw;
+      var y=pad.t+ch-((d[key]-mn)/rng)*ch;
+      return {x:x,y:y};
+    });
+  }
+  var pts1=makePts('inc'),pts2=makePts('exp');
+  var uid='ac'+Math.random().toString(36).substr(2,6);
+  function buildArea(pts,color,gid){
+    var pathD='M'+pts.map(function(p){return p.x+','+p.y}).join(' L');
+    var areaD=pathD+' L'+pts[pts.length-1].x+','+(pad.t+ch)+' L'+pts[0].x+','+(pad.t+ch)+' Z';
+    return '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0%" stop-color="'+color+'" stop-opacity="0.25"/>'+
+    '<stop offset="100%" stop-color="'+color+'" stop-opacity="0.02"/>'+
+    '</linearGradient></defs>'+
+    '<path d="'+areaD+'" fill="url(#'+gid+')"/>'+
+    '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  var labels=data.map(function(d,i){
+    var x=pad.l+(i/(data.length-1||1))*cw;
+    return '<text x="'+x+'" y="'+(h-4)+'" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600">'+(d.m||'')+'</text>';
+  });
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">'+
+  buildArea(pts1,color1,uid+'_1')+buildArea(pts2,color2,uid+'_2')+labels.join('')+
+  '<text x="'+(w-pad.r)+'" y="14" text-anchor="end" fill="'+color1+'" font-size="9" font-weight="700">'+(label1||'Income')+'</text>'+
+  '<text x="'+(w-pad.r)+'" y="26" text-anchor="end" fill="'+color2+'" font-size="9" font-weight="700">'+(label2||'Expenses')+'</text>'+
+  '</svg>';
+}
+
+function svgSparkline(data,w,h,color){
+  if(!data||!data.length)return '';
+  w=w||60;h=h||20;color=color||'var(--acc)';
+  var vals=data.map(function(d){return typeof d==='number'?d:(d.v||d.y||0)});
+  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=mx-mn||1;
+  var pts=vals.map(function(v,i){
+    return (i/(vals.length-1))*w+','+( h-((v-mn)/rng)*h*0.8-h*0.1);
+  }).join(' ');
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function svgStackedBarChart(data,w,h,keys,colors,labels){
+  if(!data||!data.length)return '';
+  w=w||400;h=h||200;
+  var pad={t:10,r:10,b:28,l:10};
+  var cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  var maxTotal=0;
+  data.forEach(function(d){
+    var t=0;keys.forEach(function(k){t+=(d[k]||0)});
+    if(t>maxTotal)maxTotal=t;
+  });
+  var bw=Math.min(44,Math.floor(cw/data.length)-8);
+  var bars=data.map(function(d,i){
+    var x=pad.l+(i+0.5)*(cw/data.length)-bw/2;
+    var cumH=0;
+    var rects=keys.map(function(k,ki){
+      var val=d[k]||0;
+      var bh=(val/(maxTotal||1))*ch;
+      var y=pad.t+ch-cumH-bh;
+      cumH+=bh;
+      return '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="2" fill="'+(colors[ki]||'var(--acc)')+'"><title>'+(labels?labels[ki]:k)+': $'+val+'</title></rect>';
+    });
+    return rects.join('')+
+    '<text x="'+(x+bw/2)+'" y="'+(h-4)+'" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600">'+(d.m||'')+'</text>';
+  });
+  var legendHtml=keys.map(function(k,ki){
+    return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;margin-right:10px"><span style="width:8px;height:8px;border-radius:2px;background:'+(colors[ki]||'var(--acc)')+'"></span>'+(labels?labels[ki]:k)+'</span>';
+  }).join('');
+  return '<div style="margin-bottom:4px">'+legendHtml+'</div>'+
+  '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto">'+bars.join('')+'</svg>';
+}
+
+function trendIndicator(current,previous,prefix,suffix){
+  prefix=prefix||'';suffix=suffix||'';
+  if(previous===0)return '';
+  var pctChange=Math.round(((current-previous)/Math.abs(previous))*100);
+  var isUp=pctChange>=0;
+  var arrow=isUp?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>':'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  return '<span class="trend '+(isUp?'up':'down')+'">'+arrow+' '+prefix+(isUp?'+':'')+pctChange+suffix+'</span>';
+}
+
+function buildBillsCalendarSVG(){
+  var billDays={1:{n:'Mortgage',a:2000},5:{n:'Insurance',a:184},10:{n:'Electric',a:145},12:{n:'Water',a:65},15:{n:'Internet+Car',a:474},18:{n:'Phone',a:140},20:{n:'Gym',a:50},25:{n:'Student Loans',a:320}};
+  var today=15;
+  var daysInMonth=30;
+  var startDay=1;
+  var dayNames=['S','M','T','W','T','F','S'];
+  var html='<div class="cal-grid">';
+  dayNames.forEach(function(d){html+='<div class="cal-header">'+d+'</div>'});
+  for(var e=0;e<startDay;e++){html+='<div class="cal-day empty"></div>'}
+  for(var d=1;d<=daysInMonth;d++){
+    var hasBill=billDays[d];
+    var isToday=d===today;
+    html+='<div class="cal-day'+(hasBill?' has-bill':'')+(isToday?' today':'')+'"'+(hasBill?' title="'+hasBill.n+': $'+hasBill.a+'"':'')+'>'+d+(hasBill?'<div class="cal-dot"></div>':'')+'</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 /* XSS prevention */
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
@@ -523,11 +869,160 @@ function sPremium(){return '<div style="text-align:center;padding:10px"><div sty
 /* ========== HOME PAGE ========== */
 function rHome(){
 var wellnessScore=74,flex=1680;
-var dg=isDesktop()?'desk-grid':'';
-return '<div class="fi '+(dg?dg:'')+'">'+
+
+if(isDesktop()){
+/* ===== DESKTOP HOME DASHBOARD ===== */
+var nwChartData=nwHistory.map(function(d){return {m:d.m,v:d.v}});
+var spendDonutSegs=[
+  {value:480,color:'var(--pos)',label:'Groceries'},
+  {value:280,color:'var(--warn)',label:'Dining'},
+  {value:235,color:'var(--neg)',label:'Shopping'},
+  {value:85,color:'var(--acc)',label:'Entertainment'},
+  {value:120,color:'var(--info)',label:'Transport'}
+];
+return '<div class="fi">'+
+
+/* === Full-width Net Worth Hero with big chart === */
+'<div class="hero dash-full" style="padding:24px 28px 20px">'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px"><div>'+
+'<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
+'<div style="font-size:48px;font-weight:800;letter-spacing:-3px;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums">$82,450</div>'+
+'<div class="r" style="margin-top:6px;gap:8px"><span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2% this month','rgba(255,255,255,0.85)')+'<span style="font-size:12px;color:rgba(255,255,255,0.6)">+$10,050 YTD (+13.9%)</span></div>'+
+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">'+['7D','30D','90D','1Y','All'].map(function(r,i){return '<button style="padding:8px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,'+(i===3?1:0.5)+');background:'+(i===3?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div>'+
+'<div style="display:grid;grid-template-columns:repeat(3,auto);gap:16px;text-align:right;margin-top:4px">'+
+'<div><div style="font-size:10px;opacity:0.6">Assets</div><div style="font-size:16px;font-weight:800">$85,650</div></div>'+
+'<div><div style="font-size:10px;opacity:0.6">Liabilities</div><div style="font-size:16px;font-weight:800">$3,200</div></div>'+
+'<div><div style="font-size:10px;opacity:0.6">Savings Rate</div><div style="font-size:16px;font-weight:800">39%</div></div>'+
+'</div></div></div>'+
+'<div style="margin-top:4px">'+svgLineChart(nwChartData,700,140,'rgba(255,255,255,0.8)','12-Month Net Worth',true)+'</div>'+
+'</div>'+
+
+/* === 4 stat cards row === */
+'<div class="stat-row cols-4" style="margin-bottom:16px">'+
+'<div class="stat-card" style="cursor:pointer" onclick="os(\'Flex Budget\',sFlexBudget())"><div class="stat-label">Safe to Spend</div><div class="stat-value" style="color:var(--pos)">$1,680</div><div class="stat-change up">12 days left</div>'+br(63,'var(--pos)',4)+'</div>'+
+'<div class="stat-card" style="cursor:pointer" onclick="gt(\'budget\')"><div class="stat-label">Monthly Spending</div><div class="stat-value">$2,920</div><div class="stat-change down">'+trendIndicator(2920,2480,'','')+'vs last month</div></div>'+
+'<div class="stat-card" style="cursor:pointer" onclick="gt(\'goals\')"><div class="stat-label">Saved This Month</div><div class="stat-value" style="color:var(--acc)">$2,760</div><div class="stat-change up">39% savings rate</div></div>'+
+'<div class="stat-card" style="cursor:pointer" onclick="os(\'Financial Health\',sHS())"><div class="stat-label">Financial Health</div><div class="stat-value">'+wellnessScore+'<span style="font-size:14px;color:var(--t2)">/100</span></div><div class="stat-change up">Good</div></div>'+
+'</div>'+
+
+/* === Two column layout === */
+'<div class="dash-row">'+
+
+/* LEFT COLUMN */
+'<div class="dash-main">'+
+
+/* Spending by Category donut */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Spending by Category</span><span class="view-all" onclick="gt(\'budget\')">View Budget &rarr;</span></div>'+
+svgDonut(spendDonutSegs,160,'$2,920','spent')+
+'</div>'+
+
+/* Spending Trends (Mint feature) */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Spending Trends</span><span class="view-all" onclick="gp(\'spending\')">Details &rarr;</span></div>'+
+'<div class="chart-subtitle">Monthly spending by top categories (6 months)</div>'+
+svgStackedBarChart(monthlySpending,500,180,
+  ['g','d','s','e','t'],
+  ['var(--pos)','var(--warn)','var(--neg)','var(--acc)','var(--info)'],
+  ['Groceries','Dining','Shopping','Entertainment','Transport'])+
+'</div>'+
+
+/* Recent Transactions Table (10 items) */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Recent Transactions</span><span class="view-all" onclick="gp(\'transactions\')">View All &rarr;</span></div>'+
+'<table class="data-table"><thead><tr><th>Who</th><th>Merchant</th><th>Category</th><th>Date</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},
+{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650.00',t:'Yesterday',f:true},
+{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},
+{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday'},
+{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},
+{w:'V',n:'Netflix',c:'Subscriptions',a:'-$15.49',t:'Apr 10'},
+{w:'C',n:'Amazon',c:'Shopping',a:'-$150.00',t:'Apr 10'},
+{w:'V',n:'ALTA Payroll',c:'Income',a:'+$4,280',t:'Apr 11',inc:true},
+{w:'V',n:'Costco',c:'Groceries',a:'-$124.30',t:'Apr 8'},
+{w:'C',n:'Starbucks',c:'Dining',a:'-$6.75',t:'Apr 8'}
+].map(function(tx){return '<tr style="cursor:pointer" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))"><td>'+av(tx.w,22,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':'var(--acc)')+'</td><td><span style="font-weight:600">'+tx.n+'</span>'+(tx.f?' '+bg('FLAG','var(--neg)'):'')+(tx.rf?' '+bg('Refund','var(--pos)'):'')+(tx.inc?' '+bg('INCOME','var(--pos)'):'')+'</td><td style="color:var(--t2)">'+tx.c+'</td><td style="color:var(--t2)">'+tx.t+'</td><td class="amount" style="color:'+(tx.inc||tx.rf?'var(--pos)':tx.f?'var(--neg)':'var(--t1)')+'">'+tx.a+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+/* Upcoming Bills */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Upcoming Bills</span><span class="view-all" onclick="gp(\'billscalendar\')">Calendar &rarr;</span></div>'+
+'<table class="data-table"><thead><tr><th>Bill</th><th>Due</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+[{n:'Electric Bill',a:'$145',d:'Tomorrow',at:false},{n:'Internet',a:'$89',d:'Apr 15',at:true},{n:'Car Payment',a:'$385',d:'Apr 15',at:true},{n:'Phone',a:'$140',d:'Apr 18',at:true},{n:'Gym',a:'$50',d:'Apr 20',at:true}].map(function(b){
+return '<tr style="cursor:pointer" onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+parseInt(b.a.replace('$',''))+','+b.at+',\''+b.d+'\'))"><td style="font-weight:600">'+b.n+'</td><td style="color:var(--t2)">'+b.d+'</td><td>'+(b.at?bg('Autopay','var(--pos)'):bg('Manual','var(--warn)'))+'</td><td class="amount">'+b.a+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+'</div>'+/* end dash-main */
+
+/* RIGHT COLUMN */
+'<div class="dash-side">'+
+
+/* Financial Wellness Score */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Financial Health\',sHS())">'+
+'<div class="chart-title">Financial Wellness</div>'+
+'<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px"><div style="width:72px;height:72px;border-radius:36px;background:conic-gradient(var(--pos) '+wellnessScore+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:54px;height:54px;border-radius:27px;background:var(--cardBg);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--acc)">'+wellnessScore+'</div></div>'+
+'<div style="flex:1">'+
+[{n:'Savings Rate',s:82},{n:'Debt Ratio',s:90},{n:'Account Health',s:55},{n:'Budget',s:60}].map(function(i){return '<div style="margin-bottom:4px"><div class="r" style="justify-content:space-between;margin-bottom:1px"><span style="font-size:10px;font-weight:600">'+i.n+'</span><span style="font-size:10px;font-weight:700;color:'+(i.s>=80?'var(--pos)':i.s>=50?'var(--warn)':'var(--neg)')+'">'+i.s+'</span></div>'+br(i.s,i.s>=80?'var(--pos)':i.s>=50?'var(--warn)':'var(--neg)',2)+'</div>'}).join('')+
+'</div></div></div>'+
+
+/* Velocity Alert */
+'<div class="c tap" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)" onclick="os(\'Spending Velocity\',sVel())">'+
+'<div class="r"><div style="width:32px;height:32px;border-radius:16px;background:var(--negBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.warn,14,'var(--neg)',2.5)+'</div><div style="flex:1"><div style="font-weight:700;font-size:13px;color:var(--neg)">Spending 38% faster</div><div class="sub">May exceed budget by $420</div></div></div></div>'+
+
+/* Savings Rate Trend */
+'<div class="chart-container dash-section">'+
+'<div class="chart-title">Savings Rate Trend</div>'+
+svgLineChart(savingsRateHistory.map(function(d){return {m:d.m,v:d.r}}),340,100,'var(--pos)','',true)+
+'<div style="text-align:center;margin-top:6px"><span style="font-size:22px;font-weight:800;color:var(--pos)">39%</span><span style="font-size:11px;color:var(--t2);margin-left:4px">this month</span></div>'+
+'</div>'+
+
+/* Quick Actions */
+'<div class="chart-container dash-section">'+
+'<div class="chart-title">Quick Actions</div>'+
+'<div class="ci" style="margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="os(\'Done!\',sDone(\'Moved $15 to Emergency Fund\'))"><div style="width:32px;height:32px;border-radius:10px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.plus,14,'var(--pos)',2.5)+'</div><div style="flex:1"><div style="font-weight:600;font-size:12px">Move $15 to Emergency</div><div class="sub">Daily auto-save</div></div><button class="btn-gold" style="padding:6px 12px;font-size:10px">Do It</button></div>'+
+[{l:'Review TreatYoSelf $650',s:'Flag',c:'var(--neg)'},{l:'Reconnect Cap One',s:'Fix',c:'var(--warn)'},{l:'Start Money Date',s:'Go',c:'var(--gold)'}].map(function(q){
+return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-weight:600;font-size:11px">'+q.l+'</div></div>'+bg(q.s,q.c)+'</div>'}).join('')+
+'</div>'+
+
+/* Partner Activity */
+'<div class="chart-container dash-section">'+
+'<div class="chart-title">Partner Activity</div>'+
+[{w:'C',a:'Spent $650 at TreatYoSelf',t:'Yesterday',f:true},{w:'V',a:'Auto-saved $15',t:'Today'},{w:'C',a:'Scanned electric receipt',t:'Today'},{w:'V',a:'Reconnected Cap One',t:'Mar 14'},{w:'C',a:'Disconnected Cap One',t:'Mar 12',f:true}].map(function(ev){
+return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+av(ev.w,20,ev.w==='C'?'var(--warn)':'var(--acc)')+'<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;'+(ev.f?'color:var(--neg)':'')+'">'+ev.a+'</div><div class="sub" style="font-size:9px">'+ev.t+'</div></div></div>'}).join('')+
+'</div>'+
+
+/* Messages */
+'<div class="c tap" onclick="gp(\'messages\')">'+
+'<div class="r"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.msg,14,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:700;font-size:12px">Messages</div><div class="sub">Chat with Caroline &middot; 2 unread</div></div><div style="width:18px;height:18px;border-radius:9px;background:var(--neg);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div></div>'+
+pendingBadge('WebSocket backend')+'</div>'+
+
+renderAd('premium')+
+
+'</div>'+/* end dash-side */
+'</div>'+/* end dash-row */
+
+/* === Full-width Cash Flow Chart === */
+'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Cash Flow</span><span class="view-all" onclick="gp(\'transactions\')">Details &rarr;</span></div>'+
+'<div style="display:flex;gap:24px;margin-bottom:8px">'+
+'<div><span style="font-size:11px;color:var(--t2)">Avg Income</span> <span style="font-size:14px;font-weight:800;color:var(--pos)">$7,147</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Avg Expenses</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$4,643</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Avg Surplus</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$2,504</span></div>'+
+'</div>'+
+svgAreaChart(cashFlow,700,160,'var(--pos)','var(--neg)','Income','Expenses')+
+'</div>'+
+
+/* === Full-width Top Merchants (Mint feature) === */
+'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Top Merchants</span><span class="view-all" onclick="gp(\'spending\')">All Spending &rarr;</span></div>'+
+'<table class="data-table"><thead><tr><th>Merchant</th><th style="text-align:right">Total Spent</th><th style="text-align:right">Transactions</th><th style="text-align:right">Average</th><th style="text-align:right">Trend</th></tr></thead><tbody>'+
+topMerchants.map(function(m){
+return '<tr><td style="font-weight:600">'+m.n+'</td><td class="amount">$'+m.total.toLocaleString()+'</td><td class="amount">'+m.count+'</td><td class="amount">$'+m.avg.toFixed(2)+'</td><td style="text-align:right">'+svgSparkline([40,55,50,60,45,m.avg],50,16,'var(--acc)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+'</div>';
+}
+
+/* ===== MOBILE HOME (unchanged) ===== */
+var dg='';
+return '<div class="fi">'+
 
 /* Net Worth Hero */
-'<div class="hero '+(dg?'desk-full':'')+'" style="padding:20px 18px 16px">'+
+'<div class="hero" style="padding:20px 18px 16px">'+
 '<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
 '<div style="font-size:42px;font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-top:3px;font-variant-numeric:tabular-nums" id="nwVal">$82,450</div>'+
 '<div class="r" style="margin-top:4px;gap:6px"><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2%','rgba(255,255,255,0.8)')+'</div>'+
@@ -574,6 +1069,97 @@ renderAd('premium')+
 function rBudget(){
 var cats=[{n:'Housing',a:2400,s:2000,f:true},{n:'Groceries',a:800,s:480},{n:'Dining Out',a:300,s:280,w:true},{n:'Shopping',a:200,s:235,o:true},{n:'Entertainment',a:150,s:85},{n:'Transport',a:200,s:120},{n:'Subscriptions',a:100,s:62},{n:'Health',a:150,s:45},{n:'Personal',a:200,s:90},{n:'Misc',a:100,s:30}];
 var tA=cats.reduce(function(a,c){return a+c.a},0),tS=cats.reduce(function(a,c){return a+c.s},0);
+
+if(isDesktop()){
+/* ===== DESKTOP BUDGET ===== */
+var budgetPct=Math.round((tS/tA)*100);
+var catBarData=cats.filter(function(c){return !c.f}).map(function(c){return {label:c.n,value:c.s,max:c.a,color:c.o?'var(--neg)':c.s/c.a>0.8?'var(--warn)':'var(--pos)'}});
+return '<div class="fi">'+
+
+/* Hero: Budget Summary + comparison bar chart */
+'<div class="hero dash-full" style="padding:24px 28px 20px">'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px"><div>'+
+'<div style="font-size:13px;opacity:0.85">April Budget</div>'+
+'<div style="font-size:48px;font-weight:800;letter-spacing:-3px;margin-top:2px">$'+tA.toLocaleString()+'</div>'+
+'<div style="margin-top:6px;display:flex;gap:20px">'+
+'<div><span style="opacity:0.7;font-size:12px">Spent</span> <span style="font-size:18px;font-weight:800">$'+tS.toLocaleString()+'</span></div>'+
+'<div><span style="opacity:0.7;font-size:12px">Remaining</span> <span style="font-size:18px;font-weight:800;color:rgba(255,255,255,0.9)">$'+(tA-tS).toLocaleString()+'</span></div>'+
+'<div><span style="opacity:0.7;font-size:12px">Used</span> <span style="font-size:18px;font-weight:800">'+budgetPct+'%</span></div>'+
+'</div></div>'+
+'<div style="text-align:right"><div style="font-size:12px;opacity:0.7">Month Comparison</div>'+
+'<div style="display:flex;gap:12px;margin-top:6px">'+
+monthlyBudgetHistory.map(function(mb){var pct=Math.round((mb.spent/mb.budget)*100);return '<div style="text-align:center"><div style="height:60px;width:32px;background:rgba(255,255,255,0.1);border-radius:6px;position:relative;display:flex;align-items:flex-end;overflow:hidden"><div style="width:100%;height:'+pct+'%;background:rgba(255,255,255,'+(pct>90?0.9:0.5)+');border-radius:6px;transition:height 0.4s"></div></div><div style="font-size:10px;margin-top:3px;opacity:0.7">'+mb.m+'</div><div style="font-size:9px;font-weight:700">'+pct+'%</div></div>'}).join('')+
+'</div></div></div>'+
+'<div style="margin-top:4px">'+br(budgetPct,'rgba(255,255,255,0.6)',8)+'</div>'+
+'<div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' remaining &middot; 12 days left &middot; $140/day safe rate</div>'+
+'</div>'+
+
+/* Two column layout */
+'<div class="dash-row">'+
+
+/* LEFT: Category breakdown with horizontal bars */
+'<div class="dash-main">'+
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Category Breakdown</span><span class="view-all" onclick="gp(\'spending\')">Details &rarr;</span></div>'+
+'<table class="data-table"><thead><tr><th>Category</th><th>Von</th><th>Caroline</th><th style="text-align:right">Spent</th><th style="text-align:right">Budget</th><th style="width:120px">Progress</th><th>Status</th></tr></thead><tbody>'+
+cats.map(function(c){var p=Math.round((c.s/c.a)*100);var vAmt=Math.round(c.s*0.45);var cAmt=Math.round(c.s*0.55);
+return '<tr style="cursor:pointer" onclick="os(\''+c.n+'\',sCat(\''+c.n+'\','+c.s+','+c.a+','+vAmt+','+cAmt+'))"><td style="font-weight:600">'+c.n+(c.f?' <span style="font-size:9px;color:var(--t3)">Fixed</span>':'')+'</td><td style="font-size:11px;color:var(--acc)">$'+vAmt+'</td><td style="font-size:11px;color:var(--warn)">$'+cAmt+'</td><td class="amount"'+(c.o?' style="color:var(--neg)"':'')+'>$'+c.s+'</td><td class="amount" style="color:var(--t2)">$'+c.a+'</td><td>'+br(p,c.o?'var(--neg)':p>80?'var(--warn)':'var(--pos)',4)+'</td><td>'+(c.o?bg('OVER','var(--neg)'):c.w?bg(p+'%','var(--warn)'):bg(p+'%','var(--pos)'))+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+/* Budget Rollover Tracking (Mint feature) */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Budget Rollover</span></div>'+
+'<div class="sub" style="margin-bottom:8px">Unspent amounts rolling into next month</div>'+
+'<table class="data-table"><thead><tr><th>Category</th><th style="text-align:right">Unspent</th><th style="text-align:right">Rolled From Mar</th><th style="text-align:right">Running Total</th></tr></thead><tbody>'+
+[{n:'Groceries',u:320,r:180,t:500},{n:'Entertainment',u:65,r:45,t:110},{n:'Transport',u:80,r:30,t:110},{n:'Health',u:105,r:90,t:195},{n:'Personal',u:110,r:60,t:170}].map(function(ro){
+return '<tr><td style="font-weight:600">'+ro.n+'</td><td class="amount" style="color:var(--pos)">+$'+ro.u+'</td><td class="amount" style="color:var(--t2)">$'+ro.r+'</td><td class="amount" style="font-weight:700">$'+ro.t+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+/* Full width: Monthly Spending Trends (6 months by category) */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Monthly Spending Trends</span></div>'+
+svgStackedBarChart(monthlySpending,600,200,
+  ['g','d','s','e','t'],
+  ['var(--pos)','var(--warn)','var(--neg)','var(--acc)','var(--info)'],
+  ['Groceries','Dining','Shopping','Entertainment','Transport'])+
+'</div>'+
+
+'</div>'+/* end dash-main */
+
+/* RIGHT: Caps, velocity, forecast */
+'<div class="dash-side">'+
+
+/* Category Caps */
+'<div class="chart-container dash-section"><div class="chart-title">Category Caps</div>'+
+[{c:'Dining Out',l:300,sp:280},{c:'Shopping',l:200,sp:235,o:true},{c:'Entertainment',l:150,sp:148,h:true},{c:'Subscriptions',l:100,sp:62}].map(function(c){var p=Math.round((c.sp/c.l)*100);return '<div class="ci '+(c.h?'pu':'')+'" style="margin-bottom:6px;display:flex;align-items:center;gap:8px;'+(p>=90?'background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent)':'')+'"><div style="flex:1"><div class="r" style="justify-content:space-between;margin-bottom:3px"><span style="font-weight:700;font-size:11px">'+c.c+'</span><span style="font-size:10px;font-weight:700;color:'+(p>=90?'var(--neg)':'var(--t2)')+'">$'+c.sp+'/$'+c.l+'</span></div>'+br(p,p>=100?'var(--neg)':p>=90?'var(--warn)':'var(--pos)',3)+(p>=90?'<div style="font-size:9px;font-weight:700;color:var(--neg);margin-top:2px">Both partners alerted</div>':'')+'</div>'+tg(true,p>=90)+'</div>'}).join('')+
+'</div>'+
+
+/* Spending Velocity Chart */
+'<div class="chart-container dash-section"><div class="chart-title">Spending Velocity</div>'+
+'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--neg)">38%</span><div class="sub">faster than average</div></div>'+
+svgLineChart([{m:'W1',v:680},{m:'W2',v:720},{m:'W3',v:850},{m:'W4',v:1066}],340,100,'var(--neg)','Weekly Spend',true)+
+'<div class="sub" style="margin-top:6px">Projected overshoot: $420 over budget</div>'+
+'</div>'+
+
+/* Annual Forecast */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Annual Forecast\',sFore())"><div class="chart-title">Annual Forecast</div>'+
+'<div style="text-align:center;margin-bottom:8px"><span style="font-size:28px;font-weight:900;color:var(--pos)">$33.1k</span><div class="sub">projected savings by Dec</div></div>'+
+svgLineChart([{m:'Jan',v:2760},{m:'Apr',v:10760},{m:'Jul',v:19320},{m:'Oct',v:27880},{m:'Dec',v:33120}],340,100,'var(--pos)','',true)+
+'</div>'+
+
+/* April Summary */
+'<div class="chart-container dash-section"><div class="chart-title">April Summary</div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Income</div><div style="font-size:16px;font-weight:800;color:var(--pos)">$7,080</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:16px;font-weight:800;color:var(--warn)">$4,320</div></div>'+
+'<div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Saved</div><div style="font-size:16px;font-weight:800;color:var(--acc)">$2,760</div></div></div>'+
+'</div>'+
+
+renderAd('native')+
+
+'</div>'+/* end dash-side */
+'</div>'+/* end dash-row */
+'</div>';
+}
+
+/* ===== MOBILE BUDGET (unchanged) ===== */
 return '<div class="fi">'+
 '<div class="hero" style="padding:18px"><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:13px;opacity:0.85">Monthly Budget</div><div style="font-size:36px;font-weight:800;letter-spacing:-2px;margin-top:2px">$'+tA.toLocaleString()+'</div></div><div style="text-align:right"><div style="font-size:13px;opacity:0.85">Spent</div><div style="font-size:24px;font-weight:800;margin-top:2px">$'+tS.toLocaleString()+'</div></div></div><div style="margin-top:10px">'+br(Math.round((tS/tA)*100),'rgba(255,255,255,0.6)',6)+'</div><div style="font-size:12px;margin-top:6px;opacity:0.85">$'+(tA-tS).toLocaleString()+' remaining &middot; 12 days left</div></div>'+
 
@@ -594,13 +1180,102 @@ renderAd('native')+
 
 
 /* ========== GOALS PAGE ========== */
-function rGoals(){return '<div class="fi">'+
+function rGoals(){
+var nests=[{n:'Emergency Fund',c:3700,g:5000,f:'$15/wk',d:'Jul 2026',sh:true},{n:'Hawaii Trip',c:1800,g:4000,f:'$100/2wk',d:'Oct 2026',sh:true},{n:'Mortgage Extra',c:2100,g:10000,f:'$150/wk',d:'Mar 2027',sh:true},{n:"Von's Tech",c:800,g:2000,f:'$25/wk',d:'Nov 2026',p:true},{n:"Caroline's Fun",c:320,g:1000,f:'$20/wk',d:'Sep 2026',p:true}];
+var totalSaved=nests.reduce(function(a,n){return a+n.c},0);
+var totalGoal=nests.reduce(function(a,n){return a+n.g},0);
+
+if(isDesktop()){
+/* ===== DESKTOP GOALS ===== */
+var goalDonutSegs=nests.map(function(n,i){var colors=['var(--acc)','var(--pos)','var(--warn)','var(--info)','var(--neg)'];return {value:n.c,color:colors[i%5],label:n.n}});
+return '<div class="fi">'+
+
+/* Top: Savings overview with donut + savings rate trend */
+'<div class="dash-full" style="display:flex;gap:16px;margin-bottom:16px">'+
+'<div class="chart-container" style="flex:1;margin-bottom:0"><div class="dash-section-header"><span class="shd">Savings Progress</span><span class="view-all" onclick="gp(\'nests\')">All Nests &rarr;</span></div>'+
+svgDonut(goalDonutSegs,160,'$'+totalSaved.toLocaleString(),'of $'+totalGoal.toLocaleString())+
+'<div style="margin-top:12px;display:flex;gap:12px">'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Total Saved</div><div style="font-size:18px;font-weight:800;color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Total Goals</div><div style="font-size:18px;font-weight:800">$'+totalGoal.toLocaleString()+'</div></div>'+
+'<div class="ci" style="flex:1;text-align:center"><div class="sub" style="font-size:9px">Overall</div><div style="font-size:18px;font-weight:800;color:var(--acc)">'+Math.round((totalSaved/totalGoal)*100)+'%</div></div>'+
+'</div></div>'+
+'<div class="chart-container" style="flex:1;margin-bottom:0"><div class="chart-title">Savings Rate Over Time</div>'+
+svgLineChart(savingsRateHistory.map(function(d){return {m:d.m,v:d.r}}),400,140,'var(--pos)','Savings Rate %',true)+
+'<div style="text-align:center;margin-top:8px"><span style="font-size:28px;font-weight:900;color:var(--pos)">39%</span><span style="font-size:12px;color:var(--t2);margin-left:6px">this month &middot; </span>'+trendIndicator(39,38,'','')+
+'</div></div>'+
+'</div>'+
+
+/* Two column */
+'<div class="dash-row">'+
+
+/* LEFT: All nests with details */
+'<div class="dash-main">'+
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Your Nests</span><button class="btn-pill" onclick="os(\'New Nest\',sNewNest())">+ Add Nest</button></div>'+
+'<table class="data-table"><thead><tr><th>Nest</th><th>Funding</th><th>Target Date</th><th style="text-align:right">Saved</th><th style="text-align:right">Goal</th><th style="width:120px">Progress</th></tr></thead><tbody>'+
+nests.map(function(n){var p=Math.round((n.c/n.g)*100);var ne=n.n.replace(/'/g,"&#39;");
+return '<tr style="cursor:pointer" onclick="os(\''+ne+'\',sNest(\''+ne+'\','+n.c+','+n.g+'))"><td style="font-weight:600">'+n.n+(n.p?' '+bg('Personal','var(--warn)'):'')+'</td><td style="color:var(--t2)">'+n.f+'</td><td style="color:var(--t2)">'+n.d+'</td><td class="amount" style="color:var(--acc)">$'+n.c.toLocaleString()+'</td><td class="amount" style="color:var(--t2)">$'+n.g.toLocaleString()+'</td><td>'+br(p,'var(--acc)',5)+'<div style="font-size:9px;font-weight:700;color:var(--acc);text-align:right;margin-top:1px">'+p+'%</div></td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+/* Money Date */
+'<div class="c tap" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--gold) 12%,transparent)" onclick="os(\'Money Date\',sMD())"><div class="r">'+ic(icons.heart,16,'var(--gold)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:12px">Money Date Mode</div><div class="sub">Guided couples review — sit down together</div></div>'+bg('NEW','var(--gold)')+'</div></div>'+
+
+/* Autosave Rules */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Autosave Rules</span></div>'+
+[{t:'Round-Ups',d:'Spare change to savings',v:'~$45/mo',on:true},{t:'Set & Forget',d:'Auto-save $15 daily',v:'$15/day',on:true},{t:'Paycheck Boost',d:'5% each payday',v:'5%',on:true}].map(function(f){return '<div class="tr" onclick="os(\''+f.t+'\',sAutoRule(\''+f.t+'\',\''+f.d+'\',\''+f.v+'\'))"><div style="width:32px;height:32px;border-radius:10px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.plus,12,'var(--pos)')+'</div><div style="flex:1"><div style="font-weight:700;font-size:12px">'+f.t+'</div><div class="sub">'+f.d+' &middot; '+f.v+'</div></div>'+tg(f.on)+'</div>'}).join('')+
+'</div>'+
+
+'</div>'+/* end dash-main */
+
+/* RIGHT: Emergency, debt, upcoming, streaks */
+'<div class="dash-side">'+
+
+/* Emergency Fund Status */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Emergency Fund\',sEmer())"><div class="chart-title">Emergency Fund</div>'+
+'<div style="display:flex;justify-content:space-between;margin-bottom:8px">'+
+'<div><div class="sub" style="font-size:9px">Current</div><div style="font-size:18px;font-weight:800;color:var(--acc)">$3,600</div></div>'+
+'<div style="text-align:center"><div class="sub" style="font-size:9px">Need</div><div style="font-size:18px;font-weight:800">$12,960</div></div>'+
+'<div style="text-align:right"><div class="sub" style="font-size:9px">Coverage</div><div style="font-size:18px;font-weight:800;color:var(--warn)">0.8 mo</div></div></div>'+
+br(28,'var(--warn)',6)+
+'<div class="sub" style="margin-top:4px">Target: 3 months ($12,960)</div></div>'+
+
+/* Debt Paydown */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Debt Paydown\',sDebt())"><div class="chart-title">Debt Paydown</div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Total Debt</div><div style="font-size:16px;font-weight:800;color:var(--neg)">$3,200</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Payoff ETA</div><div style="font-size:16px;font-weight:800">8 months</div></div></div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Avalanche</div><div style="font-size:14px;font-weight:800;color:var(--pos);margin-top:2px">7.5 mo</div></div><div class="ci" style="text-align:center;padding:8px"><div style="font-size:10px;font-weight:700">Snowball</div><div style="font-size:14px;font-weight:800;margin-top:2px">8.2 mo</div></div></div></div>'+
+
+/* Upcoming Moves Timeline */
+'<div class="chart-container dash-section"><div class="chart-title">Upcoming Moves</div>'+
+[{l:'$15 &rarr; Emergency Fund',d:'TODAY',h:true},{l:'$100 &rarr; Hawaii Trip',d:'Apr 26'},{l:'$150 &rarr; Mortgage',d:'Apr 27'},{l:'$25 &rarr; Von\'s Tech',d:'Apr 28'},{l:'$20 &rarr; Caroline\'s Fun',d:'Apr 29'}].map(function(m){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div style="width:6px;height:6px;border-radius:3px;background:'+(m.h?'var(--neg)':'var(--pos)')+';flex-shrink:0;margin-top:4px"></div><span style="flex:1;font-weight:600;font-size:11px">'+m.l+'</span><span style="font-size:10px;font-weight:700;color:'+(m.h?'var(--neg)':'var(--t2)')+';'+(m.h?'background:var(--negBg);padding:2px 8px;border-radius:6px':'')+'">'+m.d+'</span></div>'}).join('')+
+'</div>'+
+
+/* Streaks & Achievements */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Achievements\',sAchieve())"><div class="r" style="gap:10px">'+ic(icons.star,20,'var(--gold)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:13px">14-Day Streak</div><div class="sub">Under budget 2 weeks straight</div></div><div style="display:flex;gap:2px"><div style="width:8px;height:8px;border-radius:4px;background:var(--gold)"></div><div style="width:8px;height:8px;border-radius:4px;background:var(--gold)"></div><div style="width:8px;height:8px;border-radius:4px;background:var(--gold)"></div></div></div></div>'+
+
+'</div>'+/* end dash-side */
+'</div>'+/* end dash-row */
+
+/* Full width: Savings Growth Projection */
+'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Savings Growth Projection</span></div>'+
+'<div style="display:flex;gap:16px;margin-bottom:8px">'+
+'<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--acc)"></span> Actual</span>'+
+'<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--t3)"></span> Projected</span>'+
+'</div>'+
+svgLineChart(
+  actualSavings.concat(projectedSavings.map(function(d){return {m:d.m,v:d.proj}})),
+  700,160,'var(--acc)','12-Month Savings Trajectory',true)+
+'</div>'+
+
+'</div>';
+}
+
+/* ===== MOBILE GOALS (unchanged) ===== */
+return '<div class="fi">'+
 '<div class="c"><div style="font-size:26px;font-weight:800;letter-spacing:-0.5px">Your Goals</div><div class="sub" style="margin-top:2px">Reach milestones one "Nest" at a time.</div></div>'+
 
 '<div class="c tap" style="background:var(--warnBg);border-color:color-mix(in srgb,var(--gold) 12%,transparent)" onclick="os(\'Money Date\',sMD())"><div class="r">'+ic(icons.heart,16,'var(--gold)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:12px">Money Date Mode</div><div class="sub">Side-by-side review for couples</div></div>'+bg('NEW','var(--gold)')+'</div></div>'+
 
 /* Nests */
-[{n:'Emergency Fund',c:3700,g:5000,f:'$15/wk',d:'Jul 2026',sh:true},{n:'Hawaii Trip',c:1800,g:4000,f:'$100/2wk',d:'Oct 2026',sh:true},{n:'Mortgage Extra',c:2100,g:10000,f:'$150/wk',d:'Mar 2027',sh:true},{n:"Von\'s Tech",c:800,g:2000,f:'$25/wk',d:'Nov 2026',p:true},{n:"Caroline\'s Fun",c:320,g:1000,f:'$20/wk',d:'Sep 2026',p:true}].map(function(n,i){var p=Math.round((n.c/n.g)*100);var ne=n.n.replace(/'/g,"&#39;");return '<div class="'+(i===0?'cs':'c')+' tap" onclick="os(\''+ne+'\',sNest(\''+ne+'\','+n.c+','+n.g+'))"><div class="r"><div style="flex:1"><div class="r" style="gap:4px"><span style="font-weight:'+(i===0?800:700)+';font-size:'+(i===0?15:12)+'px">'+n.n+'</span>'+(n.p?bg('Personal','var(--warn)'):'')+'</div><div class="sub">'+n.f+' &middot; '+n.d+'</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:'+(i===0?14:11)+'px;color:var(--acc)">$'+n.c.toLocaleString()+'<span style="font-weight:400;color:var(--t3);font-size:10px"> / $'+n.g.toLocaleString()+'</span></div><div style="margin-top:3px;width:'+(i===0?85:65)+'px">'+br(p,'var(--acc)',i===0?6:3)+'</div></div></div></div>'}).join('')+
+nests.map(function(n,i){var p=Math.round((n.c/n.g)*100);var ne=n.n.replace(/'/g,"&#39;");return '<div class="'+(i===0?'cs':'c')+' tap" onclick="os(\''+ne+'\',sNest(\''+ne+'\','+n.c+','+n.g+'))"><div class="r"><div style="flex:1"><div class="r" style="gap:4px"><span style="font-weight:'+(i===0?800:700)+';font-size:'+(i===0?15:12)+'px">'+n.n+'</span>'+(n.p?bg('Personal','var(--warn)'):'')+'</div><div class="sub">'+n.f+' &middot; '+n.d+'</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:'+(i===0?14:11)+'px;color:var(--acc)">$'+n.c.toLocaleString()+'<span style="font-weight:400;color:var(--t3);font-size:10px"> / $'+n.g.toLocaleString()+'</span></div><div style="margin-top:3px;width:'+(i===0?85:65)+'px">'+br(p,'var(--acc)',i===0?6:3)+'</div></div></div></div>'}).join('')+
 
 '<div style="border:2px dashed var(--sep);border-radius:20px;padding:14px;text-align:center;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;margin-bottom:10px;transition:background var(--fast) ease,transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.97)\';this.style.background=\'var(--accS)\'" onmouseup="this.style.transform=\'\';this.style.background=\'\'" onmouseleave="this.style.transform=\'\';this.style.background=\'\'" onclick="os(\'New Nest\',sNewNest())" role="button" tabindex="0">+ Add a New Nest</div>'+
 
@@ -626,7 +1301,129 @@ br(28,'var(--warn)')+'<div class="sub" style="margin-top:4px">Target: 3 months (
 
 
 /* ========== TRACK PAGE ========== */
-function rTrack(){return '<div class="fi">'+
+function rTrack(){
+
+if(isDesktop()){
+/* ===== DESKTOP TRACK ===== */
+var allocSegs=[
+  {value:180500,color:'var(--acc)',label:'Investments'},
+  {value:68400,color:'var(--gold)',label:'401(k)'},
+  {value:29200,color:'var(--warn)',label:'Real Estate'},
+  {value:11900,color:'var(--t2)',label:'Other'}
+];
+var accounts=[{l:'Chase Checking',a:'$5,360',v:5360,s:'g',t:'2h ago',who:'Joint'},{l:'Chase Savings',a:'$12,400',v:12400,s:'g',t:'2h ago',who:'Joint'},{l:'Capital One',a:'$2,100',v:2100,s:'y',t:'3d ago',who:'Von'},{l:'Cap One Savings',a:'$8,200',v:8200,s:'r',t:'47d ago',who:'Caroline'},{l:'Ally Invest',a:'$26,500',v:26500,s:'g',t:'1d ago',who:'Von'},{l:'Credit Cards',a:'-$1,200',v:-1200,s:'g',t:'6h ago',who:'Joint'}];
+return '<div class="fi">'+
+
+/* Hero with allocation donut */
+'<div class="hero dash-full" style="padding:24px 28px 20px">'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+'<div><div style="font-size:13px;opacity:0.85">Total Assets Under Management</div>'+
+'<div style="font-size:48px;font-weight:800;letter-spacing:-3px;margin-top:4px">$290,000</div>'+
+'<div style="margin-top:8px;display:flex;gap:20px">'+
+[{l:'Investments',v:'$180.5k'},{l:'401(k)',v:'$68.4k'},{l:'Real Estate',v:'$29.2k'},{l:'Other',v:'$11.9k'}].map(function(s){return '<div><span style="opacity:0.6;font-size:11px">'+s.l+'</span> <span style="font-size:15px;font-weight:800">'+s.v+'</span></div>'}).join('')+
+'</div></div>'+
+'<div style="display:grid;grid-template-columns:repeat(3,auto);gap:16px;text-align:right;margin-top:4px">'+
+'<div><div style="font-size:10px;opacity:0.6">YTD Return</div><div style="font-size:16px;font-weight:800;color:rgba(255,255,255,0.9)">+8.2%</div></div>'+
+'<div><div style="font-size:10px;opacity:0.6">Expense Ratio</div><div style="font-size:16px;font-weight:800">0.42%</div></div>'+
+'<div><div style="font-size:10px;opacity:0.6">Fee Drag (30yr)</div><div style="font-size:16px;font-weight:800;color:rgba(255,255,255,0.7)">$47k</div></div>'+
+'</div></div></div>'+
+
+/* Two column */
+'<div class="dash-row">'+
+
+/* LEFT */
+'<div class="dash-main">'+
+
+/* Full Accounts Table */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Accounts</span><span class="view-all" onclick="gp(\'accounts\')">Manage &rarr;</span></div>'+
+'<table class="data-table"><thead><tr><th>Account</th><th>Owner</th><th>Last Sync</th><th>Status</th><th style="text-align:right">Balance</th></tr></thead><tbody>'+
+accounts.map(function(x){return '<tr style="cursor:pointer" onclick="gp(\'accounts\')"><td style="font-weight:600">'+x.l+'</td><td style="color:var(--t2)">'+x.who+'</td><td style="color:var(--t2)">'+x.t+'</td><td>'+(x.s==='g'?bg('Synced','var(--pos)'):x.s==='y'?bg('Slow','var(--warn)'):bg('Stale','var(--neg)'))+'</td><td class="amount" style="color:'+(x.v<0?'var(--neg)':'var(--t1)')+'">'+x.a+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+
+/* Transaction Search & Filter (Mint feature) */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Transactions</span><span class="view-all" onclick="gp(\'transactions\')">View All &rarr;</span></div>'+
+'<div class="filter-bar"><input class="filter-input" placeholder="Search transactions..." onkeydown="event.stopPropagation()">'+
+['All','This Month','Last Month','Last 3 Mo','YTD'].map(function(f,i){return '<button class="filter-chip'+(i===1?' active':'')+'">'+f+'</button>'}).join('')+
+'</div>'+
+'<div class="filter-bar" style="margin-bottom:8px">'+
+['All Categories','Groceries','Dining','Shopping','Transport','Housing'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+f+'</button>'}).join('')+
+'</div>'+
+'<table class="data-table"><thead><tr><th>Who</th><th>Merchant</th><th>Category</th><th>Date</th><th>Tags</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+[{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},
+{w:'C',n:'TreatYoSelf',c:'Clothing',a:'-$650',t:'Yesterday',f:true},
+{w:'V',n:'Shell Gas',c:'Transport',a:'-$48.20',t:'Yesterday'},
+{w:'J',n:'Mortgage',c:'Housing',a:'-$2,000',t:'Friday',rc:true},
+{w:'C',n:'Target Refund',c:'Refund',a:'+$84.50',t:'Apr 10',rf:true},
+{w:'T',n:'Chase to Ally',c:'Transfer',a:'$500',t:'Apr 9',tr:true},
+{w:'V',n:'Netflix',c:'Subs',a:'-$15.49',t:'Apr 10'},
+{w:'C',n:'Amazon',c:'Shopping',a:'-$150',t:'Apr 10'},
+{w:'V',n:'ALTA Payroll',c:'Income',a:'+$4,280',t:'Apr 11',inc:true}
+].map(function(tx){return '<tr style="cursor:pointer;'+(tx.tr?'opacity:0.5':'')+'" onclick="os(\'Transaction\',sTx(\''+tx.n+'\',\''+tx.a+'\',\''+tx.c+'\',\''+tx.w+'\'))"><td>'+av(tx.w,22,tx.w==='C'?'var(--warn)':tx.w==='J'?'var(--info)':tx.w==='T'?'var(--t2)':'var(--acc)')+'</td><td style="font-weight:600">'+tx.n+'</td><td style="color:var(--t2)">'+tx.c+'</td><td style="color:var(--t2)">'+tx.t+'</td><td>'+(tx.f?bg('FLAG','var(--neg)'):'')+(tx.rc?bg('Recurring','var(--info)'):'')+(tx.rf?bg('Refund','var(--pos)'):'')+(tx.tr?bg('Transfer','var(--t2)'):'')+(tx.inc?bg('INCOME','var(--pos)'):'')+'</td><td class="amount" style="color:'+(tx.inc||tx.rf?'var(--pos)':tx.f?'var(--neg)':tx.tr?'var(--t2)':'var(--t1)')+'">'+tx.a+'</td></tr>'}).join('')+
+'</tbody></table>'+
+'<div class="ci" style="margin-top:8px;display:flex;align-items:center;gap:8px;background:var(--warnBg);border:0.5px solid color-mix(in srgb,var(--warn) 12%,transparent);cursor:pointer" onclick="os(\'Duplicate Detected\',sDup())">'+ic(icons.warn,14,'var(--warn)',2.5)+'<div style="flex:1"><div style="font-weight:700;font-size:11px;color:var(--warn)">Possible duplicate</div><div class="sub">Whole Foods $67.43 appeared twice</div></div><button class="btn-pill" style="background:var(--warnBg);color:var(--warn)">Review</button></div>'+
+'</div>'+
+
+/* Receipt Scanner */
+'<div class="c tap" onclick="gp(\'scanner\')"><div class="r">'+ic(icons.cam,16,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:700;font-size:12px">Receipt Scanner</div><div class="sub">Snap, match, attach to any transaction</div></div>'+bg('NEW','var(--gold)')+'</div>'+pendingBadge('Capacitor/native camera')+'</div>'+
+
+'</div>'+/* end dash-main */
+
+/* RIGHT */
+'<div class="dash-side">'+
+
+/* Asset Allocation Donut */
+'<div class="chart-container dash-section"><div class="chart-title">Asset Allocation</div>'+
+svgDonut(allocSegs,160,'$290k','total assets')+
+'</div>'+
+
+/* Bills Calendar */
+'<div class="chart-container dash-section"><div class="dash-section-header"><span class="chart-title" style="margin-bottom:0">Bills Calendar</span><span class="view-all" onclick="gp(\'billscalendar\')">Full View &rarr;</span></div>'+
+'<div style="text-align:center;margin-bottom:8px;font-size:14px;font-weight:700">April 2026</div>'+
+buildBillsCalendarSVG()+
+'<div style="margin-top:8px;display:flex;gap:8px;justify-content:space-between">'+
+'<div><span class="sub">Due this month</span> <span style="font-weight:700;font-size:13px">$3,378</span></div>'+
+'<div><span class="sub">Paid</span> <span style="font-weight:700;font-size:13px;color:var(--pos)">$2,184</span></div></div>'+
+'</div>'+
+
+/* Subscription Audit */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'subscriptions\')"><div class="dash-section-header"><span class="chart-title" style="margin-bottom:0">Subscriptions</span>'+bg('3 issues','var(--neg)')+'</div>'+
+'<div style="margin-bottom:6px"><span class="sub">12 active</span> <span style="font-weight:700">$287/mo</span></div>'+
+[{n:'Netflix',a:'$15.49',ok:true},{n:'Hulu',a:'$17.99',i:'Low use'},{n:'Disney+',a:'$13.99',i:'<5%'},{n:'Headspace',a:'$14.99',i:'60d idle'}].map(function(s){return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;font-weight:600;flex:1">'+s.n+'</span>'+(s.i?bg(s.i,'var(--neg)'):bg('OK','var(--pos)'))+'<span style="font-size:11px;font-weight:700;width:48px;text-align:right">'+s.a+'</span></div>'}).join('')+
+'</div>'+
+
+/* Fee Analyzer */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'feeanalyzer\')"><div class="chart-title">Fee Analyzer</div>'+
+'<div style="text-align:center;margin-bottom:6px"><span style="font-size:24px;font-weight:900;color:var(--warn)">0.42%</span><div class="sub">weighted avg expense ratio</div></div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">'+
+[{l:'7yr',v:'$5.4k'},{l:'15yr',v:'$18.2k'},{l:'30yr',v:'$47k'}].map(function(p){return '<div class="ci" style="text-align:center;padding:6px"><div class="sub" style="font-size:8px">'+p.l+' drag</div><div style="font-size:12px;font-weight:800;color:var(--neg)">'+p.v+'</div></div>'}).join('')+
+'</div></div>'+
+
+/* Tax Deductions */
+'<div class="chart-container dash-section" style="cursor:pointer" onclick="gp(\'taxdeductions\')"><div class="chart-title">Tax Deductions YTD</div>'+
+'<div style="text-align:center;margin-bottom:6px"><span style="font-size:22px;font-weight:900;color:var(--pos)">$1,240</span><div class="sub">deductible expenses found</div></div>'+
+[{n:'Charitable',a:'$450'},{n:'Medical',a:'$320'},{n:'Home Office',a:'$180'},{n:'Education',a:'$150'},{n:'Tax Prep',a:'$140'}].map(function(t){return '<div class="r" style="padding:3px 0;font-size:11px"><span style="flex:1">'+t.n+'</span><span style="font-weight:700">'+t.a+'</span></div>'}).join('')+
+'</div>'+
+
+renderAd('partner')+
+
+'</div>'+/* end dash-side */
+'</div>'+/* end dash-row */
+
+/* Full-width Cash Flow Chart */
+'<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Cash Flow (6 Months)</span></div>'+
+'<div style="display:flex;gap:24px;margin-bottom:8px">'+
+'<div><span style="font-size:11px;color:var(--t2)">Total Income</span> <span style="font-size:14px;font-weight:800;color:var(--pos)">$42,880</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Total Expenses</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$27,860</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Net Surplus</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$15,020</span></div>'+
+'</div>'+
+svgAreaChart(cashFlow,700,180,'var(--pos)','var(--neg)','Income','Expenses')+
+'</div>'+
+
+'</div>';
+}
+
+/* ===== MOBILE TRACK (unchanged) ===== */
+return '<div class="fi">'+
 '<div class="hero" style="padding:18px"><div style="font-size:40px;font-weight:800;letter-spacing:-2.5px">$290k</div><div style="font-size:13px;opacity:0.85;margin-top:2px">invested across all assets</div><div style="margin-top:10px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px">'+[{l:'Investments',v:'$180.5k',cl:'#fff'},{l:'401(k)',v:'$68.4k',cl:'var(--gold)'},{l:'Real Estate',v:'$29.2k',cl:'var(--warn)'},{l:'Other',v:'$11.9k',cl:'rgba(255,255,255,0.5)'}].map(function(s){return '<div class="r" style="gap:4px"><div class="dot" style="width:6px;height:6px;background:'+s.cl+'"></div><span style="font-size:11px;font-weight:600;flex:1">'+s.l+'</span><span style="font-size:11px;font-weight:700">'+s.v+'</span></div>'}).join('')+'</div></div>'+
 
 /* Accounts */
@@ -652,7 +1449,48 @@ renderAd('partner')+
 
 
 /* ========== COACH PAGE ========== */
-function rCoach(){return '<div class="fi" style="display:flex;flex-direction:column;min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px)">'+
+function rCoach(){
+if(isDesktop()){
+/* ===== DESKTOP COACH — 70/30 split ===== */
+return '<div class="fi"><div class="dash-coach-row">'+
+
+/* LEFT: Chat area (70%) */
+'<div class="dash-coach-main">'+
+'<div class="chart-container" style="flex:1;display:flex;flex-direction:column;margin-bottom:0">'+
+'<div class="r" style="gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid var(--sep)"><div style="width:32px;height:32px;border-radius:16px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">NestWorth Intelligence</div><div class="sub">AI financial coach monitoring both partners</div></div>'+pendingBadge('LLM API integration')+'<div style="display:flex;gap:3px">'+av('V',22)+av('C',22,'var(--warn)')+'</div></div>'+
+'<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0;min-height:400px">'+
+'<div class="msg-in" style="max-width:70%">Household pulse:<br><br>&bull; Net worth: $82,450 (+$1,250 this month)<br>&bull; Health: 74/100<br>&bull; Cap One Savings — 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster<br>&bull; Von\'s paycheck on track<br>&bull; Found $147/mo bill savings<br>&bull; 1 duplicate detected<br>&bull; Emergency fund: 0.8 months<br><br>What should we dig into?</div></div>'+
+'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Spending','Sync','Bills','Save','Audit','Forecast','Net Worth','Tax Deductions'].map(function(q){return '<button class="btn-pill" onclick="sC(\''+q+'\')">'+q+'</button>'}).join('')+'</div>'+
+'<div class="r" style="gap:8px"><input id="ci" maxlength="500" placeholder="Ask about your household finances..." style="flex:1;min-width:0;padding:14px 20px;border-radius:20px;font-size:14px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" style="width:48px;height:48px;border-radius:24px;background:var(--acc);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
+'</div></div>'+
+
+/* RIGHT: Quick stats panel (30%) */
+'<div class="dash-coach-side">'+
+
+/* Quick Stats */
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Quick Stats</div>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
+[{l:'Net Worth',v:'$82.4k',c:'var(--t1)'},{l:'Health',v:'74',c:'var(--acc)'},{l:'Savings Rate',v:'39%',c:'var(--pos)'},{l:'Debt',v:'$3.2k',c:'var(--neg)'}].map(function(s){return '<div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">'+s.l+'</div><div style="font-size:16px;font-weight:800;color:'+s.c+'">'+s.v+'</div></div>'}).join('')+
+'</div>'+
+'<div style="margin-top:8px">'+svgSparkline(nwHistory.map(function(d){return d.v}),300,24,'var(--acc)')+'</div>'+
+'</div>'+
+
+/* Recent Insights */
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Recent Insights</div>'+
+[{t:'Bill audit found $147/mo savings',c:'var(--pos)'},{t:'Spending 38% faster than average',c:'var(--neg)'},{t:'Cap One Savings stale 47 days',c:'var(--warn)'},{t:'Emergency fund at 0.8 months',c:'var(--warn)'},{t:'Duplicate: Whole Foods $67.43',c:'var(--neg)'}].map(function(ins){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div style="width:4px;height:4px;border-radius:2px;background:'+ins.c+';flex-shrink:0;margin-top:5px"></div><div style="font-size:11px;font-weight:500;color:var(--t1);flex:1">'+ins.t+'</div></div>'}).join('')+
+'</div>'+
+
+/* Suggested Actions */
+'<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Suggested Actions</div>'+
+[{a:'Reconnect Cap One Savings',p:'High',c:'var(--neg)'},{a:'Review TreatYoSelf $650 flag',p:'Med',c:'var(--warn)'},{a:'Set up autopay for Electric',p:'Med',c:'var(--warn)'},{a:'Increase emergency fund save',p:'Low',c:'var(--acc)'}].map(function(act){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:6px"><div style="flex:1"><div style="font-size:11px;font-weight:600">'+act.a+'</div></div>'+bg(act.p,act.c)+'</div>'}).join('')+
+'</div>'+
+
+'</div>'+/* end coach-side */
+'</div></div>';/* end coach-row and fi */
+}
+
+/* ===== MOBILE COACH (unchanged) ===== */
+return '<div class="fi" style="display:flex;flex-direction:column;min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px)">'+
 '<div class="ci" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;background:var(--accS);border-color:color-mix(in srgb,var(--acc) 12%,transparent)"><div style="width:30px;height:30px;border-radius:15px;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.lightbulb,14,'#fff',2)+'</div><div style="flex:1"><div style="font-weight:700;font-size:12px">NestWorth Intelligence</div><div class="sub">Monitoring both partners</div></div><div style="display:flex;gap:2px">'+av('V',18)+av('C',18,'var(--warn)')+'</div></div>'+
 pendingBadge('LLM API integration')+
 '<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0"><div class="msg-in">Household pulse:<br><br>&bull; Net worth: $82,450 (+$1,250 this month)<br>&bull; Health: 74/100<br>&bull; Cap One Savings — 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster<br>&bull; Von\'s paycheck on track<br>&bull; Found $147/mo bill savings<br>&bull; 1 duplicate detected<br>&bull; Emergency fund: 0.8 months<br><br>What should we dig into?</div></div>'+
