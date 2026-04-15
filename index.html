@@ -162,14 +162,16 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   box-shadow:var(--shM);user-select:none;
 }
 .btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(0.96);filter:brightness(0.92);transition-duration:0.08s}
-.btn-gold{background:var(--goldG);color:#fff;font-weight:700;border-radius:22px;padding:10px 20px;font-size:13px;height:auto;box-shadow:0 4px 16px color-mix(in srgb,var(--gold) 25%,transparent);min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.btn-gold{background:var(--goldG);color:#fff;font-weight:700;border-radius:22px;padding:10px 20px;font-size:13px;height:auto;box-shadow:0 4px 16px rgba(200,168,72,0.25);min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+@supports (color: color-mix(in srgb, red 50%, blue)){.btn-gold{box-shadow:0 4px 16px color-mix(in srgb,var(--gold) 25%,transparent)}}
 .btn-gold:active{transform:scale(0.96)}.btn-gold:hover{filter:brightness(1.08)}
 .btn-pill{min-height:44px;padding:0 16px;border-radius:17px;font-size:13px;font-weight:600;background:var(--accS);color:var(--acc);display:inline-flex;align-items:center;justify-content:center}
 .btn-pill:active{transform:scale(0.94)}.btn-pill:hover{filter:brightness(1.06)}
 .btn-full{width:100%;display:flex}
 .btn-outline{background:transparent;border:1.5px solid var(--sep);color:var(--t2);font-weight:600;border-radius:14px;padding:12px;font-size:13px;transition:transform var(--fast) var(--spring),background var(--fast) ease}
 .btn-outline:hover{background:var(--accS)}.btn-outline:active{transform:scale(0.96);transition-duration:0.08s}
-.btn-danger{background:var(--negBg);color:var(--neg);border:1px solid color-mix(in srgb,var(--neg) 12%,transparent);transition:transform var(--fast) var(--spring)}
+.btn-danger{background:var(--negBg);color:var(--neg);border:1px solid rgba(255,59,48,0.12);transition:transform var(--fast) var(--spring)}
+@supports (color: color-mix(in srgb, red 50%, blue)){.btn-danger{border-color:color-mix(in srgb,var(--neg) 12%,transparent)}}
 .btn-danger:active{transform:scale(0.96);transition-duration:0.08s}
 
 /* === Toggle (iOS) === */
@@ -425,7 +427,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 /* === Animations === */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--neg) 20%,transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--neg) 0%,transparent)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,48,0.2)}50%{box-shadow:0 0 0 6px rgba(255,59,48,0)}}
 .fi>*{animation:fadeUp var(--mod) var(--spring) both}
 .fi>*:nth-child(1){animation-delay:0ms}.fi>*:nth-child(2){animation-delay:40ms}
 .fi>*:nth-child(3){animation-delay:80ms}.fi>*:nth-child(4){animation-delay:120ms}
@@ -814,7 +816,9 @@ function trendIndicator(current,previous,prefix,suffix){
   return '<span class="trend '+(isUp?'up':'down')+'">'+arrow+' '+prefix+(isUp?'+':'')+pctChange+suffix+'</span>';
 }
 
+var _billsCalendarCache=null;
 function buildBillsCalendarSVG(){
+  if(_billsCalendarCache)return _billsCalendarCache;
   var billDays={1:{n:'Mortgage',a:2000},5:{n:'Insurance',a:184},10:{n:'Electric',a:145},12:{n:'Water',a:65},15:{n:'Internet+Car',a:474},18:{n:'Phone',a:140},20:{n:'Gym',a:50},25:{n:'Student Loans',a:320}};
   var today=15;
   var daysInMonth=30;
@@ -829,6 +833,7 @@ function buildBillsCalendarSVG(){
     html+='<div class="cal-day'+(hasBill?' has-bill':'')+(isToday?' today':'')+'"'+(hasBill?' title="'+hasBill.n+': $'+hasBill.a+'"':'')+'>'+d+(hasBill?'<div class="cal-dot"></div>':'')+'</div>';
   }
   html+='</div>';
+  _billsCalendarCache=html;
   return html;
 }
 
@@ -1092,7 +1097,7 @@ return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;ali
 /* Partner Activity */
 '<div class="chart-container dash-section">'+
 '<div class="chart-title">Partner Activity</div>'+
-[{w:'C',a:'Spent $650 at TreatYoSelf',t:'Yesterday',f:true},{w:'V',a:'Auto-saved $15',t:'Today'},{w:'C',a:'Scanned electric receipt',t:'Today'},{w:'V',a:'Reconnected Cap One',t:'Mar 14'},{w:'C',a:'Disconnected Cap One',t:'Mar 12',f:true}].map(function(ev){
+[{w:'C',a:'Spent $650 at TreatYoSelf',t:'Yesterday',f:true},{w:'V',a:'Auto-saved $15',t:'Today'},{w:'C',a:'Scanned electric receipt',t:'Today'},{w:'V',a:'Paid electric bill $145',t:'Today'},{w:'C',a:'Updated Shopping budget cap',t:'Apr 13'},{w:'V',a:'Reconnected Cap One',t:'Mar 14'},{w:'C',a:'Disconnected Cap One',t:'Mar 12',f:true},{w:'V',a:'Created Hawaii Trip nest',t:'Mar 10'}].map(function(ev){
 return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+av(ev.w,20,ev.w==='C'?'var(--warn)':'var(--acc)')+'<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:600;'+(ev.f?'color:var(--neg)':'')+'">'+ev.a+'</div><div class="sub" style="font-size:9px">'+ev.t+'</div></div></div>'}).join('')+
 '</div>'+
 
@@ -1380,9 +1385,8 @@ br(28,'var(--warn)',6)+
 '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--acc)"></span> Actual</span>'+
 '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px"><span style="width:12px;height:3px;border-radius:2px;background:var(--t3)"></span> Projected</span>'+
 '</div>'+
-svgLineChart(
-  actualSavings.concat(projectedSavings.map(function(d){return {m:d.m,v:d.proj}})),
-  700,160,'var(--acc)','12-Month Savings Trajectory',true)+
+svgLineChart(actualSavings,700,160,'var(--acc)','Actual',true)+
+'<div style="margin-top:-20px">'+svgLineChart(projectedSavings.map(function(d){return {m:d.m,v:d.proj}}),700,160,'var(--t3)','Projected',true)+'</div>'+
 '</div>'+
 
 relatedPages([{label:'Home',tab:'home'},{label:'Budget',tab:'budget'},{label:'Nests',pg:'nests'},{label:'Emergency Fund',pg:'emergencyfund'},{label:'Debt Paydown',pg:'debtpaydown'},{label:'Achievements',pg:'achievements'}])+
@@ -2702,7 +2706,7 @@ var improvements=[{action:'Reconnect Cap One Savings',impact:'+35',effort:'Easy'
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="hero" style="text-align:center;margin-bottom:16px;padding:18px 20px"><div style="font-size:13px;font-weight:600;opacity:0.8">Your NestWorth Score</div>'+
-'<div style="width:130px;height:130px;border-radius:65px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:102px;height:102px;border-radius:51px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:36px;font-weight:900">'+totalScore+'</div><div style="font-size:10px;opacity:0.7">of 1,000</div></div></div>'+
+'<div style="width:130px;height:130px;border-radius:65px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:102px;height:102px;border-radius:51px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:36px;font-weight:900">'+totalScore+'</div><div style="font-size:10px;opacity:0.7">of 1,000</div></div></div>'+
 '<div style="font-size:13px;font-weight:600;margin-top:4px">'+(totalScore>=800?'Excellent':totalScore>=650?'Good':totalScore>=500?'Fair':'Needs Work')+'</div></div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Sub-Score Breakdown (8 Categories)</div>'+
@@ -2734,7 +2738,7 @@ var factors=[{n:'Payment History',w:35,s:currentScore?'Excellent':'N/A',c:'var(-
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="hero" style="text-align:center;margin-bottom:16px;padding:18px 20px"><div style="font-size:13px;font-weight:600;opacity:0.8">Credit Health Dashboard</div>'+
-(currentScore?'<div style="width:120px;height:120px;border-radius:60px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:94px;height:94px;border-radius:47px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:32px;font-weight:900">'+currentScore+'</div><div style="font-size:10px;opacity:0.7">300-850 scale</div></div></div>':'<div style="font-size:15px;margin:16px 0">Enter your credit score below to get started</div>')+
+(currentScore?'<div style="width:120px;height:120px;border-radius:60px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:94px;height:94px;border-radius:47px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:32px;font-weight:900">'+currentScore+'</div><div style="font-size:10px;opacity:0.7">300-850 scale</div></div></div>':'<div style="font-size:15px;margin:16px 0">Enter your credit score below to get started</div>')+
 pendingBadge('TransUnion/Experian API partnership')+'</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Self-Reported Credit Score</div>'+
@@ -2780,7 +2784,7 @@ os('Saved!',sDone('Credit score of '+score+' saved. Track changes over time by u
 
 
 /* ========== SHEET GENERATORS ========== */
-function sDone(msg){return '<div style="text-align:center;padding:20px"><div style="width:48px;height:48px;border-radius:24px;background:var(--posBg);display:flex;align-items:center;justify-content:center;margin:0 auto">'+ic(icons.check,24,'var(--pos)',3)+'</div><div style="font-size:15px;font-weight:700;margin-top:12px;white-space:pre-line">'+msg+'</div></div>'}
+function sDone(msg){return '<div style="text-align:center;padding:20px"><div style="width:48px;height:48px;border-radius:24px;background:var(--posBg);display:flex;align-items:center;justify-content:center;margin:0 auto">'+ic(icons.check,24,'var(--pos)',3)+'</div><div style="font-size:15px;font-weight:700;margin-top:12px;white-space:pre-line">'+esc(msg)+'</div></div>'}
 
 function sFlexBudget(){return '<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:800;color:var(--pos);letter-spacing:-2px">$1,680</div><div class="sub">safe to spend through Apr 30</div></div>'+
 '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Budget</div><div style="font-size:14px;font-weight:800">$4,600</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent</div><div style="font-size:14px;font-weight:800;color:var(--warn)">$2,920</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Per Day</div><div style="font-size:14px;font-weight:800;color:var(--pos)">$140</div></div></div>'+
