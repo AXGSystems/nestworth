@@ -345,8 +345,9 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
   .filter-input{padding:8px 14px;border-radius:10px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;outline:none;color:var(--t1);min-width:200px}
   .filter-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
-  .filter-chip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;transition:background var(--fast) ease,color var(--fast) ease}
+  .filter-chip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;min-height:36px;transition:background var(--fast) ease,color var(--fast) ease}
   .filter-chip:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+  .filter-chip:active{transform:scale(0.95)}
   .filter-chip.active{background:var(--acc);color:#fff}
 
   /* Date Range Picker */
@@ -356,8 +357,9 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .date-picker button.active{background:var(--acc);color:#fff}
 
   /* Stat Cards */
-  .stat-card{background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));border:0.5px solid var(--cardBorder);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--sh);transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease}
+  .stat-card{background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));border:0.5px solid var(--cardBorder);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--sh);cursor:pointer;transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease}
   .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shM)}
+  .stat-card:active{transform:scale(0.97);transition-duration:0.08s}
   .stat-value{font-size:24px;font-weight:800;letter-spacing:-1px;margin-top:3px}
   .stat-label{font-size:11px;font-weight:500;color:var(--t2)}
   .stat-change{font-size:12px;font-weight:600;margin-top:4px}
@@ -401,6 +403,14 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .desk-grid{display:block}
   .desk-grid .c,.desk-grid .cs{margin-bottom:10px}
   .hamburger-btn{display:flex!important}
+  /* Mobile filter chips */
+  .filter-chip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;min-height:36px;transition:background var(--fast) ease,color var(--fast) ease}
+  .filter-chip:active{transform:scale(0.95)}
+  .filter-chip.active{background:var(--acc);color:#fff}
+  .filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;overflow-x:auto}
+  .date-picker{display:flex;gap:0;background:var(--cardBg);border:0.5px solid var(--cardBorder);border-radius:10px;overflow:hidden}
+  .date-picker button{padding:6px 10px;font-size:10px;font-weight:600;color:var(--t2);background:transparent;border:none;cursor:pointer;min-height:36px}
+  .date-picker button.active{background:var(--acc);color:#fff}
 }
 @media(min-width:768px){
   .hamburger-btn{display:none!important}
@@ -616,7 +626,7 @@ function svgBarChart(data,w,h,horizontal){
       var c=d.color||'var(--acc)';
       var pct=d.max?Math.round((d.value/d.max)*100):100;
       return (d.max?'<rect x="'+pad.l+'" y="'+y+'" width="'+mw+'" height="'+bh+'" rx="4" fill="var(--sep)" opacity="0.5"/>':'')+
-      '<rect x="'+pad.l+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="4" fill="'+c+'"><animate attributeName="width" from="0" to="'+bw+'" dur="0.5s" begin="'+(0.05*i)+'s" fill="freeze"/></rect>'+
+      '<rect x="'+pad.l+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="4" fill="'+c+'"><title>'+d.label+': $'+d.value+(d.max?' of $'+d.max+' ('+pct+'%)':'')+'</title><animate attributeName="width" from="0" to="'+bw+'" dur="0.5s" begin="'+(0.05*i)+'s" fill="freeze"/></rect>'+
       '<text x="'+(pad.l-6)+'" y="'+(y+bh/2+4)+'" text-anchor="end" fill="var(--t1)" font-size="11" font-weight="600">'+d.label+'</text>'+
       '<text x="'+(pad.l+bw+6)+'" y="'+(y+bh/2+4)+'" fill="var(--t2)" font-size="10" font-weight="700">$'+d.value+(d.max?' ('+pct+'%)':'')+'</text>';
     });
@@ -633,7 +643,7 @@ function svgBarChart(data,w,h,horizontal){
     var bh2=((d.value||0)/(maxV||1))*ch2;
     var y=pad2.t+ch2-bh2;
     var c=d.color||'var(--acc)';
-    return '<rect x="'+x+'" y="'+y+'" width="'+bw2+'" height="'+bh2+'" rx="4" fill="'+c+'"><animate attributeName="height" from="0" to="'+bh2+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/><animate attributeName="y" from="'+(pad2.t+ch2)+'" to="'+y+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/></rect>'+
+    return '<rect x="'+x+'" y="'+y+'" width="'+bw2+'" height="'+bh2+'" rx="4" fill="'+c+'"><title>'+(d.label||'')+': $'+(d.value||0)+'</title><animate attributeName="height" from="0" to="'+bh2+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/><animate attributeName="y" from="'+(pad2.t+ch2)+'" to="'+y+'" dur="0.4s" begin="'+(0.04*i)+'s" fill="freeze"/></rect>'+
     '<text x="'+(x+bw2/2)+'" y="'+(h-4)+'" text-anchor="middle" fill="var(--t2)" font-size="9" font-weight="600">'+(d.label||'')+'</text>'+
     '<text x="'+(x+bw2/2)+'" y="'+(y-4)+'" text-anchor="middle" fill="var(--t1)" font-size="9" font-weight="700">$'+(d.value||0)+'</text>';
   });
@@ -889,11 +899,13 @@ if(isDesktop()){
 /* ===== DESKTOP HOME DASHBOARD ===== */
 var nwChartData=nwHistory.map(function(d){return {m:d.m,v:d.v}});
 var spendDonutSegs=[
+  {value:1500,color:'var(--t2)',label:'Housing'},
   {value:480,color:'var(--pos)',label:'Groceries'},
   {value:280,color:'var(--warn)',label:'Dining'},
   {value:235,color:'var(--neg)',label:'Shopping'},
+  {value:120,color:'var(--info)',label:'Transport'},
   {value:85,color:'var(--acc)',label:'Entertainment'},
-  {value:120,color:'var(--info)',label:'Transport'}
+  {value:220,color:'var(--gold)',label:'Other'}
 ];
 return '<div class="fi">'+
 
@@ -903,7 +915,7 @@ return '<div class="fi">'+
 '<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
 '<div style="font-size:48px;font-weight:800;letter-spacing:-3px;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums">$82,450</div>'+
 '<div class="r" style="margin-top:6px;gap:8px"><span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2% this month','rgba(255,255,255,0.85)')+'<span style="font-size:12px;color:rgba(255,255,255,0.6)">+$10,050 YTD (+13.9%)</span></div>'+
-'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">'+['7D','30D','90D','1Y','All'].map(function(r,i){return '<button style="padding:8px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,'+(i===3?1:0.5)+');background:'+(i===3?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div>'+
+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">'+['7D','30D','90D','1Y','All'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,'+(i===3?1:0.5)+');background:'+(i===3?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div>'+
 '<div style="display:grid;grid-template-columns:repeat(3,auto);gap:16px;text-align:right;margin-top:4px">'+
 '<div><div style="font-size:10px;opacity:0.6">Assets</div><div style="font-size:16px;font-weight:800">$85,650</div></div>'+
 '<div><div style="font-size:10px;opacity:0.6">Liabilities</div><div style="font-size:16px;font-weight:800">$3,200</div></div>'+
@@ -991,8 +1003,8 @@ svgLineChart(savingsRateHistory.map(function(d){return {m:d.m,v:d.r}}),340,100,'
 '<div class="chart-container dash-section">'+
 '<div class="chart-title">Quick Actions</div>'+
 '<div class="ci" style="margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="os(\'Done!\',sDone(\'Moved $15 to Emergency Fund\'))"><div style="width:32px;height:32px;border-radius:10px;background:var(--posBg);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.plus,14,'var(--pos)',2.5)+'</div><div style="flex:1"><div style="font-weight:600;font-size:12px">Move $15 to Emergency</div><div class="sub">Daily auto-save</div></div><button class="btn-gold" style="padding:6px 12px;font-size:10px">Do It</button></div>'+
-[{l:'Review TreatYoSelf $650',s:'Flag',c:'var(--neg)'},{l:'Reconnect Cap One',s:'Fix',c:'var(--warn)'},{l:'Start Money Date',s:'Go',c:'var(--gold)'}].map(function(q){
-return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:8px"><div style="flex:1"><div style="font-weight:600;font-size:11px">'+q.l+'</div></div>'+bg(q.s,q.c)+'</div>'}).join('')+
+[{l:'Review TreatYoSelf $650',s:'Flag',c:'var(--neg)',pg:'transactions'},{l:'Reconnect Cap One',s:'Fix',c:'var(--warn)',pg:'synchealth'},{l:'Start Money Date',s:'Go',c:'var(--gold)',pg:'moneydate'}].map(function(q){
+return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:8px" onclick="gp(\''+q.pg+'\')"><div style="flex:1"><div style="font-weight:600;font-size:11px">'+q.l+'</div></div>'+bg(q.s,q.c)+'</div>'}).join('')+
 '</div>'+
 
 /* Partner Activity */
@@ -1041,7 +1053,7 @@ return '<div class="fi">'+
 '<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
 '<div style="font-size:42px;font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-top:3px;font-variant-numeric:tabular-nums" id="nwVal">$82,450</div>'+
 '<div class="r" style="margin-top:4px;gap:6px"><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2%','rgba(255,255,255,0.8)')+'</div>'+
-'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:8px"><div style="flex:1;min-width:0;overflow:hidden">'+sp()+'</div><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden;flex-shrink:0">'+['7D','30D','90D','1Y'].map(function(r,i){return '<button style="padding:8px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,'+(i===0?1:0.5)+');background:'+(i===0?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div></div>'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:8px"><div style="flex:1;min-width:0;overflow:hidden">'+sp()+'</div><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden;flex-shrink:0">'+['7D','30D','90D','1Y'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,'+(i===0?1:0.5)+');background:'+(i===0?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div></div>'+
 '</div>'+
 
 /* 4 Stat Tiles */
@@ -1082,7 +1094,7 @@ renderAd('premium')+
 
 /* ========== BUDGET PAGE ========== */
 function rBudget(){
-var cats=[{n:'Housing',a:2400,s:2000,f:true},{n:'Groceries',a:800,s:480},{n:'Dining Out',a:300,s:280,w:true},{n:'Shopping',a:200,s:235,o:true},{n:'Entertainment',a:150,s:85},{n:'Transport',a:200,s:120},{n:'Subscriptions',a:100,s:62},{n:'Health',a:150,s:45},{n:'Personal',a:200,s:90},{n:'Misc',a:100,s:30}];
+var cats=[{n:'Housing',a:2400,s:1500,f:true},{n:'Groceries',a:800,s:480},{n:'Dining Out',a:300,s:280,w:true},{n:'Shopping',a:200,s:235,o:true},{n:'Entertainment',a:150,s:85},{n:'Transport',a:200,s:120},{n:'Subscriptions',a:100,s:62},{n:'Health',a:150,s:45},{n:'Personal',a:200,s:90},{n:'Misc',a:100,s:23}];
 var tA=cats.reduce(function(a,c){return a+c.a},0),tS=cats.reduce(function(a,c){return a+c.s},0);
 
 if(isDesktop()){
@@ -1358,10 +1370,10 @@ accounts.map(function(x){return '<tr style="cursor:pointer" onclick="gp(\'accoun
 /* Transaction Search & Filter (Mint feature) */
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Transactions</span><span class="view-all" onclick="gp(\'transactions\')">View All &rarr;</span></div>'+
 '<div class="filter-bar"><input class="filter-input" placeholder="Search transactions..." onkeydown="event.stopPropagation()">'+
-['All','This Month','Last Month','Last 3 Mo','YTD'].map(function(f,i){return '<button class="filter-chip'+(i===1?' active':'')+'">'+f+'</button>'}).join('')+
+['All','This Month','Last Month','Last 3 Mo','YTD'].map(function(f,i){return '<button class="filter-chip'+(i===1?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+
 '</div>'+
 '<div class="filter-bar" style="margin-bottom:8px">'+
-['All Categories','Groceries','Dining','Shopping','Transport','Housing'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+f+'</button>'}).join('')+
+['All Categories','Groceries','Dining','Shopping','Transport','Housing'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+
 '</div>'+
 '<table class="data-table"><thead><tr><th>Who</th><th>Merchant</th><th>Category</th><th>Date</th><th>Tags</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
 [{w:'V',n:'Whole Foods',c:'Groceries',a:'-$67.43',t:'Today'},
@@ -1428,8 +1440,8 @@ renderAd('partner')+
 '<div class="chart-container dash-full"><div class="dash-section-header"><span class="shd">Cash Flow (6 Months)</span></div>'+
 '<div style="display:flex;gap:24px;margin-bottom:8px">'+
 '<div><span style="font-size:11px;color:var(--t2)">Total Income</span> <span style="font-size:14px;font-weight:800;color:var(--pos)">$42,880</span></div>'+
-'<div><span style="font-size:11px;color:var(--t2)">Total Expenses</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$27,860</span></div>'+
-'<div><span style="font-size:11px;color:var(--t2)">Net Surplus</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$15,020</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Total Expenses</span> <span style="font-size:14px;font-weight:800;color:var(--neg)">$27,840</span></div>'+
+'<div><span style="font-size:11px;color:var(--t2)">Net Surplus</span> <span style="font-size:14px;font-weight:800;color:var(--acc)">$15,040</span></div>'+
 '</div>'+
 svgAreaChart(cashFlow,700,180,'var(--pos)','var(--neg)','Income','Expenses')+
 '</div>'+
@@ -1497,7 +1509,7 @@ return '<div class="fi"><div class="dash-coach-row">'+
 
 /* Suggested Actions */
 '<div class="chart-container" style="margin-bottom:0"><div class="chart-title">Suggested Actions</div>'+
-[{a:'Reconnect Cap One Savings',p:'High',c:'var(--neg)'},{a:'Review TreatYoSelf $650 flag',p:'Med',c:'var(--warn)'},{a:'Set up autopay for Electric',p:'Med',c:'var(--warn)'},{a:'Increase emergency fund save',p:'Low',c:'var(--acc)'}].map(function(act){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:6px"><div style="flex:1"><div style="font-size:11px;font-weight:600">'+act.a+'</div></div>'+bg(act.p,act.c)+'</div>'}).join('')+
+[{a:'Reconnect Cap One Savings',p:'High',c:'var(--neg)',pg:'synchealth'},{a:'Review TreatYoSelf $650 flag',p:'Med',c:'var(--warn)',pg:'transactions'},{a:'Set up autopay for Electric',p:'Med',c:'var(--warn)',pg:'billscalendar'},{a:'Increase emergency fund save',p:'Low',c:'var(--acc)',pg:'emergencyfund'}].map(function(act){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="gp(\''+act.pg+'\')"><div style="flex:1"><div style="font-size:11px;font-weight:600">'+act.a+'</div></div>'+bg(act.p,act.c)+'</div>'}).join('')+
 '</div>'+
 
 '</div>'+/* end coach-side */
@@ -1516,6 +1528,23 @@ pendingBadge('LLM API integration')+
 var CA={Spending:"This week:\n\n\u25cf Von: $145\n\u25cf Caroline: $755 (TreatYoSelf $650)\n\nSpending 38% faster than average. May exceed budget by $420.",Sync:"Cap One Savings disconnected by Caroline Mar 12. 47 days stale. Cross-reference shows 3 unmatched ($342).\n\nMonarch shows stale numbers silently. We flag it.",Bills:"4 savings opportunities:\n1. Insurance: -$38\n2. Streaming: -$24\n3. Internet: -$25\n4. Phone: -$60\n\n+3 unused subs: $62\nTotal: $209/mo \u2192 $2,508/yr",Save:"7 moves for $409/mo ($4,908/yr):\n1. Bill audit $147\n2. Drop subs $62\n3. Tighten Shopping\n4. Tighten Dining\n5. Round-Ups for Caroline\n6. Bump daily save\n7. Switch phone",Audit:"Mar 12 \u2014 Caroline disconnected Cap One\nMar 10 \u2014 Caroline deleted Target $84.50\nMar 14 \u2014 Von reconnected\nFeb 25 \u2014 Recategorized Amazon\nFeb 20 \u2014 Von exported Q1",Forecast:"At current pace:\n\u2022 End of April: $84,800\n\u2022 End of Q2: $89,200\n\u2022 End of Year: $115,400\n\nWith bill audit savings applied:\n\u2022 End of Year: $117,200 (+$1,764)"};
 function sC(t){var i=$('ci');var m=t||i.value.trim();if(!m)return;i.value='';var c=$('cmsgs');c.innerHTML+='<div class="msg-out">'+esc(m)+'</div>';setTimeout(function(){c.innerHTML+='<div class="msg-in">'+(CA[m]||'Net worth grew $320 today. Monitoring all accounts for gaps and anomalies.').replace(/\n/g,'<br>')+'</div>';c.scrollTop=c.scrollHeight},600)}
 
+
+/* ========== INTERACTIVE HELPERS ========== */
+function toggleChip(el){
+  var siblings=el.parentElement.querySelectorAll('.filter-chip');
+  siblings.forEach(function(s){s.classList.remove('active')});
+  el.classList.add('active');
+}
+function toggleDateBtn(el){
+  var siblings=el.parentElement.querySelectorAll('button');
+  siblings.forEach(function(s){s.classList.remove('active')});
+  el.classList.add('active');
+}
+function toggleHeroRange(el){
+  var siblings=el.parentElement.querySelectorAll('button');
+  siblings.forEach(function(s){s.style.color='rgba(255,255,255,0.5)';s.style.background='transparent'});
+  el.style.color='rgba(255,255,255,1)';el.style.background='rgba(255,255,255,0.15)';
+}
 
 /* ========== DRAWER/PAGE RENDERERS ========== */
 
@@ -2071,10 +2100,10 @@ var txRow=function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="filter-bar"><input class="filter-input" placeholder="Search transactions..." style="flex:1">'+
-'<div class="date-picker"><button class="active">This Month</button><button>Last Month</button><button>90 Days</button><button>Year</button></div>'+
+'<div class="date-picker"><button class="active" onclick="toggleDateBtn(this)">This Month</button><button onclick="toggleDateBtn(this)">Last Month</button><button onclick="toggleDateBtn(this)">90 Days</button><button onclick="toggleDateBtn(this)">Year</button></div>'+
 '</div>'+
 '<div class="filter-bar">'+
-['All','Groceries','Dining','Shopping','Transport','Subs','Income','Unknown'].map(function(c,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+c+'</button>'}).join('')+
+['All','Groceries','Dining','Shopping','Transport','Subs','Income','Unknown'].map(function(c,i){return '<button class="filter-chip'+(i===0?' active':'')+'" onclick="toggleChip(this)">'+c+'</button>'}).join('')+
 '<select style="padding:6px 10px;border-radius:8px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:11px;color:var(--t1)"><option>All People</option><option>Von</option><option>Caroline</option><option>Joint</option></select>'+
 '</div>'+
 '<div class="chart-container">'+
@@ -2259,9 +2288,9 @@ return '<div class="fi">'+
 exports.map(function(e){return '<div class="ci" style="cursor:pointer;padding:12px;text-align:center" onclick="os(\'Export\',sDone(\''+e.n+' export started\'))">'+ic(icons.download,16,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:12px;margin-top:6px">'+e.n+'</div><div class="sub" style="margin-top:2px">'+e.d+'</div><div class="r" style="justify-content:center;gap:6px;margin-top:4px">'+bg(e.f,'var(--acc)')+'<span class="sub">'+e.sz+'</span></div></div>'}).join('')+'</div></div>'+
 '<div class="chart-container"><div class="chart-title">Format & Date Range</div>'+
 '<div class="filter-bar"><span style="font-size:12px;font-weight:600">Format:</span>'+
-['CSV','PDF','JSON','Excel'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'">'+f+'</button>'}).join('')+'</div>'+
+['CSV','PDF','JSON','Excel'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+'</div>'+
 '<div class="filter-bar"><span style="font-size:12px;font-weight:600">Range:</span>'+
-'<div class="date-picker"><button class="active">This Month</button><button>This Quarter</button><button>YTD</button><button>All Time</button></div></div></div>'+
+'<div class="date-picker"><button class="active" onclick="toggleDateBtn(this)">This Month</button><button onclick="toggleDateBtn(this)">This Quarter</button><button onclick="toggleDateBtn(this)">YTD</button><button onclick="toggleDateBtn(this)">All Time</button></div></div></div>'+
 '</div><div class="dash-side">'+
 '<div class="chart-container"><div class="chart-title">Export History</div>'+
 [{n:'Budget Report PDF',d:'Apr 12',s:'Complete'},{n:'Q1 Transactions CSV',d:'Apr 1',s:'Complete'},{n:'Tax Summary',d:'Mar 15',s:'Complete'}].map(function(h){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1"><div style="font-weight:600;font-size:11px">'+h.n+'</div><div class="sub">'+h.d+'</div></div>'+bg(h.s,'var(--pos)')+'</div>'}).join('')+'</div>'+
@@ -2924,6 +2953,9 @@ window.addEventListener('resize',function(){clearTimeout(_resizeTimer);_resizeTi
 
 /* Escape key closes drawers/sheets */
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){if($('sho').classList.contains('open')){closeSheet()}else if(drawerOpen){closeDrawer()}}});
+
+/* Mobile: scroll input into view when virtual keyboard opens */
+document.addEventListener('focusin',function(e){if(!isDesktop()&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){setTimeout(function(){e.target.scrollIntoView({behavior:'smooth',block:'center'})},300)}});
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
