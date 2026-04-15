@@ -438,10 +438,49 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 .ad-card{position:relative;overflow:hidden}
 .ad-card .ad-label{position:absolute;top:8px;right:8px;font-size:9px;font-weight:600;color:var(--t3);letter-spacing:0.5px;text-transform:uppercase}
 
+/* === Text overflow safety === */
+.data-table td,.data-table th{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.data-table td:first-child,.data-table th:first-child{max-width:none;white-space:normal}
+.tr span,.drawer-item span,.sb-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* === Quick Links Grid === */
+.quick-links-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.quick-link-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;background:var(--cardBg);backdrop-filter:blur(var(--glassBlur));-webkit-backdrop-filter:blur(var(--glassBlur));border:0.5px solid var(--cardBorder);cursor:pointer;transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease,background var(--fast) ease;box-shadow:var(--sh);text-align:center}
+.quick-link-item:hover{transform:translateY(-2px);box-shadow:var(--shM);background:var(--cardBgH)}
+.quick-link-item:active{transform:scale(0.96);transition-duration:0.08s}
+.quick-link-item .ql-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.quick-link-item .ql-label{font-size:10px;font-weight:600;color:var(--t1)}
+
+/* === Related Pages Section === */
+.related-pages{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0}
+.related-page-chip{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;transition:background var(--fast) ease,transform var(--fast) var(--spring);border:none;display:inline-flex;align-items:center;gap:4px}
+.related-page-chip:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.related-page-chip:active{transform:scale(0.95)}
+
+/* === Empty State === */
+.empty-state{text-align:center;padding:24px 16px;color:var(--t3)}
+.empty-state svg{margin-bottom:8px;opacity:0.4}
+.empty-state .empty-text{font-size:13px;font-weight:600}
+.empty-state .empty-sub{font-size:11px;margin-top:4px;color:var(--t3)}
+
+/* === Esc hint === */
+.esc-hint{text-align:center;padding:10px 0 0;font-size:10px;color:var(--t3);font-weight:500}
+
 /* === Responsive / A11y === */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
 @media(prefers-contrast:more){:root{--sep:rgba(0,0,0,0.2);--t2:rgba(0,0,0,0.7)}[data-theme="dark"],[data-theme="midnight"],[data-theme="gold"]{--sep:rgba(255,255,255,0.2);--t2:rgba(255,255,255,0.75)}}
-@media print{.tab-bar,.app-hd,.sho,.drawer,.drawer-overlay,.sidebar,.ad-card,.pending-badge{display:none!important}body{max-width:100%;padding:0;background:#fff;color:#000}.c,.cs,.hero,.chart-container,.stat-card{break-inside:avoid;box-shadow:none;border:1px solid #ddd;backdrop-filter:none;-webkit-backdrop-filter:none}.hero{color:#000;background:#f5f5f5!important}.main-area{height:auto;overflow:visible}#cnt{padding:10px}.desk-grid{display:block}.desk-grid .c,.desk-grid .cs{margin-bottom:10px}.dash-row{display:block}.dash-side{width:100%}.stat-row{display:flex;flex-wrap:wrap;gap:8px}.stat-card{flex:1;min-width:100px}}
+
+/* === iPad portrait (768-1024px) === */
+@media(min-width:768px) and (max-width:1024px){
+  .sidebar{width:200px;min-width:200px}
+  .sidebar.collapsed{width:56px;min-width:56px}
+  .dash-side{width:280px}
+  .dash-coach-side{width:240px}
+  .stat-row.cols-4{flex-wrap:wrap}.stat-row.cols-4 .stat-card{flex:1 1 40%;min-width:120px}
+  .quick-links-grid{grid-template-columns:repeat(4,1fr);gap:6px}
+}
+
+@media print{.tab-bar,.app-hd,.sho,.drawer,.drawer-overlay,.sidebar,.ad-card,.pending-badge,.related-pages,.quick-links-grid,.esc-hint{display:none!important}body{max-width:100%;padding:0;background:#fff;color:#000}.c,.cs,.hero,.chart-container,.stat-card{break-inside:avoid;box-shadow:none;border:1px solid #ddd;backdrop-filter:none;-webkit-backdrop-filter:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hero{color:#000;background:#f5f5f5!important}.main-area{height:auto;overflow:visible}#cnt{padding:10px}.desk-grid{display:block}.desk-grid .c,.desk-grid .cs{margin-bottom:10px}.dash-row{display:block}.dash-side{width:100%}.stat-row{display:flex;flex-wrap:wrap;gap:8px}.stat-card{flex:1;min-width:100px}.bar-f{-webkit-print-color-adjust:exact;print-color-adjust:exact}svg{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
 </style>
 </head>
 <body data-theme="emerald">
@@ -796,8 +835,48 @@ function buildBillsCalendarSVG(){
 /* XSS prevention */
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
+/* Related Pages helper */
+function relatedPages(links){
+  return '<div class="c" style="margin-top:8px"><div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">See Also</div><div class="related-pages">'+
+  links.map(function(l){return '<button class="related-page-chip" onclick="'+(l.tab?"gt('"+l.tab+"')":"gp('"+l.pg+"')")+'">'+l.label+' &rarr;</button>'}).join('')+
+  '</div></div>';
+}
+
+/* Quick Links grid helper */
+function quickLinksGrid(){
+  var links=[
+    {label:'ChargeIQ',pg:'chargeiq',bg:'var(--accS)',iconColor:'var(--acc)',iconPath:icons.search},
+    {label:'Weather',pg:'weatherforecast',bg:'var(--posBg)',iconColor:'var(--pos)',iconPath:icons.cloudSun},
+    {label:'NW Score',pg:'nestworthscore',bg:'var(--warnBg)',iconColor:'var(--warn)',iconPath:icons.barChart2},
+    {label:'Credit',pg:'credithealth',bg:'color-mix(in srgb,var(--info) 10%,transparent)',iconColor:'var(--info)',iconPath:icons.gauge},
+    {label:'Bill Audit',pg:'billaudit',bg:'var(--posBg)',iconColor:'var(--pos)',iconPath:icons.scissors},
+    {label:'Subscriptions',pg:'subscriptions',bg:'var(--negBg)',iconColor:'var(--neg)',iconPath:icons.scissors},
+    {label:'Debt Plan',pg:'debtpaydown',bg:'var(--negBg)',iconColor:'var(--neg)',iconPath:icons.dollar},
+    {label:'Export',pg:'exportdata',bg:'var(--accS)',iconColor:'var(--acc)',iconPath:icons.download}
+  ];
+  return '<div class="quick-links-grid">'+links.map(function(l){
+    return '<div class="quick-link-item" onclick="gp(\''+l.pg+'\')"><div class="ql-icon" style="background:'+l.bg+'">'+ic(l.iconPath,16,l.iconColor,1.5)+'</div><div class="ql-label">'+l.label+'</div></div>';
+  }).join('')+'</div>';
+}
+
+/* What-If scenario helper for Goals */
+function whatIfScenarios(){
+  var scenarios=[
+    {q:'Save $100 more/month?',a:'You\'d reach Emergency Fund 4 months sooner and save an extra $1,200/year.'},
+    {q:'Cut subscriptions by $50/month?',a:'That\'s $600/year. Invested at 7%, it becomes $8,600 over 10 years.'},
+    {q:'Increase 401(k) by 5%?',a:'At your salary, that\'s ~$350/month pre-tax. $42k more by retirement (30yr).'},
+    {q:'Pay $200 extra on debt/month?',a:'Debt-free 4.2 months sooner. Save $510 in interest payments.'}
+  ];
+  return '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">What If...?</span></div>'+
+  '<div class="sub" style="margin-bottom:10px">Explore how small changes compound over time</div>'+
+  scenarios.map(function(s){
+    return '<div class="ci" style="margin-bottom:6px;cursor:pointer" onclick="os(\'What If Analysis\',\'<div style=&quot;padding:8px&quot;><div style=&quot;font-weight:800;font-size:14px;margin-bottom:8px&quot;>'+s.q.replace(/'/g,"\\&#39;")+'</div><div class=&quot;sub&quot; style=&quot;line-height:1.6&quot;>'+s.a.replace(/'/g,"\\&#39;")+'</div></div>\')"><div class="r" style="gap:8px">'+ic(icons.zap,14,'var(--acc)',1.5)+
+    '<div style="flex:1"><div style="font-weight:700;font-size:12px;color:var(--acc)">'+s.q+'</div><div class="sub" style="font-size:10px">'+s.a.substring(0,60)+'...</div></div>'+ic(icons.chev,12,'var(--t3)')+'</div></div>';
+  }).join('')+'</div>';
+}
+
 /* Sheet */
-function os(t,c){$('shc').innerHTML='<div class="sh-h"></div><div class="shd" style="margin-bottom:14px">'+esc(t)+'</div><div class="fi">'+c+'</div>';$('sho').classList.add('open');document.body.style.overflow='hidden'}
+function os(t,c){$('shc').innerHTML='<div class="sh-h"></div><div class="shd" style="margin-bottom:14px">'+esc(t)+'</div><div class="fi">'+c+'</div><div class="esc-hint">Press Esc to close</div>';$('sho').classList.add('open');document.body.style.overflow='hidden'}
 function closeSheet(){$('sho').classList.remove('open');document.body.style.overflow=''}
 
 /* Navigation */
@@ -932,6 +1011,9 @@ return '<div class="fi">'+
 '<div class="stat-card" style="cursor:pointer" onclick="os(\'Financial Health\',sHS())"><div class="stat-label">Financial Health</div><div class="stat-value">'+wellnessScore+'<span style="font-size:14px;color:var(--t2)">/100</span></div><div class="stat-change up">Good</div></div>'+
 '</div>'+
 
+/* === Quick Links / Tools Grid === */
+'<div class="dash-full" style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">Quick Links &amp; Tools</div>'+quickLinksGrid()+'</div>'+
+
 /* === Two column layout === */
 '<div class="dash-row">'+
 
@@ -1041,6 +1123,9 @@ topMerchants.map(function(m){
 return '<tr><td style="font-weight:600">'+m.n+'</td><td class="amount">$'+m.total.toLocaleString()+'</td><td class="amount">'+m.count+'</td><td class="amount">$'+m.avg.toFixed(2)+'</td><td style="text-align:right">'+svgSparkline([40,55,50,60,45,m.avg],50,16,'var(--acc)')+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
 
+/* Related Pages */
+relatedPages([{label:'Budget',tab:'budget'},{label:'Goals',tab:'goals'},{label:'Spending',pg:'spending'},{label:'Transactions',pg:'transactions'},{label:'ChargeIQ',pg:'chargeiq'},{label:'Subscriptions',pg:'subscriptions'},{label:'NestWorth Score',pg:'nestworthscore'}])+
+
 '</div>';
 }
 
@@ -1086,8 +1171,14 @@ return '<div class="fi">'+
 '<div class="r"><div style="width:36px;height:36px;border-radius:18px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.msg,16,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:700;font-size:13px">Messages</div><div class="sub">Chat with Caroline &middot; 2 unread</div></div><div style="width:20px;height:20px;border-radius:10px;background:var(--neg);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div></div>'+
 pendingBadge('WebSocket backend')+'</div>'+
 
+/* Quick Links (mobile) */
+'<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;margin-bottom:8px">Quick Links</div>'+quickLinksGrid()+'</div>'+
+
 /* Premium ad */
 renderAd('premium')+
+
+/* Related Pages */
+relatedPages([{label:'Budget',tab:'budget'},{label:'Spending',pg:'spending'},{label:'Transactions',pg:'transactions'},{label:'ChargeIQ',pg:'chargeiq'},{label:'NestWorth Score',pg:'nestworthscore'}])+
 
 '</div>'}
 
