@@ -29,7 +29,8 @@ self.addEventListener('fetch', e => {
       caches.match(e.request).then(cached => {
         if (cached) return cached;
         return fetch(e.request).then(r => {
-          if (r.ok || r.type === 'opaque') {
+          // Only cache successful responses; reject redirects and error responses
+          if (r.ok && r.status === 200) {
             const clone = r.clone();
             caches.open(CACHE).then(c => c.put(e.request, clone));
           }
@@ -42,7 +43,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
       .then(r => {
-        if (r.ok) {
+        // Only cache successful, non-redirected, same-origin responses
+        if (r.ok && r.type === 'basic' && r.status === 200) {
           const clone = r.clone();
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }

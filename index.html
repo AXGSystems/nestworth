@@ -6,6 +6,11 @@
 <title>NestWorth</title>
 <meta name="description" content="Household net worth tracker built for couples. Full transparency, shared goals, smart savings.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<!-- CSP Note: 'unsafe-inline' is required because this is a single-file SPA with no build step.
+     Nonce-based CSP would require a server to inject a unique nonce per request.
+     If moved to a server-rendered setup, replace 'unsafe-inline' with nonce-based script-src. -->
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()">
 <meta name="theme-color" content="#1a5e3a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -216,7 +221,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 }
 .sho.open .sh{transform:translateY(0);pointer-events:auto;transition:transform var(--slow) var(--modalIn)}
 .sho.open{pointer-events:auto}
-.sh-h{width:36px;height:5px;border-radius:2.5px;background:var(--t3);margin:0 auto 14px}
+.sh-h{width:36px;height:5px;border-radius:2.5px;background:var(--t3);margin:0 auto 14px;padding:10px 0;background-clip:content-box;-webkit-background-clip:content-box;cursor:grab}
 
 /* === Mobile Bottom Nav === */
 .tab-bar{
@@ -408,13 +413,19 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .desk-grid .c,.desk-grid .cs{margin-bottom:10px}
   .hamburger-btn{display:flex!important}
   /* Mobile filter chips */
-  .filter-chip{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;min-height:36px;transition:background var(--fast) ease,color var(--fast) ease}
+  .filter-chip{padding:8px 14px;border-radius:8px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;min-height:44px;display:inline-flex;align-items:center;justify-content:center;transition:background var(--fast) ease,color var(--fast) ease}
   .filter-chip:active{transform:scale(0.95)}
   .filter-chip.active{background:var(--acc);color:#fff}
   .filter-bar{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap;overflow-x:auto}
   .date-picker{display:flex;gap:0;background:var(--cardBg);border:0.5px solid var(--cardBorder);border-radius:10px;overflow:hidden}
-  .date-picker button{padding:6px 10px;font-size:10px;font-weight:600;color:var(--t2);background:transparent;border:none;cursor:pointer;min-height:36px}
+  .date-picker button{padding:8px 12px;font-size:10px;font-weight:600;color:var(--t2);background:transparent;border:none;cursor:pointer;min-height:44px}
   .date-picker button.active{background:var(--acc);color:#fff}
+  /* Touch target enforcement for mobile */
+  .btn-outline{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .btn-danger{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .related-page-chip{min-height:44px;display:inline-flex;align-items:center}
+  .quick-link-item{min-height:44px}
+  .scan-area{min-height:44px}
 }
 @media(min-width:768px){
   .hamburger-btn{display:none!important}
@@ -470,9 +481,77 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 /* === Esc hint === */
 .esc-hint{text-align:center;padding:10px 0 0;font-size:10px;color:var(--t3);font-weight:500}
 
+/* === Search Panel === */
+.search-overlay{position:fixed;inset:0;z-index:998;background:var(--overlay);opacity:0;pointer-events:none;transition:opacity var(--norm) ease}
+.search-overlay.open{opacity:1;pointer-events:auto}
+.search-panel{position:fixed;top:0;left:0;right:0;z-index:999;background:var(--bgE);padding:env(safe-area-inset-top,20px) 16px 16px;transform:translateY(-100%);transition:transform var(--mod) var(--spring);box-shadow:var(--shL)}
+.search-panel.open{transform:translateY(0)}
+.search-panel input{width:100%;padding:14px 20px 14px 44px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:15px;outline:none;color:var(--t1)}
+.search-panel input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+.search-results{max-height:60vh;overflow-y:auto;margin-top:10px}
+.search-result-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;transition:background var(--fast) ease;min-height:44px}
+.search-result-item:hover,.search-result-item:active{background:var(--accS)}
+/* === FAB === */
+.fab{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));right:16px;width:56px;height:56px;border-radius:28px;background:var(--acc);color:#fff;box-shadow:var(--shL);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform var(--fast) var(--spring),box-shadow var(--fast) ease;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent}
+.fab:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+.fab:active{transform:scale(0.92);transition-duration:0.08s}
+@media(min-width:768px){.fab{bottom:24px;right:24px}}
+/* === Pull-to-refresh === */
+.ptr-indicator{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-50px);z-index:60;width:36px;height:36px;border-radius:18px;background:var(--cardBg);box-shadow:var(--shM);display:flex;align-items:center;justify-content:center;transition:transform 0.2s ease,opacity 0.2s ease;opacity:0;pointer-events:none}
+.ptr-indicator.visible{opacity:1;transform:translateX(-50%) translateY(10px)}
+.ptr-indicator.refreshing{animation:spin 0.8s linear infinite}
+/* === Share / Copy / Print === */
+.share-btn,.print-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;transition:background var(--fast) ease,transform var(--fast) var(--spring)}
+.share-btn:hover,.print-btn:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.share-btn:active,.print-btn:active{transform:scale(0.95)}
+.copy-btn{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;background:var(--accS);color:var(--acc);cursor:pointer;border:none;transition:background var(--fast) ease}
+.copy-btn:hover{background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.copy-btn.copied{background:var(--posBg);color:var(--pos)}
+
 /* === Responsive / A11y === */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
 @media(prefers-contrast:more){:root{--sep:rgba(0,0,0,0.2);--t2:rgba(0,0,0,0.7)}[data-theme="dark"],[data-theme="midnight"],[data-theme="gold"]{--sep:rgba(255,255,255,0.2);--t2:rgba(255,255,255,0.75)}}
+
+/* === ROUND 3: Visual Hierarchy + Whitespace Standardization === */
+/* Section spacing: consistent gaps between major sections */
+.dash-section{margin-bottom:16px}
+.dash-full{margin-bottom:16px}
+/* Chart titles consistent at 13px */
+.chart-title{font-size:13px;font-weight:700;margin-bottom:10px}
+/* Stat-label consistent sizing */
+.stat-label{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.3px}
+
+/* === ROUND 4: Dark Theme Deep Audit === */
+/* Input fields: ensure contrast vs card background in dark themes */
+[data-theme="dark"] input,[data-theme="dark"] textarea,[data-theme="dark"] select{background:var(--bg3);border-color:var(--sep)}
+[data-theme="dark"] input:focus,[data-theme="dark"] textarea:focus,[data-theme="dark"] select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+[data-theme="midnight"] input,[data-theme="midnight"] textarea,[data-theme="midnight"] select{background:var(--bg3);border-color:var(--sep)}
+[data-theme="midnight"] input:focus,[data-theme="midnight"] textarea:focus,[data-theme="midnight"] select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+[data-theme="gold"] input,[data-theme="gold"] textarea,[data-theme="gold"] select{background:var(--bg3);border-color:var(--sep)}
+[data-theme="gold"] input:focus,[data-theme="gold"] textarea:focus,[data-theme="gold"] select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accS)}
+/* Badge readability in dark themes */
+[data-theme="dark"] .badge,[data-theme="midnight"] .badge,[data-theme="gold"] .badge{font-weight:800}
+/* Card borders visibility in dark — bump alpha */
+[data-theme="dark"] .c,[data-theme="dark"] .cs,[data-theme="dark"] .ci{border-color:rgba(255,255,255,0.08)}
+[data-theme="midnight"] .c,[data-theme="midnight"] .cs,[data-theme="midnight"] .ci{border-color:rgba(108,143,255,0.1)}
+[data-theme="gold"] .c,[data-theme="gold"] .cs,[data-theme="gold"] .ci{border-color:rgba(212,168,83,0.1)}
+/* SVG text visibility in dark themes */
+[data-theme="dark"] .chart-container svg text{fill:var(--t2)}
+[data-theme="midnight"] .chart-container svg text{fill:var(--t2)}
+[data-theme="gold"] .chart-container svg text{fill:var(--t2)}
+/* Hero border in dark themes */
+[data-theme="dark"] .hero,[data-theme="midnight"] .hero,[data-theme="gold"] .hero{border:0.5px solid rgba(255,255,255,0.06)}
+
+/* === ROUND 5: Animation + Transition Polish === */
+/* Page content fade transition */
+#cnt{transition:opacity 0.15s ease}
+#cnt.fading{opacity:0}
+/* Focus-visible smooth appearance */
+*:focus-visible{transition:outline-offset 0.1s ease,outline-color 0.1s ease}
+/* Hover transitions for interactive elements */
+.filter-chip,.date-picker button,.quick-link-item,.drawer-item,.sb-item,.related-page-chip{transition:background var(--fast) ease,color var(--fast) ease,transform var(--fast) var(--spring)}
+/* Input focus transitions */
+input,textarea,select{transition:border-color var(--fast) ease,box-shadow var(--fast) ease,background var(--fast) ease}
 
 /* === Small screens (320px) === */
 @media(max-width:374px){
@@ -480,12 +559,26 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .stat-label{font-size:10px}
   .hero{padding:14px!important}
   .hero div[style*="font-size:48px"]{font-size:36px!important}
+  .hero div[style*="font-size:42px"]{font-size:32px!important}
   .hero div[style*="font-size:40px"]{font-size:32px!important}
   .quick-links-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-row.cols-4{flex-wrap:wrap}.stat-row.cols-4 .stat-card{flex:1 1 45%;min-width:0}
+  .stat-row.cols-3{flex-wrap:wrap}.stat-row.cols-3 .stat-card{flex:1 1 45%;min-width:0}
   .ci{padding:6px 8px}
-  .btn-pill{min-height:40px;padding:8px 14px}
+  .c{padding:12px}
+  .shd{font-size:17px}
+  .btn{height:44px;padding:0 18px;font-size:15px}
+  .btn-pill{min-height:44px;padding:8px 14px}
+  .btn-outline{min-height:44px}
+  .btn-danger{min-height:44px}
   .tr{min-height:48px}
-  .filter-chip{min-height:40px;padding:8px 14px}
+  .filter-chip{min-height:44px;padding:8px 14px}
+  .msg-out,.msg-in{max-width:88%;font-size:12px;padding:10px 14px}
+  .drawer{width:280px}
+  .sh{padding:8px 14px 40px;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+  .quick-link-item .ql-label{font-size:9px}
+  .quick-link-item{padding:10px 6px;gap:4px}
+  body{font-size:14px}
 }
 
 /* === iPad portrait (768-1024px) === */
@@ -522,6 +615,27 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 <nav class="tab-bar" id="tbar" aria-label="Main navigation"></nav>
 <div class="sho" id="sho"><div class="sh-bg" onclick="closeSheet()"></div><div class="sh" id="shc"></div></div>
 
+
+<!-- Search overlay -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch()"></div>
+<div class="search-panel" id="searchPanel">
+  <div style="position:relative">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.5" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="globalSearchInput" maxlength="200" placeholder="Search transactions, features, pages..." oninput="handleSearch(this.value)">
+  </div>
+  <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- FAB: Add Transaction -->
+<button class="fab" id="addTxFab" onclick="os('Add Transaction',sAddTx())" aria-label="Add transaction">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- Pull-to-refresh indicator -->
+<div class="ptr-indicator" id="ptrIndicator">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+</div>
+
 <script>
 'use strict';
 /* ================================================================
@@ -535,7 +649,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 
 /* ========== STATE ========== */
 let ct='home', pg=null, theme='emerald';
-try{theme=localStorage.getItem('nw-theme')||'emerald'}catch(e){}
+try{var _lt=localStorage.getItem('nw-theme');if(_lt&&['emerald','light','dark','midnight','gold'].indexOf(_lt)!==-1)theme=_lt}catch(e){}
 const TABS=['home','budget','goals','track','coach'];
 document.body.setAttribute('data-theme',theme);
 let drawerOpen=false;
@@ -545,14 +659,14 @@ try{sidebarCollapsed=localStorage.getItem('nw-sidebar-collapsed')==='true'}catch
 /* Alert prefs (persisted) */
 const alertDefault={email:true,sms:false,emailAddr:'von@example.com',phone:'',types:{overspend:true,sync:true,bills:true,goals:true,anomaly:true,velocity:true,weekly:true}};
 let alertPrefs=alertDefault;
-try{const _ap=JSON.parse(localStorage.getItem('nw-alerts')||'null');if(_ap&&typeof _ap==='object'&&!Array.isArray(_ap)&&!Object.prototype.hasOwnProperty.call(_ap,'__proto__')){alertPrefs=Object.assign({},alertDefault,_ap);if(_ap.types&&typeof _ap.types==='object')alertPrefs.types=Object.assign({},alertDefault.types,_ap.types)}}catch(e){console.warn('Alert prefs corrupted, using defaults')}
+try{const _ap=JSON.parse(localStorage.getItem('nw-alerts')||'null');if(_ap&&typeof _ap==='object'&&!Array.isArray(_ap)&&!Object.prototype.hasOwnProperty.call(_ap,'__proto__')){alertPrefs=Object.assign({},alertDefault,_ap);if(_ap.types&&typeof _ap.types==='object')alertPrefs.types=Object.assign({},alertDefault.types,_ap.types);if(typeof alertPrefs.emailAddr!=='string')alertPrefs.emailAddr=alertDefault.emailAddr;else alertPrefs.emailAddr=alertPrefs.emailAddr.substring(0,200);if(typeof alertPrefs.phone!=='string')alertPrefs.phone=alertDefault.phone;else alertPrefs.phone=alertPrefs.phone.substring(0,30);alertPrefs.email=!!alertPrefs.email;alertPrefs.sms=!!alertPrefs.sms}}catch(e){console.warn('Alert prefs corrupted, using defaults')}
 function saveAlerts(){try{localStorage.setItem('nw-alerts',JSON.stringify(alertPrefs))}catch(e){}}
 
 /* Feature requests & bug reports (persisted) */
 let featureRequests=[];
-try{var _fr=JSON.parse(localStorage.getItem('nw-feature-requests')||'[]');if(Array.isArray(_fr))featureRequests=_fr}catch(e){featureRequests=[]}
+try{var _fr=JSON.parse(localStorage.getItem('nw-feature-requests')||'[]');if(Array.isArray(_fr))featureRequests=_fr.slice(0,100).filter(function(f){return f&&typeof f==='object'&&typeof f.title==='string'})}catch(e){featureRequests=[]}
 let bugReports=[];
-try{var _br=JSON.parse(localStorage.getItem('nw-bug-reports')||'[]');if(Array.isArray(_br))bugReports=_br}catch(e){bugReports=[]}
+try{var _br=JSON.parse(localStorage.getItem('nw-bug-reports')||'[]');if(Array.isArray(_br))bugReports=_br.slice(0,100).filter(function(b){return b&&typeof b==='object'&&typeof b.title==='string'})}catch(e){bugReports=[]}
 
 /* Ad preferences (persisted) */
 let adPrefs={showNativeAds:true,showPremiumBanner:true,showPartnerOffers:true};
@@ -561,12 +675,12 @@ function saveAdPrefs(){try{localStorage.setItem('nw-ad-prefs',JSON.stringify(adP
 
 /* Credit score (persisted) */
 let creditScoreHistory=[];
-try{var _ch=JSON.parse(localStorage.getItem('nw-credit-history')||'[]');if(Array.isArray(_ch))creditScoreHistory=_ch}catch(e){creditScoreHistory=[]}
+try{var _ch=JSON.parse(localStorage.getItem('nw-credit-history')||'[]');if(Array.isArray(_ch))creditScoreHistory=_ch.slice(0,200).filter(function(h){return h&&typeof h==='object'&&typeof h.score==='number'&&h.score>=300&&h.score<=850})}catch(e){creditScoreHistory=[]}
 function saveCreditHistory(){try{localStorage.setItem('nw-credit-history',JSON.stringify(creditScoreHistory))}catch(e){}}
 
 /* ChargeIQ identified charges (persisted) */
 let chargeIQHistory=[];
-try{var _ci=JSON.parse(localStorage.getItem('nw-chargeiq')||'[]');if(Array.isArray(_ci))chargeIQHistory=_ci}catch(e){chargeIQHistory=[]}
+try{var _ci=JSON.parse(localStorage.getItem('nw-chargeiq')||'[]');if(Array.isArray(_ci))chargeIQHistory=_ci.slice(0,500).filter(function(c){return c&&typeof c==='object'})}catch(e){chargeIQHistory=[]}
 function saveChargeIQ(){try{localStorage.setItem('nw-chargeiq',JSON.stringify(chargeIQHistory))}catch(e){}}
 
 /* ========== HELPERS ========== */
@@ -860,6 +974,27 @@ function buildBillsCalendarSVG(){
 /* XSS prevention */
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
+/* Numeric input sanitization — bounds-checked parseInt/parseFloat */
+function safeInt(val, min, max, fallback){
+  if(val===undefined||val===null||val==='')return fallback;
+  var n=parseInt(val,10);
+  if(!Number.isFinite(n))return fallback;
+  if(typeof min==='number'&&n<min)return fallback;
+  if(typeof max==='number'&&n>max)return fallback;
+  return n;
+}
+function safeFloat(val, min, max, fallback){
+  if(val===undefined||val===null||val==='')return fallback;
+  var n=parseFloat(val);
+  if(!Number.isFinite(n))return fallback;
+  if(typeof min==='number'&&n<min)return fallback;
+  if(typeof max==='number'&&n>max)return fallback;
+  return n;
+}
+
+/* Theme validation — only allow known theme names to prevent attribute injection */
+var VALID_THEMES=['emerald','light','dark','midnight','gold'];
+
 /* Related Pages helper */
 function relatedPages(links){
   return '<div class="c" style="margin-top:8px"><div style="font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">See Also</div><div class="related-pages">'+
@@ -904,10 +1039,11 @@ function whatIfScenarios(){
 function os(t,c){$('shc').innerHTML='<div class="sh-h"></div><div class="shd" style="margin-bottom:14px">'+esc(t)+'</div><div class="fi">'+c+'</div><div class="esc-hint">Press Esc to close</div>';$('sho').classList.add('open');document.body.style.overflow='hidden'}
 function closeSheet(){$('sho').classList.remove('open');document.body.style.overflow=''}
 
-/* Navigation */
-function gt(t){ct=t;pg=null;closeSheet();closeDrawer();rr()}
-function gp(p){pg=p;closeSheet();closeDrawer();rr()}
-function gb(){pg=null;closeSheet();rr()}
+/* Navigation — with subtle content fade */
+function _fadeNav(fn){var c=$('cnt');c.classList.add('fading');setTimeout(function(){fn();c.classList.remove('fading')},120)}
+function gt(t){ct=t;pg=null;closeSheet();closeDrawer();_fadeNav(rr)}
+function gp(p){pg=p;closeSheet();closeDrawer();_fadeNav(rr)}
+function gb(){pg=null;closeSheet();_fadeNav(rr)}
 
 /* Drawer */
 function openDrawer(){drawerOpen=true;$('drawer').classList.add('open');$('drawerOverlay').classList.add('open');document.body.style.overflow='hidden'}
@@ -1019,7 +1155,7 @@ return '<div class="fi">'+
 '<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
 '<div style="font-size:48px;font-weight:800;letter-spacing:-3px;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums">$82,450</div>'+
 '<div class="r" style="margin-top:6px;gap:8px"><span style="font-size:14px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2% this month','rgba(255,255,255,0.85)')+'<span style="font-size:12px;color:rgba(255,255,255,0.6)">+$10,050 YTD (+13.9%)</span></div>'+
-'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">'+['7D','30D','90D','1Y','All'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,'+(i===3?1:0.5)+');background:'+(i===3?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div>'+
+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden">'+['7D','30D','90D','1Y','All'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,'+(i===3?1:0.5)+');background:'+(i===3?'rgba(255,255,255,0.15)':'transparent')+';min-height:44px">'+r+'</button>'}).join('')+'</div>'+
 '<div style="display:grid;grid-template-columns:repeat(3,auto);gap:16px;text-align:right;margin-top:4px">'+
 '<div><div style="font-size:10px;opacity:0.6">Assets</div><div style="font-size:16px;font-weight:800">$85,650</div></div>'+
 '<div><div style="font-size:10px;opacity:0.6">Liabilities</div><div style="font-size:16px;font-weight:800">$3,200</div></div>'+
@@ -1089,6 +1225,7 @@ return '<tr style="cursor:pointer" onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+p
 '<div class="dash-side">'+
 
 /* Financial Wellness Score */
+'<div style="margin-top:8px"><button class="share-btn" onclick="event.stopPropagation();shareContent(\'NestWorth\',\'Our household net worth is $82,450! Tracking with NestWorth.\')">'+ic('<path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',12,'var(--acc)',1.5)+' Share Net Worth</button></div></div>'+
 '<div class="chart-container dash-section" style="cursor:pointer" onclick="os(\'Financial Health\',sHS())">'+
 '<div class="chart-title">Your Financial Wellness</div>'+
 '<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px"><div style="width:72px;height:72px;border-radius:36px;background:conic-gradient(var(--pos) '+wellnessScore+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:54px;height:54px;border-radius:27px;background:var(--cardBg);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--acc)">'+wellnessScore+'</div></div>'+
@@ -1167,7 +1304,7 @@ return '<div class="fi">'+
 '<div style="font-size:13px;font-weight:400;opacity:0.85;letter-spacing:0.3px">Household Net Worth</div>'+
 '<div style="font-size:42px;font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-top:3px;font-variant-numeric:tabular-nums" id="nwVal">$82,450</div>'+
 '<div class="r" style="margin-top:4px;gap:6px"><span style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)">+$320 today</span>'+bg('+1.2%','rgba(255,255,255,0.8)')+'</div>'+
-'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:8px"><div style="flex:1;min-width:0;overflow:hidden">'+sp()+'</div><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden;flex-shrink:0">'+['7D','30D','90D','1Y'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,'+(i===0?1:0.5)+');background:'+(i===0?'rgba(255,255,255,0.15)':'transparent')+';min-height:36px">'+r+'</button>'}).join('')+'</div></div>'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:8px"><div style="flex:1;min-width:0;overflow:hidden">'+sp()+'</div><div style="display:flex;background:rgba(255,255,255,0.1);border-radius:10px;border:1px solid rgba(255,255,255,0.12);overflow:hidden;flex-shrink:0">'+['7D','30D','90D','1Y'].map(function(r,i){return '<button onclick="toggleHeroRange(this)" style="padding:8px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,'+(i===0?1:0.5)+');background:'+(i===0?'rgba(255,255,255,0.15)':'transparent')+';min-height:44px">'+r+'</button>'}).join('')+'</div></div>'+
 '</div>'+
 
 /* 4 Stat Tiles */
@@ -1246,6 +1383,7 @@ monthlyBudgetHistory.map(function(mb){var pct=Math.round((mb.spent/mb.budget)*10
 
 /* LEFT: Category breakdown with horizontal bars */
 '<div class="dash-main">'+
+'<div style="margin-bottom:12px;display:flex;gap:8px;justify-content:flex-end"><button class="print-btn" onclick="printReport()">'+ic(icons.fileText,12,'var(--acc)',1.5)+' Print Budget Report</button></div>'+
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">How You\'re Tracking by Category</span><span class="view-all" onclick="gp(\'spending\')">Details &rarr;</span></div>'+
 '<table class="data-table"><thead><tr><th>Category</th><th>Von</th><th>Caroline</th><th style="text-align:right">Spent</th><th style="text-align:right">Budget</th><th style="width:120px">Progress</th><th>Status</th></tr></thead><tbody>'+
 cats.map(function(c){var p=Math.round((c.s/c.a)*100);var vAmt=Math.round(c.s*0.45);var cAmt=Math.round(c.s*0.55);
@@ -1342,6 +1480,7 @@ var goalDonutSegs=nests.map(function(n,i){var colors=['var(--acc)','var(--pos)',
 return '<div class="fi">'+
 
 /* Top: Savings overview with donut + savings rate trend */
+'<div style="margin-bottom:12px;display:flex;gap:8px;justify-content:flex-end"><button class="print-btn" onclick="printReport()">'+ic(icons.fileText,12,'var(--acc)',1.5)+' Print Goals Report</button></div>'+
 '<div class="dash-full" style="display:flex;gap:16px;margin-bottom:16px">'+
 '<div class="chart-container" style="flex:1;margin-bottom:0"><div class="dash-section-header"><span class="shd">Growing Your Nests</span><span class="view-all" onclick="gp(\'nests\')">All Nests &rarr;</span></div>'+
 '<div class="sub" style="margin-bottom:10px">You\'ve saved '+Math.round((totalSaved/totalGoal)*100)+'% of your goals &mdash; every dollar is building your future</div>'+
@@ -1471,6 +1610,7 @@ var accounts=[{l:'Chase Checking',a:'$5,360',v:5360,s:'g',t:'2h ago',who:'Joint'
 return '<div class="fi">'+
 
 /* Hero with allocation donut */
+'<div style="margin-bottom:12px;display:flex;gap:8px;justify-content:flex-end"><button class="print-btn" onclick="printReport()">'+ic(icons.fileText,12,'var(--acc)',1.5)+' Print Track Report</button></div>'+
 '<div class="hero dash-full" style="padding:24px 28px 20px">'+
 '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
 '<div><div style="font-size:13px;opacity:0.85">Your Accounts at a Glance</div>'+
@@ -1500,7 +1640,7 @@ accounts.map(function(x){return '<tr style="cursor:pointer" onclick="gp(\'accoun
 /* Transaction Search & Filter (Mint feature) */
 '<div class="chart-container dash-section"><div class="dash-section-header"><span class="shd">Recent Transactions</span><span class="view-all" onclick="gp(\'transactions\')">View All &rarr;</span></div>'+
 '<div class="sub" style="margin-bottom:8px">9 transactions this week &middot; 1 flagged &middot; 1 possible duplicate</div>'+
-'<div class="filter-bar"><input class="filter-input" maxlength="200" placeholder="Search transactions..." onkeydown="event.stopPropagation()">'+
+'<div class="filter-bar"><input class="filter-input" maxlength="200" enterkeyhint="search" autocomplete="off" placeholder="Search transactions..." onkeydown="event.stopPropagation()">'+
 ['All','This Month','Last Month','Last 3 Mo','YTD'].map(function(f,i){return '<button class="filter-chip'+(i===1?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+
 '</div>'+
 '<div class="filter-bar" style="margin-bottom:8px">'+
@@ -1624,7 +1764,7 @@ return '<div class="fi"><div class="dash-coach-row">'+
 '<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0;min-height:400px">'+
 '<div class="msg-in" style="max-width:70%">Good morning, Von. Here\'s your household pulse for April 15:<br><br>&bull; <strong>Net worth</strong>: $82,450 &mdash; up $1,250 this month<br>&bull; <strong>Health score</strong>: 74/100 &mdash; getting stronger<br>&bull; <strong>Heads up</strong>: Cap One Savings hasn\'t synced in 47 days<br>&bull; <strong>Shopping</strong> is $35 over cap &mdash; both partners notified<br>&bull; <strong>Velocity</strong>: spending 38% faster than usual<br>&bull; Von\'s ALTA paycheck lands Apr 25 &mdash; on track<br>&bull; I found <strong>$147/mo in bill savings</strong> worth claiming<br>&bull; Possible duplicate: Whole Foods $67.43<br>&bull; Emergency fund covers 0.8 months &mdash; 28% to goal<br><br>What would you like to explore?</div></div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Spending','Sync','Bills','Save','Audit','Forecast','Net Worth','Tax Deductions'].map(function(q){return '<button class="btn-pill" onclick="sC(\''+q+'\')">'+q+'</button>'}).join('')+'</div>'+
-'<div class="r" style="gap:8px"><input id="ci" maxlength="500" placeholder="Ask about your household finances..." style="flex:1;min-width:0;padding:14px 20px;border-radius:20px;font-size:14px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:48px;height:48px;border-radius:24px;background:var(--acc);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
+'<div class="r" style="gap:8px"><input id="ci" maxlength="500" enterkeyhint="send" autocomplete="off" placeholder="Ask about your household finances..." style="flex:1;min-width:0;padding:14px 20px;border-radius:20px;font-size:14px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:48px;height:48px;border-radius:24px;background:var(--acc);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
 '</div></div>'+
 
 /* RIGHT: Quick stats panel (30%) */
@@ -1658,7 +1798,7 @@ return '<div class="fi" style="display:flex;flex-direction:column;min-height:cal
 pendingBadge('LLM API integration')+
 '<div id="cmsgs" style="flex:1;overflow-y:auto;padding:8px 0"><div class="msg-in">Morning, Von. Quick pulse:<br><br>&bull; Net worth: <strong>$82,450</strong> (+$1,250)<br>&bull; Health: 74/100 &mdash; improving<br>&bull; Cap One Savings &mdash; 47d stale<br>&bull; Shopping $35 over cap<br>&bull; Spending 38% faster than normal<br>&bull; Found <strong>$147/mo in savings</strong><br>&bull; 1 duplicate to review<br>&bull; Emergency fund: 28% to goal<br><br>What should we dig into?</div></div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'+['Spending','Sync','Bills','Save','Audit','Forecast'].map(function(q){return '<button class="btn-pill" onclick="sC(\''+q+'\')">'+q+'</button>'}).join('')+'</div>'+
-'<div class="r" style="gap:6px"><input id="ci" maxlength="500" placeholder="Ask about your household..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
+'<div class="r" style="gap:6px"><input id="ci" maxlength="500" enterkeyhint="send" autocomplete="off" placeholder="Ask about your household..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sC()"><button onclick="sC()" aria-label="Send message" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>'+
 '</div>'}
 
 var CA={Spending:"This week:\n\n\u25cf Von: $145\n\u25cf Caroline: $755 (TreatYoSelf $650)\n\nSpending 38% faster than average. May exceed budget by $420.",Sync:"Cap One Savings disconnected by Caroline Mar 12. 47 days stale. Cross-reference shows 3 unmatched ($342).\n\nMonarch shows stale numbers silently. We flag it.",Bills:"4 savings opportunities:\n1. Insurance: -$38\n2. Streaming: -$24\n3. Internet: -$25\n4. Phone: -$60\n\n+3 unused subs: $62\nTotal: $209/mo \u2192 $2,508/yr",Save:"7 moves for $409/mo ($4,908/yr):\n1. Bill audit $147\n2. Drop subs $62\n3. Tighten Shopping\n4. Tighten Dining\n5. Round-Ups for Caroline\n6. Bump daily save\n7. Switch phone",Audit:"Mar 12 \u2014 Caroline disconnected Cap One\nMar 10 \u2014 Caroline deleted Target $84.50\nMar 14 \u2014 Von reconnected\nFeb 25 \u2014 Recategorized Amazon\nFeb 20 \u2014 Von exported Q1",Forecast:"At current pace:\n\u2022 End of April: $84,800\n\u2022 End of Q2: $89,200\n\u2022 End of Year: $115,400\n\nWith bill audit savings applied:\n\u2022 End of Year: $117,200 (+$1,764)"};
@@ -1695,8 +1835,8 @@ var chatHtml='<div id="mmsg" style="min-height:300px;padding-bottom:10px;overflo
 '<div class="msg-in"><strong>Caroline:</strong> Ok thanks. Also I scanned the electric bill receipt — attached it to the transaction</div>'+
 '<div class="msg-in" style="padding:8px"><div class="sub" style="margin-bottom:6px"><strong>Caroline</strong> attached a receipt:</div><div class="ci" style="display:flex;align-items:center;gap:8px"><div style="width:40px;height:50px;border-radius:6px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+ic(icons.receipt,18,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:600;font-size:11px">Electric Bill Receipt</div><div class="sub">$145.00 &middot; Matched to Apr 14</div></div>'+bg('Matched','var(--pos)')+'</div></div>'+
 '<div class="msg-out">Perfect. Bills are all tracked now</div></div>';
-var inputBar='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Send Receipt','Split Request','Bill Reminder','Nest Check-in'].map(function(q){return '<button class="btn-pill">'+q+'</button>'}).join('')+'</div>'+
-'<div class="r" style="gap:6px"><input id="mi" maxlength="500" placeholder="Message Caroline..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sMsg()"><button onclick="sMsg()" aria-label="Send message" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>';
+var inputBar='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+['Send Receipt','Split Request','Bill Reminder','Nest Check-in'].map(function(q){return '<button class="btn-pill" onclick="var i=document.getElementById(\'mi\');if(i){i.value=\''+q+'\';sMsg()}">'+q+'</button>'}).join('')+'</div>'+
+'<div class="r" style="gap:6px"><input id="mi" maxlength="500" enterkeyhint="send" autocomplete="off" placeholder="Message Caroline..." style="flex:1;min-width:0;padding:12px 16px;border-radius:20px;font-size:13px;border:0.5px solid var(--cardBorder);background:var(--cardBg);outline:none;color:var(--t1)" onkeydown="if(event.key===\'Enter\')sMsg()"><button onclick="sMsg()" aria-label="Send message" style="width:44px;height:44px;border-radius:22px;background:var(--acc);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shM);flex-shrink:0;transition:transform var(--fast) var(--spring)" onmousedown="this.style.transform=\'scale(0.9)\'" onmouseup="this.style.transform=\'\'">&#x2191;</button></div>';
 
 if(isDesktop()){
 return '<div class="fi">'+
@@ -1733,10 +1873,10 @@ var mobileList=recentTx.map(function(tx){return '<div class="tr" onclick="os(\'T
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Total Balance</div><div class="stat-value" style="color:var(--pos)">$53,360</div>'+trendIndicator(53360,52300,'$','')+'</div>'+
-'<div class="stat-card"><div class="stat-label">Accounts</div><div class="stat-value">6</div></div>'+
-'<div class="stat-card"><div class="stat-label">Healthy Sync</div><div class="stat-value" style="color:var(--pos)">4/6</div></div>'+
-'<div class="stat-card"><div class="stat-label">Credit Used</div><div class="stat-value" style="color:var(--warn)">$1,200</div></div>'+
+'<div class="stat-card" onclick="os(\'Accounts Overview\',sDone(\'Total across all linked accounts.\'))"><div class="stat-label">Total Balance</div><div class="stat-value" style="color:var(--pos)">$53,360</div>'+trendIndicator(53360,52300,'$','')+'</div>'+
+'<div class="stat-card" onclick="gp(\'accounts\')"><div class="stat-label">Accounts</div><div class="stat-value">6</div></div>'+
+'<div class="stat-card" onclick="gp(\'synchealth\')"><div class="stat-label">Healthy Sync</div><div class="stat-value" style="color:var(--pos)">4/6</div></div>'+
+'<div class="stat-card" onclick="gp(\'credithealth\')"><div class="stat-label">Credit Used</div><div class="stat-value" style="color:var(--warn)">$1,200</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Account Overview</div>'+
@@ -1774,9 +1914,9 @@ var scanArea='<div class="scan-area" id="scanArea" onclick="doScan()">'+ic(icons
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-3">'+
-'<div class="stat-card"><div class="stat-label">Scans This Month</div><div class="stat-value">8</div></div>'+
-'<div class="stat-card"><div class="stat-label">Match Rate</div><div class="stat-value" style="color:var(--pos)">87%</div></div>'+
-'<div class="stat-card"><div class="stat-label">Unmatched</div><div class="stat-value" style="color:var(--warn)">1</div></div>'+
+'<div class="stat-card" onclick="gp(\'scanner\')"><div class="stat-label">Scans This Month</div><div class="stat-value">8</div></div>'+
+'<div class="stat-card" onclick="gp(\'scanner\')"><div class="stat-label">Match Rate</div><div class="stat-value" style="color:var(--pos)">87%</div></div>'+
+'<div class="stat-card" onclick="gp(\'scanner\')"><div class="stat-label">Unmatched</div><div class="stat-value" style="color:var(--warn)">1</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="text-align:center;padding:16px"><div class="chart-title" style="text-align:left">Scan Area</div>'+scanArea+pendingBadge('Capacitor/native camera')+'</div>'+
@@ -1784,7 +1924,7 @@ return '<div class="fi">'+
 '<div class="ci" style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="width:50px;height:65px;border-radius:8px;background:var(--accS);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.receipt,24,'var(--acc)',1.5)+'</div><div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--pos)">$145.00</div><div style="font-weight:700;font-size:14px;margin-top:2px">Pepco Electric</div><div class="sub" style="margin-top:2px">Apr 13 &middot; Account ending 4821</div></div></div>'+
 '<div style="font-weight:700;font-size:12px;margin-bottom:6px">OCR Results</div>'+
 '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">'+[{l:'Merchant',v:'Pepco'},{l:'Amount',v:'$145.00'},{l:'Date',v:'Apr 13'},{l:'Category',v:'Utilities'}].map(function(f){return '<div class="ci" style="padding:8px"><div class="sub" style="font-size:9px">'+f.l+'</div><div style="font-size:12px;font-weight:700">'+f.v+'</div></div>'}).join('')+'</div>'+
-'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn" style="flex:1;border-radius:22px;height:44px;font-size:13px" onclick="os(\'Attached!\',sDone(\'Receipt matched to Electric Bill $145.00\'))">Attach to Transaction</button><button class="btn-outline" style="flex:1;border-radius:22px">Send to Caroline</button></div></div></div>'+
+'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn" style="flex:1;border-radius:22px;height:44px;font-size:13px" onclick="os(\'Attached!\',sDone(\'Receipt matched to Electric Bill $145.00\'))">Attach to Transaction</button><button class="btn-outline" style="flex:1;border-radius:22px" onclick="os(\'Sent!\',sDone(\'Receipt sent to Caroline.\'))">Send to Caroline</button></div></div></div>'+
 '<div class="chart-container"><div class="chart-title">Bulk Upload</div>'+
 '<div class="scan-area" style="padding:20px;opacity:0.4"><div style="font-size:13px;font-weight:600">Drag & drop multiple receipts here</div><div class="sub" style="margin-top:4px">Supports JPG, PNG, PDF</div></div></div>'+
 '</div><div class="dash-side">'+
@@ -1818,12 +1958,12 @@ function rSettings(){return '<div class="fi">'+
 /* Theme Picker */
 '<div class="cs">'+hd('Appearance')+
 '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">'+
-[{n:'Emerald',k:'emerald',c1:'#1a5e3a',c2:'#c8a848'},{n:'Light',k:'light',c1:'#f2f2f7',c2:'#007aff'},{n:'Dark',k:'dark',c1:'#000',c2:'#0a84ff'},{n:'Midnight',k:'midnight',c1:'#0a0e1a',c2:'#6c8fff'},{n:'Gold',k:'gold',c1:'#12100b',c2:'#d4a853'}].map(function(t){return '<div style="text-align:center;cursor:pointer;min-width:0" onclick="setTheme(\''+t.k+'\')"><div style="width:100%;aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,'+t.c1+','+t.c2+');border:2.5px solid '+(theme===t.k?'var(--acc)':'transparent')+';transition:border 0.2s ease;display:flex;align-items:center;justify-content:center">'+(theme===t.k?ic(icons.check,16,'#fff',3):'')+'</div><div style="font-size:10px;font-weight:600;margin-top:4px;color:'+(theme===t.k?'var(--acc)':'var(--t2)')+'">'+t.n+'</div></div>'}).join('')+'</div></div>'+
+[{n:'Emerald',k:'emerald',c1:'#1a5e3a',c2:'#c8a848',tip:'Forest green + gold accents on light background'},{n:'Light',k:'light',c1:'#f2f2f7',c2:'#007aff',tip:'Clean white with blue accents (iOS default)'},{n:'Dark',k:'dark',c1:'#000',c2:'#0a84ff',tip:'True black with blue/green accents (OLED friendly)'},{n:'Midnight',k:'midnight',c1:'#0a0e1a',c2:'#6c8fff',tip:'Deep navy with lavender/mint accents'},{n:'Gold',k:'gold',c1:'#12100b',c2:'#d4a853',tip:'Rich black with warm gold accents (luxury feel)'}].map(function(t){return '<div style="text-align:center;cursor:pointer;min-width:0" onclick="setTheme(\''+t.k+'\')" title="'+t.tip+'"><div style="width:100%;aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,'+t.c1+','+t.c2+');border:2.5px solid '+(theme===t.k?'var(--acc)':'transparent')+';transition:border 0.2s ease;display:flex;align-items:center;justify-content:center">'+(theme===t.k?ic(icons.check,16,'#fff',3):'')+'</div><div style="font-size:10px;font-weight:600;margin-top:4px;color:'+(theme===t.k?'var(--acc)':'var(--t2)')+'">'+t.n+'</div></div>'}).join('')+'</div></div>'+
 
 /* Alerts */
 '<div class="cs">'+hd('Email & SMS Alerts')+
-'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+alertPrefs.emailAddr+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
-'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+esc(alertPrefs.emailAddr)+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+esc(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
 pendingBadge('Email/SMS backend')+
 '<div style="margin-top:10px;font-weight:700;font-size:11px;margin-bottom:6px">Alert Types</div>'+
 [['overspend','Category Overspend'],['sync','Account Sync Issues'],['bills','Bill Due Reminders'],['goals','Goal Milestones'],['anomaly','Anomaly Detection'],['velocity','Spending Velocity'],['weekly','Weekly Summary']].map(function(kv){return '<div class="r" style="padding:8px 0;min-height:44px;border-bottom:0.5px solid var(--sep)"><span style="font-size:12px;flex:1">'+kv[1]+'</span>'+tg(alertPrefs.types[kv[0]],false,'togAlert_'+kv[0])+'</div>'}).join('')+
@@ -1849,11 +1989,11 @@ pendingBadge('Plaid integration')+'</div>'+
 
 /* Data */
 '<div class="c">'+hd('Data & Export')+
-['Export All Data (CSV/PDF)','Download Audit Trail','Print Budget Report','Request Data Deletion','Privacy Policy','Security (SOC 2 / Plaid)'].map(function(item){return '<div class="tr"><span style="font-size:12px;font-weight:600;flex:1">'+item+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+
+['Export All Data (CSV/PDF)','Download Audit Trail','Print Budget Report','Request Data Deletion','Privacy Policy','Security (SOC 2 / Plaid)'].map(function(item){var act='';if(item.indexOf('Export')!==-1)act="gp('exportdata')";else if(item.indexOf('Audit')!==-1)act="gp('audit')";else if(item.indexOf('Print')!==-1)act="printReport()";else act="os('Info',sDone('Coming soon.'))";return '<div class="tr" onclick="'+act+'"><span style="font-size:12px;font-weight:600;flex:1">'+item+'</span>'+ic(icons.chev,14,'var(--t3)')+'</div>'}).join('')+
 pendingBadge('server-side generation')+'</div>'+
 
 '<div class="c" style="text-align:center;padding:16px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.5px"><span>Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="margin-top:2px">v4.2 &middot; Built for two, trusted by both</div></div>'+
-'<button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-weight:700;font-size:13px">Sign Out</button>'+
+'<button class="btn-danger btn-full" style="border-radius:22px;padding:12px;font-weight:700;font-size:13px" onclick="os(\'Sign Out\',\'<div style=&quot;text-align:center;padding:16px&quot;><div style=&quot;font-size:14px;font-weight:700;margin-bottom:12px&quot;>Are you sure you want to sign out?</div><div class=&quot;sub&quot; style=&quot;margin-bottom:16px&quot;>Your data is saved locally and will persist.</div><button class=&quot;btn-danger btn-full&quot; style=&quot;border-radius:22px;padding:12px;font-weight:700;font-size:13px;margin-bottom:8px&quot; onclick=&quot;closeSheet()&quot;>Sign Out (Demo)</button><button class=&quot;btn-outline btn-full&quot; style=&quot;border-radius:22px&quot; onclick=&quot;closeSheet()&quot;>Cancel</button></div>\')">Sign Out</button>'+
 '</div>'}
 
 function saveAdSettings(){
@@ -1874,10 +2014,10 @@ var auditByMonth=[{m:'Jan',v:12},{m:'Feb',v:18},{m:'Mar',v:24},{m:'Apr',v:8}];
 var trustMatrix=[{f:'Full Tx Visibility',v:'Both',c:'Both',s:'Active'},{f:'Account Connect/Disconnect',v:'Logged',c:'Logged',s:'Active'},{f:'Deletion Recovery',v:'Enabled',c:'Enabled',s:'Active'},{f:'Category Edits',v:'Tracked',c:'Tracked',s:'Active'},{f:'Budget Changes',v:'Tracked',c:'Tracked',s:'Active'},{f:'Export History',v:'Logged',c:'Logged',s:'Active'},{f:'Login Alerts',v:'On',c:'On',s:'Active'},{f:'Nest Changes',v:'Tracked',c:'Tracked',s:'Active'}];
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Trust Score</div><div class="stat-value" style="color:var(--pos)">94</div><div class="stat-change up">Excellent</div></div>'+
-'<div class="stat-card"><div class="stat-label">Audit Events</div><div class="stat-value">'+auditTrail.length+'</div><div class="stat-change">Last 90 days</div></div>'+
-'<div class="stat-card"><div class="stat-label">Flags</div><div class="stat-value" style="color:var(--neg)">2</div><div class="stat-change down">Needs review</div></div>'+
-'<div class="stat-card"><div class="stat-label">Deleted TXs</div><div class="stat-value" style="color:var(--neg)">3</div><div class="stat-change">All recoverable</div></div>'+
+'<div class="stat-card" onclick="gp(\'audit\')"><div class="stat-label">Trust Score</div><div class="stat-value" style="color:var(--pos)">94</div><div class="stat-change up">Excellent</div></div>'+
+'<div class="stat-card" onclick="gp(\'audit\')"><div class="stat-label">Audit Events</div><div class="stat-value">'+auditTrail.length+'</div><div class="stat-change">Last 90 days</div></div>'+
+'<div class="stat-card" onclick="gp(\'audit\')"><div class="stat-label">Flags</div><div class="stat-value" style="color:var(--neg)">2</div><div class="stat-change down">Needs review</div></div>'+
+'<div class="stat-card" onclick="os(\'Deleted Transactions\',sDel())"><div class="stat-label">Deleted TXs</div><div class="stat-value" style="color:var(--neg)">3</div><div class="stat-change">All recoverable</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Trust Score Visualization</div><div class="chart-subtitle">Composite score based on transparency, sync health, and flag resolution</div>'+
@@ -1926,10 +2066,10 @@ var mobileList=syncAccounts.map(function(a){return '<div class="ci" style="margi
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Linked Accounts</div><div class="stat-value">6</div><div class="sub">across 3 institutions</div></div>'+
-'<div class="stat-card"><div class="stat-label">Syncing Well</div><div class="stat-value" style="color:var(--pos)">4</div><div class="sub">data is fresh</div></div>'+
-'<div class="stat-card"><div class="stat-label">Needs Refresh</div><div class="stat-value" style="color:var(--warn)">1</div><div class="sub">3 days behind</div></div>'+
-'<div class="stat-card"><div class="stat-label">Disconnected</div><div class="stat-value" style="color:var(--neg)">1</div><div class="sub">47 days stale</div></div>'+
+'<div class="stat-card" onclick="gp(\'accounts\')"><div class="stat-label">Linked Accounts</div><div class="stat-value">6</div><div class="sub">across 3 institutions</div></div>'+
+'<div class="stat-card" onclick="gp(\'synchealth\')"><div class="stat-label">Syncing Well</div><div class="stat-value" style="color:var(--pos)">4</div><div class="sub">data is fresh</div></div>'+
+'<div class="stat-card" onclick="gp(\'synchealth\')"><div class="stat-label">Needs Refresh</div><div class="stat-value" style="color:var(--warn)">1</div><div class="sub">3 days behind</div></div>'+
+'<div class="stat-card" onclick="gp(\'synchealth\')"><div class="stat-label">Disconnected</div><div class="stat-value" style="color:var(--neg)">1</div><div class="sub">47 days stale</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Connection Health</div>'+
@@ -1965,10 +2105,10 @@ if(isDesktop()){
 var smoothedData=[{m:'May',v:7600},{m:'Jun',v:7650},{m:'Jul',v:7640},{m:'Aug',v:7720},{m:'Sep',v:7700},{m:'Oct',v:7780},{m:'Nov',v:7750},{m:'Dec',v:7750},{m:'Jan',v:7760},{m:'Feb',v:7750},{m:'Mar',v:7760},{m:'Apr',v:7760}];
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Monthly Income</div><div class="stat-value" style="color:var(--pos)">$7,080</div>'+trendIndicator(7080,7280,'','')+'</div>'+
-'<div class="stat-card"><div class="stat-label">Sources</div><div class="stat-value">3</div></div>'+
-'<div class="stat-card"><div class="stat-label">12mo Average</div><div class="stat-value">$7,590</div></div>'+
-'<div class="stat-card"><div class="stat-label">Variance</div><div class="stat-value" style="color:var(--warn)">12%</div></div>'+
+'<div class="stat-card" onclick="gp(\'incomecadence\')"><div class="stat-label">Monthly Income</div><div class="stat-value" style="color:var(--pos)">$7,080</div>'+trendIndicator(7080,7280,'','')+'</div>'+
+'<div class="stat-card" onclick="gp(\'incomecadence\')"><div class="stat-label">Sources</div><div class="stat-value">3</div></div>'+
+'<div class="stat-card" onclick="gp(\'incomecadence\')"><div class="stat-label">12mo Average</div><div class="stat-value">$7,590</div></div>'+
+'<div class="stat-card" onclick="gp(\'incomecadence\')"><div class="stat-label">Variance</div><div class="stat-value" style="color:var(--warn)">12%</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Income Sources</div>'+
@@ -2003,10 +2143,10 @@ var mobileContent=billItems.map(function(b){return '<div class="ci" style="margi
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Monthly Savings</div><div class="stat-value" style="color:var(--pos)">$147</div></div>'+
-'<div class="stat-card"><div class="stat-label">Annual Savings</div><div class="stat-value" style="color:var(--pos)">$1,764</div></div>'+
-'<div class="stat-card"><div class="stat-label">Bills Audited</div><div class="stat-value">4</div></div>'+
-'<div class="stat-card"><div class="stat-label">Action Items</div><div class="stat-value" style="color:var(--warn)">2</div></div>'+
+'<div class="stat-card" onclick="gp(\'billaudit\')"><div class="stat-label">Monthly Savings</div><div class="stat-value" style="color:var(--pos)">$147</div></div>'+
+'<div class="stat-card" onclick="gp(\'billaudit\')"><div class="stat-label">Annual Savings</div><div class="stat-value" style="color:var(--pos)">$1,764</div></div>'+
+'<div class="stat-card" onclick="gp(\'billaudit\')"><div class="stat-label">Bills Audited</div><div class="stat-value">4</div></div>'+
+'<div class="stat-card" onclick="gp(\'billaudit\')"><div class="stat-label">Action Items</div><div class="stat-value" style="color:var(--warn)">2</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Bill Comparison: Current vs Negotiated</div>'+
@@ -2045,10 +2185,10 @@ var catBreak={};subs.forEach(function(s){catBreak[s.cat]=(catBreak[s.cat]||0)+s.
 var catSegs=Object.keys(catBreak).map(function(k,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--neg)','var(--info)','var(--gold)'];return {label:k,value:Math.round(catBreak[k]*100)/100,color:colors[i%colors.length]}});
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Active Subscriptions</div><div class="stat-value">'+subs.length+'</div><div class="sub">across both partners</div></div>'+
-'<div class="stat-card"><div class="stat-label">Monthly Cost</div><div class="stat-value" style="color:var(--neg)">$287</div><div class="sub">$9.43/day in recurring charges</div></div>'+
-'<div class="stat-card"><div class="stat-label">Annual Cost</div><div class="stat-value" style="color:var(--neg)">$3,444</div><div class="sub">that\'s a vacation worth of subs</div></div>'+
-'<div class="stat-card"><div class="stat-label">Barely Used</div><div class="stat-value" style="color:var(--warn)">4</div><div class="sub">worth reviewing</div></div>'+
+'<div class="stat-card" onclick="gp(\'subscriptions\')"><div class="stat-label">Active Subscriptions</div><div class="stat-value">'+subs.length+'</div><div class="sub">across both partners</div></div>'+
+'<div class="stat-card" onclick="gp(\'subscriptions\')"><div class="stat-label">Monthly Cost</div><div class="stat-value" style="color:var(--neg)">$287</div><div class="sub">$9.43/day in recurring charges</div></div>'+
+'<div class="stat-card" onclick="gp(\'subscriptions\')"><div class="stat-label">Annual Cost</div><div class="stat-value" style="color:var(--neg)">$3,444</div><div class="sub">that\'s a vacation worth of subs</div></div>'+
+'<div class="stat-card" onclick="gp(\'subscriptions\')"><div class="stat-label">Barely Used</div><div class="stat-value" style="color:var(--warn)">4</div><div class="sub">worth reviewing</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">All Subscriptions &mdash; Ranked by Usage</div>'+
@@ -2083,10 +2223,10 @@ var dragData=[{m:'7yr',v:5400},{m:'15yr',v:18200},{m:'30yr',v:47000}];
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Weighted Avg ER</div><div class="stat-value" style="color:var(--warn)">0.42%</div></div>'+
-'<div class="stat-card"><div class="stat-label">Total Invested</div><div class="stat-value">$290k</div></div>'+
-'<div class="stat-card"><div class="stat-label">Annual Fees</div><div class="stat-value" style="color:var(--neg)">$1,218</div></div>'+
-'<div class="stat-card"><div class="stat-label">30yr Fee Drag</div><div class="stat-value" style="color:var(--neg)">$47k</div></div>'+
+'<div class="stat-card" onclick="os(\'Fee Details\',sFees())"><div class="stat-label">Weighted Avg ER</div><div class="stat-value" style="color:var(--warn)">0.42%</div></div>'+
+'<div class="stat-card" onclick="os(\'Fee Details\',sFees())"><div class="stat-label">Total Invested</div><div class="stat-value">$290k</div></div>'+
+'<div class="stat-card" onclick="os(\'Fee Details\',sFees())"><div class="stat-label">Annual Fees</div><div class="stat-value" style="color:var(--neg)">$1,218</div></div>'+
+'<div class="stat-card" onclick="os(\'Fee Details\',sFees())"><div class="stat-label">30yr Fee Drag</div><div class="stat-value" style="color:var(--neg)">$47k</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Fee Comparison by Account</div>'+
@@ -2121,10 +2261,10 @@ var catTotals={};deductions.forEach(function(d){catTotals[d.c]=(catTotals[d.c]||
 var catSegs=Object.keys(catTotals).map(function(k,i){var colors=['var(--acc)','var(--pos)','var(--warn)','var(--info)','var(--gold)'];return {label:k,value:catTotals[k],color:colors[i%colors.length]}});
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">YTD Deductions</div><div class="stat-value" style="color:var(--pos)">$1,240</div></div>'+
-'<div class="stat-card"><div class="stat-label">Est. Tax Savings</div><div class="stat-value" style="color:var(--pos)">$310</div><div class="sub">at 25% bracket</div></div>'+
-'<div class="stat-card"><div class="stat-label">Categories</div><div class="stat-value">5</div></div>'+
-'<div class="stat-card"><div class="stat-label">Items</div><div class="stat-value">'+deductions.length+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Tax Summary\',sTax())"><div class="stat-label">YTD Deductions</div><div class="stat-value" style="color:var(--pos)">$1,240</div></div>'+
+'<div class="stat-card" onclick="os(\'Tax Summary\',sTax())"><div class="stat-label">Est. Tax Savings</div><div class="stat-value" style="color:var(--pos)">$310</div><div class="sub">at 25% bracket</div></div>'+
+'<div class="stat-card" onclick="os(\'Tax Summary\',sTax())"><div class="stat-label">Categories</div><div class="stat-value">5</div></div>'+
+'<div class="stat-card" onclick="os(\'Tax Summary\',sTax())"><div class="stat-label">Items</div><div class="stat-value">'+deductions.length+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Deductions by Category</div>'+
@@ -2160,10 +2300,10 @@ var paid=bills.filter(function(b){return b.pd}).reduce(function(a,b){return a+b.
 var remaining=totalDue-paid;
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Total Bills</div><div class="stat-value">$'+totalDue.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value" style="color:var(--pos)">$'+paid.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--warn)">$'+remaining.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Autopay</div><div class="stat-value" style="color:var(--pos)">'+bills.filter(function(b){return b.at}).length+'/'+bills.length+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Bills Summary\',sRBillsContent())"><div class="stat-label">Total Bills</div><div class="stat-value">$'+totalDue.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Bills Summary\',sRBillsContent())"><div class="stat-label">Paid</div><div class="stat-value" style="color:var(--pos)">$'+paid.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Bills Summary\',sRBillsContent())"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--warn)">$'+remaining.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Bills Summary\',sRBillsContent())"><div class="stat-label">Autopay</div><div class="stat-value" style="color:var(--pos)">'+bills.filter(function(b){return b.at}).length+'/'+bills.length+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">April 2026 Calendar</div>'+
@@ -2206,10 +2346,10 @@ var mobileContent=cats.map(function(s){return '<div style="margin-bottom:12px;cu
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">This Week</div><div class="stat-value">$765</div>'+trendIndicator(765,772,'$','')+'</div>'+
-'<div class="stat-card"><div class="stat-label">Budget</div><div class="stat-value">$1,050</div></div>'+
-'<div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--pos)">$285</div></div>'+
-'<div class="stat-card"><div class="stat-label">Over Budget</div><div class="stat-value" style="color:var(--neg)">1 cat</div></div>'+
+'<div class="stat-card" onclick="gt(\'budget\')"><div class="stat-label">This Week</div><div class="stat-value">$765</div>'+trendIndicator(765,772,'$','')+'</div>'+
+'<div class="stat-card" onclick="gt(\'budget\')"><div class="stat-label">Budget</div><div class="stat-value">$1,050</div></div>'+
+'<div class="stat-card" onclick="os(\'Flex Budget\',sFlexBudget())"><div class="stat-label">Remaining</div><div class="stat-value" style="color:var(--pos)">$285</div></div>'+
+'<div class="stat-card" onclick="os(\'Spending\',sCat(\'Shopping\',235,200,85,150))"><div class="stat-label">Over Budget</div><div class="stat-value" style="color:var(--neg)">1 cat</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Category Spending with Sparklines</div>'+
@@ -2241,7 +2381,7 @@ var txRow=function(tx){return '<div class="tr" onclick="os(\'Transaction\',sTx(\
 
 if(isDesktop()){
 return '<div class="fi">'+
-'<div class="filter-bar"><input class="filter-input" maxlength="200" placeholder="Search transactions..." style="flex:1">'+
+'<div class="filter-bar"><input class="filter-input" maxlength="200" enterkeyhint="search" autocomplete="off" placeholder="Search transactions..." style="flex:1">'+
 '<div class="date-picker"><button class="active" onclick="toggleDateBtn(this)">This Month</button><button onclick="toggleDateBtn(this)">Last Month</button><button onclick="toggleDateBtn(this)">90 Days</button><button onclick="toggleDateBtn(this)">Year</button></div>'+
 '</div>'+
 '<div class="filter-bar">'+
@@ -2263,7 +2403,7 @@ return '<div class="fi">'+
 function rFeatureRequest(){
 var formHtml='<div class="cs">'+hd('Feature Request')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Have an idea? Let us know what would make NestWorth better.</div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="frTitle" maxlength="200" placeholder="Brief summary of your idea..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="frTitle" maxlength="200" enterkeyhint="next" autocomplete="off" placeholder="Brief summary of your idea..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Description</div><textarea id="frDesc" maxlength="2000" placeholder="Describe in detail what you\'d like to see..." rows="4" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Priority</div><select id="frPriority" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>'+
 '<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitFeatureRequest()">Submit Feature Request</button></div>';
@@ -2275,7 +2415,7 @@ return '<div class="fi">'+
 '<div class="dash-row"><div class="dash-main">'+formHtml+'</div>'+
 '<div class="dash-side">'+prevHtml+
 '<div class="chart-container" style="margin-top:12px"><div class="chart-title">Community Requests</div>'+
-demoRequests.map(function(r){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+r.t+'</span>'+bg(r.s,r.s==='Planned'?'var(--pos)':'var(--info)')+'</div><div class="r" style="margin-top:4px;gap:6px"><button class="btn-pill" style="font-size:10px;padding:4px 10px;min-height:auto">Upvote</button><span class="sub">'+r.v+' votes</span></div></div>'}).join('')+'</div>'+
+demoRequests.map(function(r){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+r.t+'</span>'+bg(r.s,r.s==='Planned'?'var(--pos)':'var(--info)')+'</div><div class="r" style="margin-top:4px;gap:6px"><button class="btn-pill" style="font-size:10px;padding:4px 10px;min-height:auto" onclick="event.stopPropagation();upvoteRequest(this)">Upvote</button><span class="sub upvote-count">'+r.v+' votes</span></div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2293,7 +2433,7 @@ function submitFeatureRequest(){
 function rReportBug(){
 var formHtml='<div class="cs">'+hd('Report a Bug')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Found something broken? Help us fix it.</div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="brTitle" maxlength="200" placeholder="Brief bug summary..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="brTitle" maxlength="200" enterkeyhint="next" autocomplete="off" placeholder="Brief bug summary..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Steps to Reproduce</div><textarea id="brSteps" maxlength="2000" placeholder="1. Go to...\n2. Tap on...\n3. See error..." rows="3" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Expected Behavior</div><textarea id="brExpected" maxlength="2000" placeholder="What should happen..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Actual Behavior</div><textarea id="brActual" maxlength="2000" placeholder="What actually happens..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
@@ -2329,10 +2469,10 @@ var streakDays=[1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1];
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Current Streak</div><div class="stat-value" style="color:var(--gold)">14 days</div><div class="sub">under budget for 2 weeks</div></div>'+
-'<div class="stat-card"><div class="stat-label">Badges Earned</div><div class="stat-value" style="color:var(--pos)">5</div><div class="sub">halfway to 10</div></div>'+
-'<div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warn)">5</div><div class="sub">keep going</div></div>'+
-'<div class="stat-card"><div class="stat-label">Von vs Caroline</div><div class="stat-value">3 - 2</div><div class="sub">Von leads this quarter</div></div>'+
+'<div class="stat-card" onclick="os(\'Achievements\',sAchieve())"><div class="stat-label">Current Streak</div><div class="stat-value" style="color:var(--gold)">14 days</div><div class="sub">under budget for 2 weeks</div></div>'+
+'<div class="stat-card" onclick="os(\'Achievements\',sAchieve())"><div class="stat-label">Badges Earned</div><div class="stat-value" style="color:var(--pos)">5</div><div class="sub">halfway to 10</div></div>'+
+'<div class="stat-card" onclick="os(\'Achievements\',sAchieve())"><div class="stat-label">In Progress</div><div class="stat-value" style="color:var(--warn)">5</div><div class="sub">keep going</div></div>'+
+'<div class="stat-card" onclick="os(\'Achievements\',sAchieve())"><div class="stat-label">Von vs Caroline</div><div class="stat-value">3 - 2</div><div class="sub">Von leads this quarter</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Your Badges &amp; Milestones</div>'+
@@ -2342,7 +2482,7 @@ var ringPct=a.done?100:(a.p||0);
 var ringColor=a.done?'var(--gold)':ringPct>=60?'var(--pos)':'var(--warn)';
 return '<div class="ci" style="text-align:center;padding:10px;'+(a.done?'border-color:color-mix(in srgb,var(--gold) 20%,transparent);background:color-mix(in srgb,var(--gold) 5%,transparent)':'')+'">'+
 '<div style="width:40px;height:40px;border-radius:20px;background:conic-gradient('+ringColor+' '+ringPct+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:30px;height:30px;border-radius:15px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:'+ringColor+'">'+(a.done?ic(icons.check,12,ringColor,3):ringPct+'%')+'</div></div>'+
-'<div style="font-weight:700;font-size:12px;margin-top:6px">'+a.n+'</div><div class="sub" style="font-size:10px">'+a.d+'</div>'+(a.done?'<div style="font-size:9px;color:var(--gold);font-weight:600;margin-top:2px">'+a.date+'</div>':'')+'</div>'}).join('')+'</div></div>'+
+'<div style="font-weight:700;font-size:12px;margin-top:6px">'+a.n+'</div><div class="sub" style="font-size:10px">'+a.d+'</div>'+(a.done?'<div style="font-size:9px;color:var(--gold);font-weight:600;margin-top:2px">'+a.date+'</div><button class="share-btn" style="margin-top:4px;font-size:9px;padding:3px 8px" onclick="event.stopPropagation();shareContent(\'Achievement\',\'I earned the '+a.n+' badge on NestWorth!\')">' + ic('<path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',10,'var(--gold)',1.5)+' Share</button>':'')+'</div>'}).join('')+'</div></div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Green means you stayed under budget that day &mdash; keep the streak alive</div>'+
 '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">'+
 ['S','M','T','W','T','F','S'].map(function(d){return '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--t3);padding:4px">'+d+'</div>'}).join('')+
@@ -2379,10 +2519,10 @@ var totalSaved=nests.reduce(function(a,n){return a+n.c},0);
 var totalGoal=nests.reduce(function(a,n){return a+n.g},0);
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Active Nests</div><div class="stat-value">'+nests.length+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Total Saved</div><div class="stat-value" style="color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Total Goals</div><div class="stat-value">$'+totalGoal.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Overall Progress</div><div class="stat-value" style="color:var(--acc)">'+Math.round(totalSaved/totalGoal*100)+'%</div></div>'+
+'<div class="stat-card" onclick="os(\'New Nest\',sNewNest())"><div class="stat-label">Active Nests</div><div class="stat-value">'+nests.length+'</div></div>'+
+'<div class="stat-card" onclick="gt(\'goals\')"><div class="stat-label">Total Saved</div><div class="stat-value" style="color:var(--pos)">$'+totalSaved.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="gt(\'goals\')"><div class="stat-label">Total Goals</div><div class="stat-value">$'+totalGoal.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="gt(\'goals\')"><div class="stat-label">Overall Progress</div><div class="stat-value" style="color:var(--acc)">'+Math.round(totalSaved/totalGoal*100)+'%</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Nest Details</div>'+
@@ -2420,15 +2560,15 @@ var exports=[{n:'Current Month (CSV)',f:'CSV',sz:'~45KB',d:'Transactions'},{n:'Y
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Total Exports</div><div class="stat-value">12</div></div>'+
-'<div class="stat-card"><div class="stat-label">Last Export</div><div class="stat-value" style="font-size:18px">Apr 12</div></div>'+
-'<div class="stat-card"><div class="stat-label">Data Range</div><div class="stat-value" style="font-size:18px">12 mo</div></div>'+
-'<div class="stat-card"><div class="stat-label">Formats</div><div class="stat-value">4</div></div>'+
+'<div class="stat-card" onclick="os(\'Export\',sExport())"><div class="stat-label">Total Exports</div><div class="stat-value">12</div></div>'+
+'<div class="stat-card" onclick="os(\'Export\',sExport())"><div class="stat-label">Last Export</div><div class="stat-value" style="font-size:18px">Apr 12</div></div>'+
+'<div class="stat-card" onclick="os(\'Export\',sExport())"><div class="stat-label">Data Range</div><div class="stat-value" style="font-size:18px">12 mo</div></div>'+
+'<div class="stat-card" onclick="os(\'Export\',sExport())"><div class="stat-label">Formats</div><div class="stat-value">4</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Export Options</div>'+
 '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">'+
-exports.map(function(e){return '<div class="ci" style="cursor:pointer;padding:12px;text-align:center" onclick="os(\'Export\',sDone(\''+e.n+' export started\'))">'+ic(icons.download,16,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:12px;margin-top:6px">'+e.n+'</div><div class="sub" style="margin-top:2px">'+e.d+'</div><div class="r" style="justify-content:center;gap:6px;margin-top:4px">'+bg(e.f,'var(--acc)')+'<span class="sub">'+e.sz+'</span></div></div>'}).join('')+'</div></div>'+
+exports.map(function(e){return '<div class="ci" style="cursor:pointer;padding:12px;text-align:center" onclick="exportWithFeedback(\''+e.n+'\',this)">'+ic(icons.download,16,'var(--acc)',1.5)+'<div style="font-weight:700;font-size:12px;margin-top:6px">'+e.n+'</div><div class="sub" style="margin-top:2px">'+e.d+'</div><div class="r" style="justify-content:center;gap:6px;margin-top:4px">'+bg(e.f,'var(--acc)')+'<span class="sub">'+e.sz+'</span></div></div>'}).join('')+'</div></div>'+
 '<div class="chart-container"><div class="chart-title">Format & Date Range</div>'+
 '<div class="filter-bar"><span style="font-size:12px;font-weight:600">Format:</span>'+
 ['CSV','PDF','JSON','Excel'].map(function(f,i){return '<button class="filter-chip'+(i===0?' active':'')+'" onclick="toggleChip(this)">'+f+'</button>'}).join('')+'</div>'+
@@ -2452,10 +2592,10 @@ var carolineSpend=[{c:'Groceries',a:45},{c:'Dining',a:140},{c:'Shopping',a:150},
 return '<div class="fi">'+
 '<div class="hero" style="text-align:center;margin-bottom:16px;padding:16px 20px"><div style="font-size:20px">'+ic(icons.heart,24,'#fff',1.5)+'</div><div style="font-size:20px;font-weight:900;margin-top:4px">Money Date Mode</div><div style="opacity:0.8;font-size:12px;margin-top:3px">Guided couples financial review &mdash; designed for sitting down together</div></div>'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Von Spent</div><div class="stat-value" style="color:var(--acc)">$370</div></div>'+
-'<div class="stat-card"><div class="stat-label">Caroline Spent</div><div class="stat-value" style="color:var(--warn)">$395</div></div>'+
-'<div class="stat-card"><div class="stat-label">Joint Total</div><div class="stat-value">$765</div></div>'+
-'<div class="stat-card"><div class="stat-label">Date #</div><div class="stat-value" style="color:var(--gold)">5</div></div>'+
+'<div class="stat-card" onclick="gp(\'spending\')"><div class="stat-label">Von Spent</div><div class="stat-value" style="color:var(--acc)">$370</div></div>'+
+'<div class="stat-card" onclick="gp(\'spending\')"><div class="stat-label">Caroline Spent</div><div class="stat-value" style="color:var(--warn)">$395</div></div>'+
+'<div class="stat-card" onclick="gt(\'budget\')"><div class="stat-label">Joint Total</div><div class="stat-value">$765</div></div>'+
+'<div class="stat-card" onclick="os(\'Money Date\',sMD())"><div class="stat-label">Date #</div><div class="stat-value" style="color:var(--gold)">5</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Spending Comparison: Von vs Caroline</div><div class="chart-subtitle">This week side-by-side</div>'+
@@ -2491,10 +2631,10 @@ var payoffData=[{m:'Now',v:3200},{m:'+2mo',v:2700},{m:'+4mo',v:2100},{m:'+6mo',v
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Total Debt</div><div class="stat-value" style="color:var(--neg)">$3,200</div></div>'+
-'<div class="stat-card"><div class="stat-label">Min Payment</div><div class="stat-value">$85/mo</div></div>'+
-'<div class="stat-card"><div class="stat-label">Avg APR</div><div class="stat-value" style="color:var(--warn)">14.2%</div></div>'+
-'<div class="stat-card"><div class="stat-label">Payoff (Avalanche)</div><div class="stat-value" style="color:var(--pos)">7.5 mo</div></div>'+
+'<div class="stat-card" onclick="os(\'Debt\',sDebt())"><div class="stat-label">Total Debt</div><div class="stat-value" style="color:var(--neg)">$3,200</div></div>'+
+'<div class="stat-card" onclick="os(\'Debt\',sDebt())"><div class="stat-label">Min Payment</div><div class="stat-value">$85/mo</div></div>'+
+'<div class="stat-card" onclick="os(\'Debt\',sDebt())"><div class="stat-label">Avg APR</div><div class="stat-value" style="color:var(--warn)">14.2%</div></div>'+
+'<div class="stat-card" onclick="os(\'Debt\',sDebt())"><div class="stat-label">Payoff (Avalanche)</div><div class="stat-value" style="color:var(--pos)">7.5 mo</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Debt Breakdown</div>'+
@@ -2538,10 +2678,10 @@ var monthlyExp=expenses.reduce(function(a,e){return a+e.a},0);
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Current Fund</div><div class="stat-value" style="color:var(--warn)">$3,600</div></div>'+
-'<div class="stat-card"><div class="stat-label">Coverage</div><div class="stat-value" style="color:var(--warn)">0.8 mo</div></div>'+
-'<div class="stat-card"><div class="stat-label">3-Mo Target</div><div class="stat-value" style="color:var(--pos)">$'+Math.round(monthlyExp*3).toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Monthly Expense</div><div class="stat-value">$'+monthlyExp.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Emergency Fund\',sEmer())"><div class="stat-label">Current Fund</div><div class="stat-value" style="color:var(--warn)">$3,600</div></div>'+
+'<div class="stat-card" onclick="os(\'Emergency Fund\',sEmer())"><div class="stat-label">Coverage</div><div class="stat-value" style="color:var(--warn)">0.8 mo</div></div>'+
+'<div class="stat-card" onclick="os(\'Emergency Fund\',sEmer())"><div class="stat-label">3-Mo Target</div><div class="stat-value" style="color:var(--pos)">$'+Math.round(monthlyExp*3).toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="os(\'Emergency Fund\',sEmer())"><div class="stat-label">Monthly Expense</div><div class="stat-value">$'+monthlyExp.toLocaleString()+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Coverage Gauge</div>'+
@@ -2583,10 +2723,10 @@ var alertLog=[
 if(isDesktop()){
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Unread</div><div class="stat-value" style="color:var(--neg)">2</div></div>'+
-'<div class="stat-card"><div class="stat-label">This Week</div><div class="stat-value">8</div></div>'+
-'<div class="stat-card"><div class="stat-label">Active Types</div><div class="stat-value" style="color:var(--pos)">7/7</div></div>'+
-'<div class="stat-card"><div class="stat-label">Delivery</div><div class="stat-value" style="color:var(--acc);font-size:16px">Email</div></div>'+
+'<div class="stat-card" onclick="os(\'Notifications\',sNotifs())"><div class="stat-label">Unread</div><div class="stat-value" style="color:var(--neg)">2</div></div>'+
+'<div class="stat-card" onclick="os(\'Notifications\',sNotifs())"><div class="stat-label">This Week</div><div class="stat-value">8</div></div>'+
+'<div class="stat-card" onclick="gp(\'alerts\')"><div class="stat-label">Active Types</div><div class="stat-value" style="color:var(--pos)">7/7</div></div>'+
+'<div class="stat-card" onclick="gp(\'alerts\')"><div class="stat-label">Delivery</div><div class="stat-value" style="color:var(--acc);font-size:16px">Email</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Log</div><div class="chart-subtitle">All notifications with full timestamps and categories</div>'+
@@ -2594,8 +2734,8 @@ return '<div class="fi">'+
 alertLog.map(function(al){var typeColors={overspend:'var(--neg)',velocity:'var(--warn)',sync:'var(--info)',bills:'var(--acc)',goals:'var(--pos)',anomaly:'var(--neg)',weekly:'var(--t2)'};return '<tr><td><div style="width:8px;height:8px;border-radius:4px;background:'+(al.read?'var(--pos)':'var(--neg)')+'"></div></td><td style="font-weight:'+(al.read?500:700)+';color:'+(al.read?'var(--t1)':'var(--neg)')+'">'+al.t+'</td><td>'+bg(al.type,typeColors[al.type]||'var(--info)')+'</td><td style="font-size:11px;color:var(--t2)">'+al.ts+'</td><td>'+(al.read?bg('Read','var(--pos)'):bg('New','var(--neg)'))+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Preferences</div>'+
-'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+alertPrefs.emailAddr+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
-'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+esc(alertPrefs.emailAddr)+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
+'<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+esc(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
 '<div style="margin-top:12px"><div style="font-weight:700;font-size:12px;margin-bottom:8px">Alert Types</div>'+
 '<table class="data-table"><thead><tr><th>Alert Type</th><th>Description</th><th>Status</th><th>Toggle</th></tr></thead><tbody>'+
 [['overspend','Category Overspend','Triggers when a category exceeds budget'],['sync','Account Sync Issues','Alerts on stale or failed syncs'],['bills','Bill Due Reminders','Notifies 3 days before bill due dates'],['goals','Goal Milestones','Celebrates when you hit savings milestones'],['anomaly','Anomaly Detection','Flags unusual charges or duplicates'],['velocity','Spending Velocity','Warns when spending pace is elevated'],['weekly','Weekly Summary','Sunday digest of the past week']].map(function(kv){return '<tr><td style="font-weight:600">'+kv[1]+'</td><td class="sub" style="font-size:11px">'+kv[2]+'</td><td>'+(alertPrefs.types[kv[0]]?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</td><td>'+tg(alertPrefs.types[kv[0]],false,'togAlert_'+kv[0])+'</td></tr>'}).join('')+
@@ -2608,8 +2748,8 @@ svgBarChart([{label:'W1',value:12,color:'var(--acc)'},{label:'W2',value:8,color:
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Distribution</div>'+
 svgDonut([{label:'Overspend',value:4,color:'var(--neg)'},{label:'Sync',value:3,color:'var(--info)'},{label:'Bills',value:2,color:'var(--acc)'},{label:'Goals',value:2,color:'var(--pos)'},{label:'Anomaly',value:1,color:'var(--warn)'},{label:'Velocity',value:1,color:'var(--gold)'}],140,'13','this week')+'</div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Delivery Status</div>'+
-'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Email</span>'+bg(alertPrefs.email?'Active':'Off',alertPrefs.email?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+alertPrefs.emailAddr+'</div></div>'+
-'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">SMS</span>'+bg(alertPrefs.sms?'Active':'Off',alertPrefs.sms?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+(alertPrefs.phone||'Not configured')+'</div></div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Email</span>'+bg(alertPrefs.email?'Active':'Off',alertPrefs.email?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+esc(alertPrefs.emailAddr)+'</div></div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">SMS</span>'+bg(alertPrefs.sms?'Active':'Off',alertPrefs.sms?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+esc(alertPrefs.phone||'Not configured')+'</div></div>'+
 '<div class="ci"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Push</span>'+bg('Not Configured','var(--warn)')+'</div><div class="sub" style="margin-top:2px">Requires native app</div></div></div>'+
 '<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Notification Frequency</div>'+
 '<div class="sub" style="margin-bottom:8px">How often to send summaries</div>'+
@@ -2639,10 +2779,10 @@ return '<div class="fi">'+
 '<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.search,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">ChargeIQ</div><div style="opacity:0.8;font-size:12px">Decode any mysterious charge on your statement in seconds</div></div></div>'+pendingBadge('LLM + merchant database API')+'</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Look Up Any Charge</div>'+
-'<div class="filter-bar" style="margin-bottom:0"><input class="filter-input" maxlength="200" placeholder="Look up a mysterious charge... (e.g. APCR*DIGITALRVRM)" style="flex:1"><button class="btn" style="height:38px;padding:0 16px;border-radius:10px;font-size:12px">'+ic(icons.search,14,'#fff',2)+' Identify</button></div></div>'+
+'<div class="filter-bar" style="margin-bottom:0"><input class="filter-input" maxlength="200" enterkeyhint="search" autocomplete="off" placeholder="Look up a mysterious charge... (e.g. APCR*DIGITALRVRM)" style="flex:1"><button class="btn" style="height:38px;padding:0 16px;border-radius:10px;font-size:12px">'+ic(icons.search,14,'#fff',2)+' Identify</button></div></div>'+
 '<div class="chart-container"><div class="chart-title">Recently Decoded</div>'+
-'<table class="data-table"><thead><tr><th>Original Charge</th><th>Identified As</th><th>Category</th><th>Confidence</th><th>Actions</th></tr></thead><tbody>'+
-sampleCharges.map(function(c){return '<tr><td style="font-family:monospace;font-size:11px;color:var(--neg);font-weight:600">'+c.raw+'</td><td><div style="font-weight:700">'+c.merchant+'</div><div class="sub" style="font-size:10px">'+c.desc+'</div></td><td>'+bg(c.cat,'var(--info)')+'</td><td title="Confidence: '+c.conf+'%. '+(c.conf>=95?'Very high - almost certain match.':c.conf>=90?'High confidence match.':'Moderate confidence - verify manually.')+'"><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></td><td><div style="display:flex;gap:4px"><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto;background:var(--posBg);color:var(--pos)">'+ic(icons.check,10,'var(--pos)',2)+' Identified</button><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto">Not This</button></div></td></tr>'}).join('')+
+'<table class="data-table"><thead><tr><th>Original Charge</th><th>Identified As</th><th>Category</th><th>Confidence</th><th>Actions</th></tr></thead><tbody id="chargeIQResults">'+
+sampleCharges.map(function(c){return '<tr data-raw="'+c.raw+'" data-merchant="'+c.merchant+'"><td style="font-family:monospace;font-size:11px;color:var(--neg);font-weight:600">'+c.raw+'</td><td><div style="font-weight:700">'+c.merchant+'</div><div class="sub" style="font-size:10px">'+c.desc+'</div></td><td>'+bg(c.cat,'var(--info)')+'</td><td title="Confidence: '+c.conf+'%. '+(c.conf>=95?'Very high - almost certain match.':c.conf>=90?'High confidence match.':'Moderate confidence - verify manually.')+'"><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></td><td><div style="display:flex;gap:4px"><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto;background:var(--posBg);color:var(--pos)">'+ic(icons.check,10,'var(--pos)',2)+' Identified</button><button class="btn-pill" style="font-size:9px;padding:2px 8px;min-height:auto">Not This</button></div></td></tr>'}).join('')+
 '</tbody></table></div>'+
 '<div class="chart-container"><div class="chart-title">Spending Autopsy &mdash; Would You Buy It Again?</div><div class="chart-subtitle">How much of your spending would you do again?</div>'+
 '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">'+
@@ -2657,7 +2797,7 @@ svgBarChart([{label:'Groceries',value:95,color:'var(--pos)'},{label:'Bills',valu
 '<div class="ci" style="margin-bottom:6px;text-align:center"><div class="sub">Match Accuracy</div><div style="font-size:28px;font-weight:900;color:var(--acc)">93%</div></div>'+
 '<div class="ci" style="text-align:center"><div class="sub">Still Unknown</div><div style="font-size:28px;font-weight:900;color:var(--warn)">2</div></div></div>'+
 '<div class="chart-container"><div class="chart-title">Verified Contacts</div>'+
-sampleCharges.slice(0,3).map(function(c){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:700;font-size:11px">'+c.merchant+'</div><div class="sub">'+ic(icons.phone,10,'var(--t2)',1.5)+' '+c.phone+'</div><div class="sub">'+ic('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',10,'var(--t2)',1.5)+' '+c.web+'</div></div>'}).join('')+'</div>'+
+sampleCharges.slice(0,3).map(function(c){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:700;font-size:11px">'+c.merchant+'</div><div class="r" style="gap:4px;margin-top:2px">'+ic(icons.phone,10,'var(--t2)',1.5)+'<span class="sub" style="flex:1">'+c.phone+'</span><button class="copy-btn" onclick="event.stopPropagation();copyToClipboard(\''+c.phone+'\',this)">Copy</button></div><div class="r" style="gap:4px">'+ic('<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>',10,'var(--t2)',1.5)+'<span class="sub" style="flex:1">'+c.web+'</span><button class="copy-btn" onclick="event.stopPropagation();copyToClipboard(\''+c.web+'\',this)">Copy</button></div></div>'}).join('')+'</div>'+
 pendingBadge('LLM + merchant database API')+
 '</div></div>'+
 relatedPages([{label:'Transactions',pg:'transactions'},{label:'Spending',pg:'spending'},{label:'Subscriptions',pg:'subscriptions'},{label:'Bill Audit',pg:'billaudit'},{label:'Budget',tab:'budget'}])+
@@ -2668,9 +2808,9 @@ return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs"><div class="r" style="gap:8px;margin-bottom:12px">'+ic(icons.search,20,'var(--acc)',2)+'<div><div style="font-weight:800;font-size:16px">ChargeIQ</div><div class="sub">Expense Forensics</div></div></div>'+
 pendingBadge('LLM + merchant database API')+
-'<input maxlength="200" placeholder="Look up a mysterious charge..." style="width:100%;padding:12px 16px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;outline:none;color:var(--t1);margin:12px 0"></div>'+
+'<input maxlength="200" enterkeyhint="search" autocomplete="off" placeholder="Look up a mysterious charge..." style="width:100%;padding:12px 16px;border-radius:16px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;outline:none;color:var(--t1);margin:12px 0"></div>'+
 '<div class="c">'+hd('Sample Results')+
-sampleCharges.slice(0,4).map(function(c){return '<div class="ci" style="margin-bottom:6px"><div style="font-family:monospace;font-size:10px;color:var(--neg);font-weight:600;margin-bottom:4px">'+c.raw+'</div><div class="r" style="margin-bottom:2px"><span style="font-weight:700;font-size:13px;flex:1">'+c.merchant+'</span><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></div><div class="sub">'+c.desc+'</div><div class="sub" style="margin-top:2px">'+c.cat+' &middot; '+c.phone+'</div><div style="display:flex;gap:4px;margin-top:6px"><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Mark Identified</button><button class="btn-pill" style="font-size:10px">Not This</button></div></div>'}).join('')+'</div></div>'}
+sampleCharges.slice(0,4).map(function(c){return '<div class="ci" data-ciq="'+c.raw+' '+c.merchant+'" style="margin-bottom:6px"><div style="font-family:monospace;font-size:10px;color:var(--neg);font-weight:600;margin-bottom:4px">'+c.raw+'</div><div class="r" style="margin-bottom:2px"><span style="font-weight:700;font-size:13px;flex:1">'+c.merchant+'</span><span style="font-weight:800;color:'+(c.conf>=90?'var(--pos)':'var(--warn)')+'">'+c.conf+'%</span></div><div class="sub">'+c.desc+'</div><div class="sub" style="margin-top:2px">'+c.cat+' &middot; '+c.phone+'</div><div style="display:flex;gap:4px;margin-top:6px"><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Mark Identified</button><button class="btn-pill" style="font-size:10px">Not This</button></div></div>'}).join('')+'</div></div>'}
 
 /* ========== WEATHER FORECAST — 90-Day Cash Flow ========== */
 function rWeatherForecast(){
@@ -2699,10 +2839,10 @@ if(isDesktop()){
 return '<div class="fi">'+
 '<div class="hero" style="margin-bottom:16px"><div class="r" style="gap:10px">'+ic(icons.cloudSun,24,'#fff',2)+'<div><div style="font-size:20px;font-weight:900">Financial Weather Forecast</div><div style="opacity:0.8;font-size:12px">See if financial storms are heading your way over the next 90 days</div></div></div></div>'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card" title="Sunny: Balance above $8,000 - cash flow is healthy"><div class="stat-label">Today\'s Forecast</div><div class="stat-value" style="color:var(--pos)">Sunny</div><div class="sub">Cash flow is healthy at $5,360</div></div>'+
+'<div class="stat-card" onclick="os(\'Weather Details\',\'<div style=&quot;padding:8px&quot;><div style=&quot;font-size:40px;text-align:center&quot;>&#9728;</div><div style=&quot;text-align:center;font-weight:700;font-size:14px;margin:8px 0&quot;>Cash flow is healthy</div><div class=&quot;sub&quot; style=&quot;line-height:1.5&quot;>Your balance of $5,360 puts you in Sunny territory. Bills are covered and savings are on track.</div></div>\')" title="Sunny: Balance above $8,000 - cash flow is healthy"><div class="stat-label">Today\'s Forecast</div><div class="stat-value" style="color:var(--pos)">Sunny</div><div class="sub">Cash flow is healthy at $5,360</div></div>'+
 '<div class="stat-card" title="Partly Cloudy: Balance between $4,000-$8,000"><div class="stat-label">30-Day Outlook</div><div class="stat-value" style="color:var(--acc)">Partly</div><div class="sub">Expected: $'+forecast[29].bal.toLocaleString()+'</div></div>'+
 '<div class="stat-card" title="Cloudy: Balance between $1,500-$4,000 - watch spending"><div class="stat-label">60-Day</div><div class="stat-value" style="color:var(--warn)">Cloudy</div><div class="sub">Expected: $'+forecast[59].bal.toLocaleString()+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">90-Day</div><div class="stat-value" style="color:'+(forecast[89].bal>4000?'var(--pos)':'var(--neg)')+'">$'+forecast[89].bal.toLocaleString()+'</div></div>'+
+'<div class="stat-card" onclick="gp(\'weatherforecast\')"><div class="stat-label">90-Day</div><div class="stat-value" style="color:'+(forecast[89].bal>4000?'var(--pos)':'var(--neg)')+'">$'+forecast[89].bal.toLocaleString()+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">13-Week Cash Flow Outlook</div>'+
@@ -2742,7 +2882,7 @@ if(isDesktop()){
 return '<div class="fi">'+
 '<div class="hero" style="text-align:center;margin-bottom:16px;padding:18px 20px"><div style="font-size:13px;font-weight:600;opacity:0.8">Your NestWorth Score</div>'+
 '<div style="width:130px;height:130px;border-radius:65px;background:conic-gradient(var(--pos) '+Math.round(totalScore/10)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:10px auto"><div style="width:102px;height:102px;border-radius:51px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:36px;font-weight:900">'+totalScore+'</div><div style="font-size:10px;opacity:0.7">of 1,000</div></div></div>'+
-'<div style="font-size:13px;font-weight:600;margin-top:4px">'+(totalScore>=800?'Excellent':totalScore>=650?'Good':totalScore>=500?'Fair':'Needs Work')+'</div></div>'+
+'<div style="font-size:13px;font-weight:600;margin-top:4px">'+(totalScore>=800?'Excellent':totalScore>=650?'Good':totalScore>=500?'Fair':'Needs Work')+'</div><button class="share-btn" style="margin-top:8px" onclick="event.stopPropagation();shareContent(\'NestWorth Score\',\'My NestWorth Score is '+totalScore+'/1,000! Tracking household finances with NestWorth.\')">'+ic('<path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',12,'var(--acc)',1.5)+' Share Score</button></div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">What Makes Up Your Score</div>'+
 subScores.map(function(s){var pct=Math.round(s.s/s.max*100);var col=pct>=80?'var(--pos)':pct>=50?'var(--warn)':'var(--neg)';return '<div style="margin-bottom:10px" title="'+s.n+': '+s.s+'/'+s.max+' ('+pct+'%). '+s.tip+'"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+s.n+'</span><span style="font-size:12px;font-weight:800;color:'+col+'">'+s.s+'/'+s.max+'</span></div>'+br(pct,col,5)+'<div class="sub" style="margin-top:2px;font-size:10px">'+s.tip+'</div></div>'}).join('')+'</div>'+
@@ -2778,7 +2918,7 @@ pendingBadge('TransUnion/Experian API partnership')+'</div>'+
 '<div class="dash-row"><div class="dash-main">'+
 '<div class="chart-container"><div class="chart-title">Track Your Credit Score</div>'+
 '<div class="sub" style="margin-bottom:10px">Paste your latest score from Credit Karma, Experian, or your bank app</div>'+
-'<div class="r" style="gap:8px;margin-bottom:12px"><input id="creditScoreInput" type="number" min="300" max="850" maxlength="3" placeholder="Enter score (300-850)" value="'+(currentScore||'')+'" style="flex:1;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:16px;font-weight:700;outline:none;color:var(--t1)"><select id="creditSource" style="padding:12px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;color:var(--t1)"><option>Credit Karma</option><option>Experian</option><option>TransUnion</option><option>Bank App</option><option>Other</option></select><button class="btn" style="height:48px;padding:0 20px;border-radius:12px;font-size:13px" onclick="saveCreditScore()">Save</button></div>'+
+'<div class="r" style="gap:8px;margin-bottom:12px"><input id="creditScoreInput" type="number" inputmode="numeric" min="300" max="850" maxlength="3" placeholder="Enter score (300-850)" value="'+(currentScore||'')+'" style="flex:1;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:16px;font-weight:700;outline:none;color:var(--t1)"><select id="creditSource" style="padding:12px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:13px;color:var(--t1)"><option>Credit Karma</option><option>Experian</option><option>TransUnion</option><option>Bank App</option><option>Other</option></select><button class="btn" style="height:48px;padding:0 20px;border-radius:12px;font-size:13px" onclick="saveCreditScore()">Save</button></div>'+
 '<div style="background:var(--sep);height:8px;border-radius:4px;position:relative;margin:20px 0"><div style="position:absolute;left:0;top:0;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--neg),var(--warn) 40%,var(--pos) 75%);width:100%"></div>'+(currentScore?'<div style="position:absolute;top:-6px;left:'+Math.round((currentScore-300)/550*100)+'%;width:20px;height:20px;border-radius:10px;background:var(--bgE);border:3px solid var(--acc);transform:translateX(-50%)"></div>':'')+
 '<div style="display:flex;justify-content:space-between;margin-top:12px"><span class="sub">300</span><span class="sub">500</span><span class="sub">670</span><span class="sub">740</span><span class="sub">850</span></div></div></div>'+
 (creditScoreHistory.length>1?'<div class="chart-container"><div class="chart-title">Score History</div>'+svgLineChart(creditScoreHistory.map(function(h){return {m:h.date,v:h.score}}),500,160,'var(--acc)','Credit Score')+'</div>':'')+
@@ -2802,19 +2942,21 @@ return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs" style="text-align:center;padding:16px"><div style="font-weight:800;font-size:16px;margin-bottom:8px">Credit Health</div>'+
 (currentScore?'<div style="width:80px;height:80px;border-radius:40px;background:conic-gradient('+(currentScore>=740?'var(--pos)':currentScore>=670?'var(--warn)':'var(--neg)')+' '+Math.round((currentScore-300)/550*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:60px;height:60px;border-radius:30px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:var(--acc)">'+currentScore+'</div></div>':'<div class="sub">Enter your score to get started</div>')+
-'<div style="margin-top:12px"><input id="creditScoreInput" type="number" min="300" max="850" maxlength="3" placeholder="Score (300-850)" value="'+(currentScore||'')+'" style="width:60%;padding:10px 14px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;text-align:center;outline:none;color:var(--t1)"><button class="btn-gold" style="margin-left:6px;padding:10px 16px" onclick="saveCreditScore()">Save</button></div>'+
+'<div style="margin-top:12px"><input id="creditScoreInput" type="number" inputmode="numeric" min="300" max="850" maxlength="3" placeholder="Score (300-850)" value="'+(currentScore||'')+'" style="width:60%;padding:10px 14px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;text-align:center;outline:none;color:var(--t1)"><button class="btn-gold" style="margin-left:6px;padding:10px 16px" onclick="saveCreditScore()">Save</button></div>'+
 pendingBadge('TransUnion/Experian API partnership')+'</div>'+
 '<div class="c">'+factors.map(function(f){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;font-weight:600;flex:1">'+f.n+' ('+f.w+'%)</span><span style="font-size:11px;font-weight:700;color:'+f.c+'">'+f.s+'</span></div>'}).join('')+'</div></div>'}
 
 function saveCreditScore(){
 var inp=$('creditScoreInput');
 if(!inp||!inp.value)return;
-var score=parseInt(inp.value);
-if(score<300||score>850){os('Error',sDone('Please enter a score between 300 and 850.'));return}
+var score=safeInt(inp.value,300,850,null);
+if(score===null){os('Error',sDone('Please enter a valid score between 300 and 850.'));return}
 var src=$('creditSource');
-creditScoreHistory.push({score:score,date:new Date().toISOString().slice(0,10),source:src?src.value:'Manual'});
+var sourceVal=src?esc(src.value):'Manual';
+creditScoreHistory.push({score:score,date:new Date().toISOString().slice(0,10),source:sourceVal});
 saveCreditHistory();
 os('Saved!',sDone('Credit score of '+score+' saved. Track changes over time by updating periodically.'));
+  setTimeout(function(){closeSheet();rr()},1500);
 }
 
 
@@ -2839,7 +2981,7 @@ function sDup(){return '<div class="ci" style="margin-bottom:8px;display:flex;al
 
 function sNest(n,c,g){var p=Math.round((c/g)*100);return '<div style="text-align:center;margin-bottom:14px"><div style="font-size:28px;font-weight:900;color:var(--acc)">$'+c.toLocaleString()+'</div><div class="sub">of $'+g.toLocaleString()+' &middot; '+p+'%</div></div>'+br(p,'var(--acc)',8)+'<div style="margin-top:14px;font-weight:700;font-size:12px;margin-bottom:8px">History</div>'+[{d:'Apr 11',a:'+$15',w:'Auto'},{d:'Apr 4',a:'+$15',w:'Auto'},{d:'Mar 28',a:'+$200',w:'Von'},{d:'Mar 21',a:'+$15',w:'Auto'}].map(function(h){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:48px">'+h.d+'</span><span style="font-size:12px;font-weight:700;color:var(--pos);flex:1">'+h.a+'</span><span class="sub">'+h.w+'</span></div>'}).join('')+'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:14px"><button class="btn-gold btn-full" style="padding:12px">Boost</button><button class="btn-outline btn-full">Settings</button></div>'}
 
-function sNewNest(){return '<div style="text-align:center;margin-bottom:14px">'+ic(icons.plus,32,'var(--acc)',1.5)+'<div style="font-size:16px;font-weight:800;margin-top:8px">Create a New Nest</div></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Name</div><input maxlength="100" placeholder="e.g., Vacation, Car Fund..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Goal Amount</div><input type="number" maxlength="10" max="10000000" placeholder="$5,000" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Auto-Save</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px">'+['$10/wk','$25/wk','$50/wk','Custom'].map(function(v,i){return '<button class="btn-pill" style="'+(i===1?'background:var(--acc);color:#fff':'')+'">'+v+'</button>'}).join('')+'</div></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Shared with</div><div style="display:flex;gap:6px">'+['Both','Von Only','Caroline Only'].map(function(v,i){return '<button class="btn-pill" style="'+(i===0?'background:var(--acc);color:#fff':'')+'">'+v+'</button>'}).join('')+'</div></div><button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px">Create Nest</button>'}
+function sNewNest(){return '<div style="text-align:center;margin-bottom:14px">'+ic(icons.plus,32,'var(--acc)',1.5)+'<div style="font-size:16px;font-weight:800;margin-top:8px">Create a New Nest</div></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Name</div><input maxlength="100" placeholder="e.g., Vacation, Car Fund..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Goal Amount</div><input type="number" inputmode="numeric" min="0" maxlength="10" max="10000000" placeholder="$5,000" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Auto-Save</div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px">'+['$10/wk','$25/wk','$50/wk','Custom'].map(function(v,i){return '<button class="btn-pill" style="'+(i===1?'background:var(--acc);color:#fff':'')+'">'+v+'</button>'}).join('')+'</div></div><div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Shared with</div><div style="display:flex;gap:6px">'+['Both','Von Only','Caroline Only'].map(function(v,i){return '<button class="btn-pill" style="'+(i===0?'background:var(--acc);color:#fff':'')+'">'+v+'</button>'}).join('')+'</div></div><button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px">Create Nest</button>'}
 
 function sFore(){return '<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px;font-weight:900;color:var(--pos)">$33,120</div><div class="sub">projected savings by Dec 2026</div></div>'+['May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(function(m,i){var v=2760*(i+2);return '<div class="r" style="padding:4px 0;border-bottom:0.5px solid var(--sep)"><span class="sub" style="width:36px">'+m+'</span><div style="flex:1">'+br(v/33120*100,'var(--pos)',3)+'</div><span style="font-size:11px;font-weight:700;color:var(--pos);width:50px;text-align:right">$'+v.toLocaleString()+'</span></div>'}).join('')+'<div class="ci" style="margin-top:12px;background:var(--posBg);font-size:11px;color:var(--t2);line-height:1.5">Based on $2,760/mo. Bill audit savings would push to $34,884.</div>'}
 
@@ -2878,7 +3020,7 @@ function sNotifs(){return [
 {t:'Cap One Savings \u2014 47d stale',u:true},{t:'Shopping $35 over cap',u:true},{t:'Spending 38% faster',u:true},{t:'Duplicate: Whole Foods $67.43'},{t:'Auto-saved $20 to Emergency'},{t:'Caroline freelance expected today'},{t:'$147/mo bill savings found'},{t:'Electric bill due tomorrow'}
 ].map(function(n){return '<div class="tr" style="gap:8px"><div class="dot" style="width:6px;height:6px;background:'+(n.u?'var(--neg)':'var(--pos)')+';flex-shrink:0"></div><div style="flex:1;font-weight:'+(n.u?700:500)+';font-size:12px;color:'+(n.u?'var(--neg)':'var(--t1)')+'">'+n.t+'</div></div>'}).join('')}
 
-function sExport(){return ['Current Month (CSV)','Year-to-Date (CSV)','Tax Summary (PDF)','Audit Trail (PDF)','Budget Report (PDF)','Net Worth History (CSV)'].map(function(o){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;cursor:pointer">'+ic(icons.download,14,'var(--acc)',1.5)+'<span style="flex:1;font-weight:600;font-size:12px">'+o+'</span></div>'}).join('')}
+function sExport(){return ['Current Month (CSV)','Year-to-Date (CSV)','Tax Summary (PDF)','Audit Trail (PDF)','Budget Report (PDF)','Net Worth History (CSV)'].map(function(o){return '<div class="ci" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="exportWithFeedback(\''+o.replace(/'/g,'')+'\',this.querySelector(\'.export-label\'))">'+ic(icons.download,14,'var(--acc)',1.5)+'<span class="export-label" style="flex:1;font-weight:600;font-size:12px">'+o+'</span></div>'}).join('')}
 
 
 /* ========== THEME ========== */
@@ -2892,6 +3034,7 @@ function setTheme(t){
     if(s)alertPrefs.sms=s.classList.contains('on');
     Object.keys(alertPrefs.types).forEach(function(k){var el=$('togAlert_'+k);if(el)alertPrefs.types[k]=el.classList.contains('on')});
   }
+  if(VALID_THEMES.indexOf(t)===-1)return;
   theme=t;try{localStorage.setItem('nw-theme',t)}catch(e){}document.body.setAttribute('data-theme',t);updateThemeColor(t);rr();
 }
 function saveAlertSettings(){
@@ -2899,7 +3042,7 @@ function saveAlertSettings(){
   if(e)alertPrefs.email=e.classList.contains('on');
   if(s)alertPrefs.sms=s.classList.contains('on');
   Object.keys(alertPrefs.types).forEach(function(k){var el=$('togAlert_'+k);if(el)alertPrefs.types[k]=el.classList.contains('on')});
-  saveAlerts();os('Saved',sDone('Alert preferences saved successfully.\n\n'+(alertPrefs.email?'Email: ON \u2014 '+alertPrefs.emailAddr:'Email: OFF')+'\n'+(alertPrefs.sms?'SMS: ON':'SMS: OFF')));
+  saveAlerts();os('Saved',sDone('Alert preferences saved successfully.\n\n'+(alertPrefs.email?'Email: ON — '+esc(alertPrefs.emailAddr):'Email: OFF')+'\n'+(alertPrefs.sms?'SMS: ON':'SMS: OFF')));
 }
 
 
@@ -3065,7 +3208,9 @@ function rr(){
       :'<span style="font-size:16px;font-weight:700;letter-spacing:-0.3px">'+pageTitle+'</span>')+
     '</div>'+
     '<div class="r" style="gap:2px">'+
-    av('V',22,'var(--acc)')+av('C',22,'var(--warn)')+
+    '<button onclick="openSearch()" aria-label="Search" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+ic(icons.search,14,'var(--t2)',1.5)+'</div></button>'+
+    '<button onclick="os(\'Von\',sProfile(\'V\'))" aria-label="Von profile" style="background:none;border:none;padding:0;cursor:pointer">'+av('V',22,'var(--acc)')+'</button>'+
+    '<button onclick="os(\'Caroline\',sProfile(\'C\'))" aria-label="Caroline profile" style="background:none;border:none;padding:0;cursor:pointer">'+av('C',22,'var(--warn)')+'</button>'+
     '<button onclick="gp(\'settings\')" aria-label="Settings" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.gear('var(--t2)')+'</div></button>'+
     '<button onclick="os(\'Notifications\',sNotifs())" aria-label="Notifications" style="position:relative;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.bell('var(--t2)')+'</div><div class="alert-dot" style="top:6px;right:6px"></div></button>'+
     '</div>';
@@ -3102,10 +3247,257 @@ function rr(){
   buildSidebar();
 }
 
+
+
+/* ========== ROUND 1-5 PLFR FEATURES ========== */
+
+/* --- Global Search --- */
+var searchIndex=[
+  {l:'Dashboard',pg:null,tab:'home',k:'home dashboard overview net worth'},
+  {l:'Budget',pg:null,tab:'budget',k:'budget spending categories limits'},
+  {l:'Goals',pg:null,tab:'goals',k:'goals savings nests emergency'},
+  {l:'Track',pg:null,tab:'track',k:'track accounts investments portfolio'},
+  {l:'Coach',pg:null,tab:'coach',k:'coach ai intelligence chat'},
+  {l:'Settings',pg:'settings',k:'settings theme alerts preferences profile'},
+  {l:'Accounts',pg:'accounts',k:'accounts bank chase ally capital one'},
+  {l:'Transactions',pg:'transactions',k:'transactions spending purchases payments'},
+  {l:'ChargeIQ',pg:'chargeiq',k:'chargeiq charge identify mystery merchant'},
+  {l:'Subscriptions',pg:'subscriptions',k:'subscriptions recurring cancel'},
+  {l:'Bills Calendar',pg:'billscalendar',k:'bills calendar due dates autopay mortgage'},
+  {l:'Credit Health',pg:'credithealth',k:'credit score health fico'},
+  {l:'NestWorth Score',pg:'nestworthscore',k:'nestworth score financial wellness'},
+  {l:'Spending',pg:'spending',k:'spending categories merchants breakdown'},
+  {l:'Nests',pg:'nests',k:'nests savings goals buckets'},
+  {l:'Debt Paydown',pg:'debtpaydown',k:'debt paydown snowball avalanche'},
+  {l:'Emergency Fund',pg:'emergencyfund',k:'emergency fund safety net coverage'},
+  {l:'Export Data',pg:'exportdata',k:'export csv pdf download data'},
+  {l:'Bill Audit',pg:'billaudit',k:'bill audit savings negotiate'},
+  {l:'Weather Forecast',pg:'weatherforecast',k:'weather forecast cash flow 90 day'},
+  {l:'Tax Deductions',pg:'taxdeductions',k:'tax deductions charitable medical'},
+  {l:'Fee Analyzer',pg:'feeanalyzer',k:'fee analyzer expense ratio 401k'},
+  {l:'Messages',pg:'messages',k:'messages caroline chat partner'},
+  {l:'Achievements',pg:'achievements',k:'achievements badges streak milestone'},
+  {l:'Sync Health',pg:'synchealth',k:'sync health plaid connection stale'},
+  {l:'Income Cadence',pg:'incomecadence',k:'income cadence paycheck salary'},
+  {l:'Money Date',pg:'moneydate',k:'money date couples review together'},
+  {l:'Alerts',pg:'alerts',k:'alerts notifications email sms'},
+  {l:'Feature Request',pg:'featurerequest',k:'feature request idea suggestion'},
+  {l:'Report Bug',pg:'reportbug',k:'report bug issue problem'},
+  {l:'Partner Transparency',pg:'audit',k:'partner transparency audit trail'},
+  {l:'Scanner',pg:'scanner',k:'scanner receipt photo camera'}
+];
+var searchTx=['Whole Foods -$67.43','TreatYoSelf -$650','Shell Gas -$48.20','Mortgage -$2,000','Target Refund +$84.50','Netflix -$15.49','Amazon -$150','ALTA Payroll +$4,280','Starbucks -$6.45'];
+
+function openSearch(){
+  $('searchOverlay').classList.add('open');
+  $('searchPanel').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){$('globalSearchInput').focus()},100);
+}
+function closeSearch(){
+  $('searchOverlay').classList.remove('open');
+  $('searchPanel').classList.remove('open');
+  if(!$('sho').classList.contains('open'))document.body.style.overflow='';
+  $('globalSearchInput').value='';
+  $('searchResults').innerHTML='';
+}
+function handleSearch(q){
+  var r=$('searchResults');
+  if(!q||q.length<2){r.innerHTML='<div style="padding:12px;color:var(--t3);font-size:12px">Type at least 2 characters to search...</div>';return}
+  q=q.toLowerCase();
+  var matches=[];
+  searchIndex.forEach(function(s){if(s.k.indexOf(q)!==-1||s.l.toLowerCase().indexOf(q)!==-1){matches.push({type:'page',label:s.l,pg:s.pg,tab:s.tab})}});
+  searchTx.forEach(function(tx){if(tx.toLowerCase().indexOf(q)!==-1){matches.push({type:'tx',label:tx})}});
+  if(!matches.length){r.innerHTML='<div style="padding:16px;text-align:center;color:var(--t3);font-size:12px">No results for "'+esc(q)+'"</div>';return}
+  r.innerHTML=matches.slice(0,10).map(function(m){
+    if(m.type==='page'){
+      var onclick=m.tab?"closeSearch();gt('"+m.tab+"')":"closeSearch();gp('"+m.pg+"')";
+      return '<div class="search-result-item" onclick="'+onclick+'">'+ic(m.tab?icons[m.tab]('var(--acc)').replace(/svg/g,'svg'):icons.chev,16,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:13px">'+m.label+'</div><div class="sub" style="font-size:10px">'+(m.tab?'Main Tab':'Feature Page')+'</div></div>'+ic(icons.chev,14,'var(--t3)')+'</div>';
+    }
+    return '<div class="search-result-item" onclick="closeSearch();gp(\'transactions\')">'+ic(icons.dollar,16,'var(--t2)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:13px">'+esc(m.label)+'</div><div class="sub" style="font-size:10px">Transaction</div></div>'+ic(icons.chev,14,'var(--t3)')+'</div>';
+  }).join('');
+}
+
+/* --- Add Transaction Sheet --- */
+function sAddTx(){
+  return '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Merchant / Description</div><input id="addTxName" maxlength="200" placeholder="e.g., Whole Foods, Shell Gas..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+  '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Amount</div><input id="addTxAmt" type="number" step="0.01" maxlength="10" placeholder="$0.00" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+  '<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Category</div><select style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"><option>Groceries</option><option>Dining</option><option>Shopping</option><option>Transport</option><option>Entertainment</option><option>Housing</option><option>Income</option><option>Transfer</option><option>Other</option></select></div>'+
+  '<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Who</div><div style="display:flex;gap:6px">'+['Von','Caroline','Joint'].map(function(v,i){return '<button class="btn-pill" style="'+(i===0?'background:var(--acc);color:#fff':'')+'">'+v+'</button>'}).join('')+'</div></div>'+
+  '<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="os(\'Added!\',sDone(\'Transaction saved.\'))">Add Transaction</button>'+
+  pendingBadge('backend transaction write');
+}
+
+/* --- ChargeIQ Search Filtering --- */
+function filterChargeIQ(query){
+  var charges=document.querySelectorAll('#chargeIQResults tr[data-raw]');
+  if(!charges.length)return;
+  var q=query.toLowerCase();
+  charges.forEach(function(row){
+    var raw=(row.getAttribute('data-raw')||'').toLowerCase();
+    var merchant=(row.getAttribute('data-merchant')||'').toLowerCase();
+    row.style.display=(!q||raw.indexOf(q)!==-1||merchant.indexOf(q)!==-1)?'':'none';
+  });
+}
+
+/* --- Coach Additional Responses --- */
+CA['Net Worth']='Your household net worth is $82,450 as of today.\n\nBreakdown:\n\u2022 Investments: $26,500\n\u2022 Savings: $20,600\n\u2022 Checking: $5,360\n\u2022 401(k): $68,400\n\u2022 Real Estate Equity: $29,200\n\u2022 Debt: -$3,200\n\nUp $1,250 this month and $10,050 YTD. Strong trajectory.';
+CA['Subscriptions']='Active subscriptions: 12 totaling $187/mo ($2,244/yr).\n\n\u2022 3 flagged for low usage: Peacock, Duolingo, Adobe ($62/mo)\n\u2022 1 price increase detected: Spotify $10.99\u2192$11.99\n\u2022 Best value: Apple One Family ($22.95)\n\nCanceling low-use subs saves $744/year.';
+CA['Goals']='5 savings nests active:\n\n1. Emergency Fund: $3,600/$5,000 (72%)\n2. Hawaii Trip: $1,800/$4,000 (45%)\n3. Mortgage DP: $2,100/$10,000 (21%)\n4. Von\'s Tech: $800/$2,000 (40%)\n5. Caroline\'s Fun: $320/$1,000 (32%)\n\nTotal saved: $8,620. Auto-saving $1,950/mo across all nests.';
+CA['Debt']='Total debt: $3,200\n\n1. Chase CC: $1,800 at 22.99% APR\n2. Student Loan: $1,400 at 5.5% APR\n\nAvalanche method: debt-free in 7.5 months\nSnowball method: debt-free in 8.2 months\n\nPaying $200 extra/month saves $510 in interest.';
+CA['Tax Deductions']='YTD deductions: $1,240\n\n\u2022 Charitable: $450 (Goodwill)\n\u2022 Medical: $320 (copays)\n\u2022 Home Office: $180\n\u2022 Education: $150\n\u2022 Tax Prep: $140\n\nEstimated tax savings at 25% bracket: $310.';
+
+/* --- Feature Request Upvoting --- */
+function upvoteRequest(el){
+  var countEl=el.parentElement.querySelector('.upvote-count');
+  if(!countEl)return;
+  if(el.classList.contains('upvoted')){el.classList.remove('upvoted');el.textContent='Upvote';countEl.textContent=(parseInt(countEl.textContent)-1)+' votes';return}
+  el.classList.add('upvoted');el.style.background='var(--posBg)';el.style.color='var(--pos)';el.textContent='Upvoted';
+  countEl.textContent=(parseInt(countEl.textContent)+1)+' votes';
+}
+
+/* --- Share Feature --- */
+function shareContent(title,text){
+  if(navigator.share){
+    navigator.share({title:title,text:text}).catch(function(){});
+  } else {
+    var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');os('Copied!',sDone('Copied to clipboard:\n'+text))}catch(e){os('Share',sDone(text))}
+    document.body.removeChild(ta);
+  }
+}
+
+/* --- Copy to Clipboard --- */
+function copyToClipboard(text,btn){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      if(btn){btn.classList.add('copied');btn.textContent='Copied!';setTimeout(function(){btn.classList.remove('copied');btn.textContent='Copy'},1500)}
+    }).catch(function(){fallbackCopy(text,btn)});
+  } else {fallbackCopy(text,btn)}
+}
+function fallbackCopy(text,btn){
+  var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');if(btn){btn.classList.add('copied');btn.textContent='Copied!';setTimeout(function(){btn.classList.remove('copied');btn.textContent='Copy'},1500)}}catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* --- Export with feedback --- */
+function exportWithFeedback(name,btn){
+  if(!btn)return;
+  var orig=btn.textContent;
+  btn.textContent='Generating...';btn.disabled=true;btn.style.opacity='0.6';
+  setTimeout(function(){btn.textContent='Downloaded!';btn.style.opacity='1';btn.style.background='var(--posBg)';btn.style.color='var(--pos)';
+    setTimeout(function(){btn.textContent=orig;btn.disabled=false;btn.style.background='';btn.style.color='';btn.style.opacity=''},1500);
+  },1200);
+}
+
+/* --- Print Report --- */
+function printReport(){window.print()}
+
+/* --- Profile Quick Sheet --- */
+function sProfile(who){
+  var isVon=who==='V';
+  return '<div style="text-align:center;margin-bottom:16px">'+av(who,48,isVon?'var(--acc)':'var(--warn)')+'<div style="font-size:18px;font-weight:800;margin-top:8px">'+(isVon?'Von Scott':'Caroline Scott')+'</div><div class="sub">'+(isVon?'IT & Security at ALTA':'Freelance Designer')+'</div></div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Spent This Month</div><div style="font-size:16px;font-weight:800;color:'+(isVon?'var(--acc)':'var(--warn)')+'">$'+(isVon?'370':'395')+'</div></div><div class="ci" style="text-align:center"><div class="sub" style="font-size:9px">Badges</div><div style="font-size:16px;font-weight:800">'+(isVon?'3':'2')+'</div></div></div>'+
+  '<button class="btn-outline btn-full" style="border-radius:22px;margin-bottom:6px" onclick="closeSheet();gp(\'settings\')">Account Settings</button>'+
+  '<button class="btn-outline btn-full" style="border-radius:22px" onclick="closeSheet();gp(\'achievements\')">View Achievements</button>';
+}
+
+/* --- Bottom Sheet Drag to Dismiss (touch) --- */
+var sheetDragState={startY:0,currentY:0,dragging:false};
+function initSheetDrag(){
+  var handle=document.querySelector('.sho.open .sh-h');
+  if(!handle)return;
+  handle.addEventListener('touchstart',function(e){
+    sheetDragState.startY=e.touches[0].clientY;sheetDragState.dragging=true;
+  },{passive:true});
+  handle.addEventListener('touchmove',function(e){
+    if(!sheetDragState.dragging)return;
+    var dy=e.touches[0].clientY-sheetDragState.startY;
+    var sh=handle.closest('.sh');
+    if(dy>0&&sh){sh.style.transform='translateY('+dy+'px)';sh.style.transition='none'}
+  },{passive:true});
+  handle.addEventListener('touchend',function(e){
+    if(!sheetDragState.dragging)return;
+    sheetDragState.dragging=false;
+    var sh=handle.closest('.sh');
+    if(!sh)return;
+    var dy=e.changedTouches[0].clientY-sheetDragState.startY;
+    sh.style.transition='';sh.style.transform='';
+    if(dy>100){closeSheet()}
+  },{passive:true});
+}
+
+/* --- Pull-to-Refresh (mobile) --- */
+var ptrState={startY:0,pulling:false};
+function initPTR(){
+  if(isDesktop())return;
+  var indicator=$('ptrIndicator');
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY===0&&!$('sho').classList.contains('open')&&!drawerOpen&&!$('searchPanel').classList.contains('open')){
+      ptrState.startY=e.touches[0].clientY;ptrState.pulling=true;
+    }
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!ptrState.pulling)return;
+    var dy=e.touches[0].clientY-ptrState.startY;
+    if(dy>30&&dy<150){indicator.classList.add('visible');indicator.style.transform='translateX(-50%) translateY('+(Math.min(dy-30,60))+'px)'}
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!ptrState.pulling)return;
+    ptrState.pulling=false;
+    var dy=e.changedTouches[0].clientY-ptrState.startY;
+    if(dy>80){
+      indicator.classList.add('refreshing');
+      setTimeout(function(){indicator.classList.remove('visible','refreshing');indicator.style.transform='';rr()},800);
+    } else {indicator.classList.remove('visible');indicator.style.transform=''}
+  },{passive:true});
+}
+
+/* --- Swipe between tabs (mobile) --- */
+var swipeState={startX:0,startY:0};
+function initSwipeNav(){
+  if(isDesktop())return;
+  var cnt=$('cnt');
+  if(!cnt)return;
+  cnt.addEventListener('touchstart',function(e){
+    if($('sho').classList.contains('open')||drawerOpen||$('searchPanel').classList.contains('open'))return;
+    swipeState.startX=e.touches[0].clientX;swipeState.startY=e.touches[0].clientY;
+  },{passive:true});
+  cnt.addEventListener('touchend',function(e){
+    if($('sho').classList.contains('open')||drawerOpen||pg)return;
+    var dx=e.changedTouches[0].clientX-swipeState.startX;
+    var dy=e.changedTouches[0].clientY-swipeState.startY;
+    if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*0.6)return;
+    var idx=TABS.indexOf(ct);
+    if(dx<-80&&idx<TABS.length-1){gt(TABS[idx+1])}
+    else if(dx>80&&idx>0){gt(TABS[idx-1])}
+  },{passive:true});
+}
+
+/* --- Date display helper --- */
+function getCurrentDateStr(){
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var d=new Date();return months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+}
+
+function sKeyboardShortcuts(){
+  var shortcuts=[['/',' Open Search'],['Esc','Close sheet / drawer'],['?','Show these shortcuts']];
+  return shortcuts.map(function(s){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep)"><kbd style="display:inline-block;padding:3px 8px;border-radius:6px;background:var(--accS);font-size:12px;font-weight:700;font-family:monospace;min-width:32px;text-align:center">'+s[0]+'</kbd><span style="font-size:13px;margin-left:10px">'+s[1]+'</span></div>'}).join('');
+}
+
 /* Init */
 rr();
 updateThemeColor(theme);
 requestAnimationFrame(function(){document.body.classList.add('loaded')});
+
+/* Init touch features */
+initPTR();
+initSwipeNav();
+
+/* Watch for sheet open to init drag */
+var _sheetObserver=new MutationObserver(function(muts){muts.forEach(function(m){if(m.target.classList.contains('open')){setTimeout(initSheetDrag,50)}})});
+_sheetObserver.observe($('sho'),{attributes:true,attributeFilter:['class']});
 
 /* Handle resize for responsive layout */
 var _resizeTimer;
@@ -3113,7 +3505,9 @@ window.addEventListener('resize',function(){clearTimeout(_resizeTimer);_resizeTi
 
 /* Escape key closes drawers/sheets; focus trap for bottom sheet */
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){if($('sho').classList.contains('open')){closeSheet()}else if(drawerOpen){closeDrawer()}}
+  if(e.key==='Escape'){if($('searchPanel').classList.contains('open')){closeSearch()}else if($('sho').classList.contains('open')){closeSheet()}else if(drawerOpen){closeDrawer()}}
+  if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA'){e.preventDefault();openSearch()}
+    if(e.key==='?'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA'){os('Keyboard Shortcuts',sKeyboardShortcuts())}
   if(e.key==='Tab'&&$('sho').classList.contains('open')){
     var sh=$('shc');var focusable=sh.querySelectorAll('button,input,textarea,select,[tabindex]:not([tabindex="-1"]),a[href],.tog,.tr,.ci[onclick]');
     if(focusable.length){var first=focusable[0],last=focusable[focusable.length-1];
@@ -3124,6 +3518,43 @@ document.addEventListener('keydown',function(e){
 
 /* Mobile: scroll input into view when virtual keyboard opens */
 document.addEventListener('focusin',function(e){if(!isDesktop()&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){setTimeout(function(){e.target.scrollIntoView({behavior:'smooth',block:'center'})},300)}});
+
+/* visualViewport: keep chat input visible when iOS keyboard opens */
+if(window.visualViewport){
+  var _vvTimer;
+  window.visualViewport.addEventListener('resize',function(){
+    clearTimeout(_vvTimer);
+    _vvTimer=setTimeout(function(){
+      if(!isDesktop()){
+        var vv=window.visualViewport;
+        var offset=window.innerHeight-vv.height;
+        var tbar=$('tbar');
+        if(tbar){
+          if(offset>100){
+            tbar.style.transform='translateY(100%)';
+            tbar.style.transition='transform 0.15s ease';
+          }else{
+            tbar.style.transform='';
+          }
+        }
+        var active=document.activeElement;
+        if(active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA')&&offset>100){
+          setTimeout(function(){active.scrollIntoView({behavior:'smooth',block:'center'})},50);
+        }
+      }
+    },50);
+  });
+}
+
+/* Prevent search inputs from submitting forms on Enter */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){
+    var t=e.target;
+    if(t.classList&&t.classList.contains('filter-input')){
+      e.preventDefault();
+    }
+  }
+});
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
