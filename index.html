@@ -331,7 +331,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .chart-container svg{width:100%;height:auto}
   .chart-container:hover{box-shadow:var(--shM)}
   .chart-title{font-size:13px;font-weight:700;margin-bottom:10px}
-  .chart-subtitle{font-size:11px;color:var(--t2);margin-top:4px}
+  .chart-subtitle{font-size:11px;color:var(--t2);margin-top:4px;margin-bottom:8px}
 
   /* Data Tables */
   .data-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -365,9 +365,10 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   .stat-change.down{color:var(--neg)}
 
   /* Stat row (horizontal stat cards) */
-  .stat-row{display:grid;gap:12px;margin-bottom:16px}
-  .stat-row.cols-3{grid-template-columns:repeat(3,1fr)}
-  .stat-row.cols-4{grid-template-columns:repeat(4,1fr)}
+  .stat-row{display:flex;gap:12px;margin-bottom:16px;align-items:stretch}
+  .stat-row .stat-card{flex:1;min-width:0}
+  .stat-row.cols-3 .stat-card{flex:1}
+  .stat-row.cols-4 .stat-card{flex:1}
 
   /* Trend indicator */
   .trend{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600}
@@ -1538,10 +1539,15 @@ return '<div class="fi">'+
 '<div class="cs" style="display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:12px"><div style="display:flex;gap:4px">'+av('V',32)+av('C',32,'var(--warn)')+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">Von & Caroline</div><div class="sub">Private household chat</div></div>'+pendingBadge('WebSocket backend')+'</div>'+
 chatHtml+inputBar+'</div>'+
 '<div style="flex:3;display:flex;flex-direction:column;gap:12px">'+
-'<div class="chart-container"><div class="chart-title">Shared Receipts</div>'+
-[{n:'Electric Bill',a:'$145.00',d:'Apr 14',m:true},{n:'Whole Foods',a:'$67.43',d:'Today',m:true},{n:'Gas Station',a:'$48.20',d:'Yesterday',m:true}].map(function(r){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+ic(icons.receipt,14,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+r.n+'</div><div class="sub">'+r.a+' &middot; '+r.d+'</div></div>'+bg('Matched','var(--pos)')+'</div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Shared Transactions</div>'+
-[{n:'TreatYoSelf',a:'-$650',w:'C',f:true},{n:'Mortgage',a:'-$2,000',w:'J'},{n:'Target Refund',a:'+$84.50',w:'C'}].map(function(tx){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+av(tx.w,20,tx.w==='C'?'var(--warn)':'var(--info)')+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+tx.n+'</div></div>'+(tx.f?bg('FLAG','var(--neg)'):'')+'<span style="font-weight:700;font-size:11px">'+tx.a+'</span></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Shared Expense Tracker</div>'+
+'<div class="ci" style="margin-bottom:8px;background:var(--accS)"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">April Balance</span><span style="font-weight:800;font-size:14px;color:var(--neg)">Von owes $124</span></div><div class="sub" style="margin-top:2px">Based on 50/50 split agreement</div></div>'+
+'<table class="data-table"><thead><tr><th>Expense</th><th>Paid By</th><th>Split</th><th style="text-align:right">Amount</th><th>Status</th></tr></thead><tbody>'+
+[{n:'Groceries',w:'Von',split:'50/50',a:'$134.86',s:'Settled'},{n:'Electric Bill',w:'Caroline',split:'50/50',a:'$145.00',s:'Pending'},{n:'Dinner Out',w:'Von',split:'60/40',a:'$89.00',s:'Settled'},{n:'Gas',w:'Caroline',split:'50/50',a:'$48.20',s:'Pending'},{n:'Netflix',w:'Joint',split:'Auto',a:'$15.49',s:'Auto'}].map(function(e){return '<tr><td style="font-weight:600">'+e.n+'</td><td>'+e.w+'</td><td>'+bg(e.split,'var(--info)')+'</td><td class="amount">'+e.a+'</td><td>'+bg(e.s,e.s==='Settled'?'var(--pos)':e.s==='Pending'?'var(--warn)':'var(--acc)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container"><div class="chart-title">Pending Splits</div>'+
+[{n:'Electric Bill',a:'$72.50',d:'Apr 14',from:'Caroline'},{n:'Gas Station',a:'$24.10',d:'Yesterday',from:'Caroline'}].map(function(s){return '<div class="ci" style="margin-bottom:6px;border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+s.n+'</span><span style="font-weight:800;font-size:12px;color:var(--warn)">'+s.a+'</span></div><div class="r" style="margin-top:4px"><span class="sub">'+s.from+' paid &middot; '+s.d+'</span><button class="btn-pill" style="font-size:10px;margin-left:auto">Settle</button></div></div>'}).join('')+'</div>'+
+'<div class="chart-container"><div class="chart-title">Receipt Attachments</div>'+
+[{n:'Electric Bill',a:'$145.00',d:'Apr 14',m:true},{n:'Whole Foods',a:'$67.43',d:'Today',m:true},{n:'Gas Station',a:'$48.20',d:'Yesterday',m:true},{n:'Target',a:'$84.50',d:'Apr 10',m:false}].map(function(r){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+ic(icons.receipt,14,'var(--acc)',1.5)+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+r.n+'</div><div class="sub">'+r.a+' &middot; '+r.d+'</div></div>'+(r.m?bg('Matched','var(--pos)'):bg('Unmatched','var(--warn)'))+'</div>'}).join('')+'</div>'+
 '<div class="chart-container"><div class="chart-title">Quick Actions</div>'+
 ['Send a Receipt','Request Split','Schedule Money Date','Share Goal Update'].map(function(a){return '<button class="btn-pill btn-full" style="margin-bottom:4px">'+a+'</button>'}).join('')+'</div>'+
 '</div></div></div>';
@@ -1699,30 +1705,44 @@ var auditTrail=[{a:'Disconnected',d:'Cap One Savings',w:'Caroline',t:'Mar 12',f:
 var mobileContent=auditTrail.slice(0,5).map(function(e){return '<div class="tr" style="gap:6px" onclick="os(\'Audit: '+e.a+'\',sAuditDetail(\''+e.a+'\',\''+e.d+'\',\''+e.w+'\',\''+e.t+'\','+(e.f||false)+'))"><div style="width:24px;height:24px;border-radius:6px;background:'+(e.f?'var(--negBg)':'var(--posBg)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(e.f?ic(icons.flag,10,'var(--neg)',1.5):ic(icons.check,10,'var(--pos)',3))+'</div><div style="flex:1"><div style="font-weight:600;font-size:11px;color:'+(e.f?'var(--neg)':'var(--t1)')+'">'+e.a+'</div><div class="sub">'+e.d+' &middot; '+e.w+' &middot; '+e.t+'</div></div></div>'}).join('');
 
 if(isDesktop()){
+var auditByMonth=[{m:'Jan',v:12},{m:'Feb',v:18},{m:'Mar',v:24},{m:'Apr',v:8}];
+var trustMatrix=[{f:'Full Tx Visibility',v:'Both',c:'Both',s:'Active'},{f:'Account Connect/Disconnect',v:'Logged',c:'Logged',s:'Active'},{f:'Deletion Recovery',v:'Enabled',c:'Enabled',s:'Active'},{f:'Category Edits',v:'Tracked',c:'Tracked',s:'Active'},{f:'Budget Changes',v:'Tracked',c:'Tracked',s:'Active'},{f:'Export History',v:'Logged',c:'Logged',s:'Active'},{f:'Login Alerts',v:'On',c:'On',s:'Active'},{f:'Nest Changes',v:'Tracked',c:'Tracked',s:'Active'}];
 return '<div class="fi">'+
 '<div class="stat-row cols-4">'+
-'<div class="stat-card"><div class="stat-label">Transparency Mode</div><div class="stat-value" style="color:var(--pos)">ON</div></div>'+
-'<div class="stat-card"><div class="stat-label">Audit Events</div><div class="stat-value">'+auditTrail.length+'</div></div>'+
-'<div class="stat-card"><div class="stat-label">Flags</div><div class="stat-value" style="color:var(--neg)">2</div></div>'+
-'<div class="stat-card"><div class="stat-label">Deleted TXs</div><div class="stat-value" style="color:var(--neg)">3</div></div>'+
+'<div class="stat-card"><div class="stat-label">Trust Score</div><div class="stat-value" style="color:var(--pos)">94</div><div class="stat-change up">Excellent</div></div>'+
+'<div class="stat-card"><div class="stat-label">Audit Events</div><div class="stat-value">'+auditTrail.length+'</div><div class="stat-change">Last 90 days</div></div>'+
+'<div class="stat-card"><div class="stat-label">Flags</div><div class="stat-value" style="color:var(--neg)">2</div><div class="stat-change down">Needs review</div></div>'+
+'<div class="stat-card"><div class="stat-label">Deleted TXs</div><div class="stat-value" style="color:var(--neg)">3</div><div class="stat-change">All recoverable</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Audit Trail</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Trust Score Visualization</div><div class="chart-subtitle">Composite score based on transparency, sync health, and flag resolution</div>'+
+'<div style="display:flex;gap:20px;align-items:center;padding:8px 0"><div style="text-align:center"><div style="width:100px;height:100px;border-radius:50px;background:conic-gradient(var(--pos) 94%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:76px;height:76px;border-radius:38px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:28px;font-weight:900;color:var(--pos)">94</div><div class="sub">/ 100</div></div></div></div>'+
+'<div style="flex:1"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+[{l:'Visibility',v:100,c:'var(--pos)'},{l:'Sync Health',v:80,c:'var(--warn)'},{l:'Flag Resolution',v:90,c:'var(--pos)'},{l:'Data Integrity',v:100,c:'var(--pos)'}].map(function(m){return '<div><div class="r" style="justify-content:space-between;margin-bottom:2px"><span style="font-size:10px;font-weight:600">'+m.l+'</span><span style="font-size:10px;font-weight:700;color:'+m.c+'">'+m.v+'%</span></div>'+br(m.v,m.c,4)+'</div>'}).join('')+
+'</div></div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Audit Trail</div>'+
 '<table class="data-table"><thead><tr><th></th><th>Action</th><th>Detail</th><th>Person</th><th>Date</th><th>Status</th></tr></thead><tbody>'+
 auditTrail.map(function(e){return '<tr style="cursor:pointer" onclick="os(\'Audit: '+e.a+'\',sAuditDetail(\''+e.a+'\',\''+e.d+'\',\''+e.w+'\',\''+e.t+'\','+(e.f||false)+'))"><td><div style="width:20px;height:20px;border-radius:5px;background:'+(e.f?'var(--negBg)':'var(--posBg)')+';display:flex;align-items:center;justify-content:center">'+(e.f?ic(icons.flag,8,'var(--neg)',1.5):ic(icons.check,8,'var(--pos)',3))+'</div></td><td style="font-weight:700;color:'+(e.f?'var(--neg)':'var(--t1)')+'">'+e.a+'</td><td>'+e.d+'</td><td>'+e.w+'</td><td>'+e.t+'</td><td>'+(e.f?bg('FLAG','var(--neg)'):bg('OK','var(--pos)'))+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Deleted Transactions Recovery</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Deleted Transactions Recovery</div>'+
 '<div class="ci" style="background:var(--negBg);border-color:color-mix(in srgb,var(--neg) 12%,transparent);margin-bottom:8px"><div class="sub" style="line-height:1.5;color:var(--t2)">In Monarch, deleted transactions vanish. NestWorth logs every deletion and lets you restore.</div></div>'+
-'<table class="data-table"><thead><tr><th>Transaction</th><th>Amount</th><th>Deleted By</th><th>Date</th><th></th></tr></thead><tbody>'+
-[{n:'Target',a:'$84.50',w:'Caroline',t:'Mar 10'},{n:'Uber Eats',a:'$32.00',w:'Caroline',t:'Feb 28'},{n:'Cash Withdrawal',a:'$200',w:'Von',t:'Feb 15'}].map(function(d){return '<tr><td style="font-weight:700;color:var(--neg)">'+d.n+'</td><td class="amount">'+d.a+'</td><td>'+d.w+'</td><td>'+d.t+'</td><td><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Restore</button></td></tr>'}).join('')+
+'<table class="data-table"><thead><tr><th>Transaction</th><th>Amount</th><th>Deleted By</th><th>Date</th><th>Category</th><th></th></tr></thead><tbody>'+
+[{n:'Target',a:'$84.50',w:'Caroline',t:'Mar 10',c:'Shopping'},{n:'Uber Eats',a:'$32.00',w:'Caroline',t:'Feb 28',c:'Dining'},{n:'Cash Withdrawal',a:'$200',w:'Von',t:'Feb 15',c:'Cash'},{n:'Amazon Return',a:'$45.99',w:'Von',t:'Feb 8',c:'Shopping'},{n:'Venmo Transfer',a:'$150',w:'Caroline',t:'Jan 22',c:'Transfer'}].map(function(d){return '<tr><td style="font-weight:700;color:var(--neg)">'+d.n+'</td><td class="amount">'+d.a+'</td><td>'+d.w+'</td><td>'+d.t+'</td><td>'+bg(d.c,'var(--info)')+'</td><td><button class="btn-pill" style="font-size:10px;background:var(--posBg);color:var(--pos)">Restore</button></td></tr>'}).join('')+
 '</tbody></table></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Audit Activity Trend</div><div class="chart-subtitle">Events logged per month</div>'+
+svgBarChart(auditByMonth.map(function(d){return {label:d.m,value:d.v,color:'var(--acc)'}}),500,160)+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Privacy Settings</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Privacy Settings Matrix</div>'+
 '<div class="ci" style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px">Neither partner can disconnect accounts, delete transactions, or hide data. <strong style="color:var(--acc)">What Monarch doesn\'t do.</strong></div>'+
-[{n:'Full Transaction Visibility',d:'Both partners see all transactions'},{n:'Account Actions Logged',d:'Connect/disconnect tracked'},{n:'Deletion Recovery',d:'Deleted items can be restored'},{n:'Category Edit Tracking',d:'All edits logged with author'}].map(function(s){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:6px">'+ic(icons.check,12,'var(--pos)',3)+'<div style="flex:1"><div style="font-weight:600;font-size:11px">'+s.n+'</div><div class="sub" style="font-size:10px">'+s.d+'</div></div></div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Sync Health Summary</div>'+
+'<table class="data-table"><thead><tr><th>Feature</th><th>Von</th><th>Caroline</th><th>Status</th></tr></thead><tbody>'+
+trustMatrix.map(function(r){return '<tr><td style="font-weight:600;font-size:11px">'+r.f+'</td><td style="font-size:11px">'+r.v+'</td><td style="font-size:11px">'+r.c+'</td><td>'+bg(r.s,'var(--pos)')+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Sync Health Summary</div>'+
 '<div class="ci" style="margin-bottom:4px;background:var(--posBg)"><div style="font-weight:700;font-size:11px;color:var(--pos)">4 accounts healthy</div></div>'+
-'<div class="ci" style="background:var(--negBg)"><div style="font-weight:700;font-size:11px;color:var(--neg)">1 account stale</div></div></div>'+
+'<div class="ci" style="margin-bottom:4px;background:var(--negBg)"><div style="font-weight:700;font-size:11px;color:var(--neg)">1 account stale (47 days)</div></div>'+
+'<div style="margin-top:8px">'+svgLineChart([{m:'W1',v:4},{m:'W2',v:5},{m:'W3',v:4},{m:'W4',v:5},{m:'W5',v:3},{m:'W6',v:4}],340,100,'var(--acc)','Syncs/Week')+'</div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Resolve 2 open flags',d:'Review Caroline\'s flagged transactions',u:true},{t:'Reconnect Cap One Savings',d:'47 days stale — sync may have broken',u:true},{t:'Enable push notifications',d:'Get real-time alerts on partner actions'},{t:'Schedule monthly transparency review',d:'Set a Money Date to review audit trail'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--neg) 15%,transparent);background:var(--negBg)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--neg)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -1979,20 +1999,28 @@ return '<div class="fi">'+
 '<div class="stat-card"><div class="stat-label">Autopay</div><div class="stat-value" style="color:var(--pos)">'+bills.filter(function(b){return b.at}).length+'/'+bills.length+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">April 2026 Calendar</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">April 2026 Calendar</div>'+
 buildBillsCalendarSVG()+
-'<div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">'+
-bills.map(function(b){return '<span style="font-size:10px"><span style="font-weight:700;color:'+(b.pd?'var(--pos)':'var(--t1)')+'">'+b.d+'</span> '+b.n+' $'+b.a+'</span>'}).join('')+'</div></div>'+
-'<div class="chart-container"><div class="chart-title">Upcoming Bills</div>'+
-'<table class="data-table"><thead><tr><th>Due</th><th>Bill</th><th>Autopay</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
-bills.map(function(b){return '<tr onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+b.a+','+(b.at?'true':'false')+',\''+b.d+'\'))" style="cursor:pointer"><td style="font-weight:700;color:'+(b.pd?'var(--pos)':'var(--t1)')+'">'+b.d+'</td><td style="font-weight:600">'+b.n+'</td><td>'+(b.at?bg('Auto','var(--pos)'):bg('Manual','var(--warn)'))+'</td><td>'+bg(b.pd?'Paid':'Due',b.pd?'var(--pos)':'var(--warn)')+'</td><td class="amount">$'+b.a+'</td></tr>'}).join('')+
+'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'+
+'<span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:4px;background:var(--pos)"></span> Paid</span>'+
+'<span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:4px;background:var(--acc)"></span> Bill Due</span>'+
+'<span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:4px;border:1.5px solid var(--acc)"></span> Today</span>'+
+'</div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Bills Detail Table</div>'+
+'<table class="data-table"><thead><tr><th>Due</th><th>Bill</th><th>Category</th><th>Autopay</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead><tbody>'+
+bills.map(function(b){var cats={Mortgage:'Housing',Insurance:'Insurance',Electric:'Utilities',Water:'Utilities',Internet:'Internet',Phone:'Telecom','Car Payment':'Auto',Gym:'Fitness','Student Loans':'Education'};return '<tr onclick="os(\''+b.n+'\',sBill(\''+b.n+'\','+b.a+','+(b.at?'true':'false')+',\''+b.d+'\'))" style="cursor:pointer"><td style="font-weight:700;color:'+(b.pd?'var(--pos)':'var(--t1)')+'">'+b.d+'</td><td style="font-weight:600">'+b.n+'</td><td>'+bg(cats[b.n]||'Other','var(--info)')+'</td><td>'+(b.at?bg('Auto','var(--pos)'):bg('Manual','var(--warn)'))+'</td><td>'+bg(b.pd?'Paid':'Due',b.pd?'var(--pos)':'var(--warn)')+'</td><td class="amount">$'+b.a+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Monthly Bill Totals (6 Months)</div><div class="chart-subtitle">Track how total bills change over time</div>'+
+svgBarChart([{label:'Nov',value:3280,color:'var(--acc)'},{label:'Dec',value:3378,color:'var(--acc)'},{label:'Jan',value:3193,color:'var(--acc)'},{label:'Feb',value:3378,color:'var(--acc)'},{label:'Mar',value:3378,color:'var(--acc)'},{label:'Apr',value:totalDue,color:'var(--pos)'}],500,180)+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Payment History</div>'+
-[{m:'March',pd:9,total:9,amt:3378},{m:'February',pd:9,total:9,amt:3378},{m:'January',pd:8,total:9,amt:3193}].map(function(h){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+h.m+'</span><span style="font-size:11px;color:var(--pos);font-weight:700">'+h.pd+'/'+h.total+' paid</span></div><div class="sub">$'+h.amt.toLocaleString()+' total</div>'+br(h.pd/h.total*100,'var(--pos)',3)+'</div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Autopay Status</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Payment History</div>'+
+[{m:'March',pd:9,total:9,amt:3378},{m:'February',pd:9,total:9,amt:3378},{m:'January',pd:8,total:9,amt:3193},{m:'December',pd:9,total:9,amt:3378},{m:'November',pd:9,total:9,amt:3280}].map(function(h){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+h.m+'</span><span style="font-size:11px;color:var(--pos);font-weight:700">'+h.pd+'/'+h.total+' paid</span></div><div class="sub">$'+h.amt.toLocaleString()+' total</div>'+br(h.pd/h.total*100,'var(--pos)',3)+'</div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Autopay Coverage</div>'+
+'<div style="text-align:center;margin-bottom:10px"><div style="width:80px;height:80px;border-radius:40px;background:conic-gradient(var(--pos) '+Math.round(bills.filter(function(b){return b.at}).length/bills.length*100)+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:60px;height:60px;border-radius:30px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--pos)">'+bills.filter(function(b){return b.at}).length+'/'+bills.length+'</div></div></div>'+
 bills.map(function(b){return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1;font-weight:600">'+b.n+'</span>'+(b.at?bg('ON','var(--pos)'):bg('OFF','var(--warn)'))+' <span class="sub" style="width:50px;text-align:right">$'+b.a+'</span></div>'}).join('')+
 '<div class="ci" style="margin-top:8px;background:var(--warnBg)"><div style="font-weight:700;font-size:11px;color:var(--warn)">2 bills need autopay</div><div class="sub">Electric and Water are manual pay</div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Set up autopay for Electric',d:'$145/mo -- never miss a payment',u:true},{t:'Set up autopay for Water',d:'$65/mo -- easy to automate',u:true},{t:'Consider annual insurance',d:'Save ~8% by paying yearly'},{t:'Bundle Internet + Phone',d:'Could save $20-30/month'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--warn)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2143,20 +2171,26 @@ var ringColor=a.done?'var(--gold)':ringPct>=60?'var(--pos)':'var(--warn)';
 return '<div class="ci" style="text-align:center;padding:10px;'+(a.done?'border-color:color-mix(in srgb,var(--gold) 20%,transparent);background:color-mix(in srgb,var(--gold) 5%,transparent)':'')+'">'+
 '<div style="width:40px;height:40px;border-radius:20px;background:conic-gradient('+ringColor+' '+ringPct+'%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:30px;height:30px;border-radius:15px;background:var(--bgE);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:'+ringColor+'">'+(a.done?ic(icons.check,12,ringColor,3):ringPct+'%')+'</div></div>'+
 '<div style="font-weight:700;font-size:12px;margin-top:6px">'+a.n+'</div><div class="sub" style="font-size:10px">'+a.d+'</div>'+(a.done?'<div style="font-size:9px;color:var(--gold);font-weight:600;margin-top:2px">'+a.date+'</div>':'')+'</div>'}).join('')+'</div></div>'+
-'<div class="chart-container"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Budget streak calendar heatmap</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Streak Tracker (April)</div><div class="chart-subtitle">Budget streak calendar heatmap -- green = under budget, red = over</div>'+
 '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">'+
 ['S','M','T','W','T','F','S'].map(function(d){return '<div style="text-align:center;font-size:10px;font-weight:700;color:var(--t3);padding:4px">'+d+'</div>'}).join('')+
-streakDays.map(function(v,i){return '<div style="aspect-ratio:1;border-radius:4px;background:'+(v?'var(--pos)':'var(--negBg)')+';opacity:'+(v?1:0.3)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:'+(v?'#fff':'var(--neg)')+'">'+(i+1)+'</div>'}).join('')+'</div></div>'+
+'<div class="cal-day empty" style="opacity:0"></div><div class="cal-day empty" style="opacity:0"></div>'+
+streakDays.map(function(v,i){return '<div style="aspect-ratio:1;border-radius:4px;background:'+(v?'var(--pos)':'var(--negBg)')+';opacity:'+(v?1:0.4)+';display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:'+(v?'#fff':'var(--neg)')+';'+(i===14?'border:2px solid var(--acc);':'')+'">'+(i+1)+'</div>'}).join('')+'</div>'+
+'<div style="margin-top:8px;display:flex;gap:12px;justify-content:center"><span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;border-radius:3px;background:var(--pos)"></span> Under Budget</span><span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;border-radius:3px;background:var(--negBg);opacity:0.4"></span> Over Budget</span><span style="font-size:10px;display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;border-radius:3px;border:2px solid var(--acc)"></span> Today</span></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Progress Points Over Time</div><div class="chart-subtitle">Points earned from achievements and streaks</div>'+
+svgLineChart([{m:'Jan',v:120},{m:'Feb',v:280},{m:'Mar',v:520},{m:'Apr',v:740}],500,140,'var(--gold)','Total Points')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Milestone Timeline</div>'+
-achievements.filter(function(a){return a.done}).map(function(a){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:8px"><div style="width:24px;height:24px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.check,10,'#fff',3)+'</div><div style="flex:1"><div style="font-weight:700;font-size:11px">'+a.n+'</div><div class="sub">'+a.date+'</div></div></div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Leaderboard</div>'+
-'<div style="display:flex;gap:12px;margin-bottom:8px"><div class="ci" style="flex:1;text-align:center;border-color:color-mix(in srgb,var(--acc) 20%,transparent)">'+av('V',32)+'<div style="font-size:20px;font-weight:900;color:var(--acc);margin-top:4px">3</div><div class="sub">Von</div></div>'+
-'<div class="ci" style="flex:1;text-align:center">'+av('C',32,'var(--warn)')+'<div style="font-size:20px;font-weight:900;color:var(--warn);margin-top:4px">2</div><div class="sub">Caroline</div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Milestone Timeline</div>'+
+achievements.filter(function(a){return a.done}).sort(function(a,b){return new Date(b.date)-new Date(a.date)}).map(function(a,i){return '<div class="r" style="padding:6px 0;border-bottom:0.5px solid var(--sep);gap:8px"><div style="width:24px;height:24px;border-radius:12px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icons.check,10,'#fff',3)+'</div><div style="flex:1"><div style="font-weight:700;font-size:11px">'+a.n+'</div><div class="sub">'+a.d+' &middot; '+a.date+'</div></div><span style="font-weight:700;font-size:11px;color:var(--gold)">+50 pts</span></div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Leaderboard</div>'+
+'<div style="display:flex;gap:12px;margin-bottom:8px"><div class="ci" style="flex:1;text-align:center;border-color:color-mix(in srgb,var(--acc) 20%,transparent)">'+av('V',32)+'<div style="font-size:20px;font-weight:900;color:var(--acc);margin-top:4px">3</div><div class="sub">Von &middot; 420 pts</div></div>'+
+'<div class="ci" style="flex:1;text-align:center">'+av('C',32,'var(--warn)')+'<div style="font-size:20px;font-weight:900;color:var(--warn);margin-top:4px">2</div><div class="sub">Caroline &middot; 320 pts</div></div></div>'+
 '<div class="sub" style="text-align:center">Badges earned this quarter</div></div>'+
-'<div class="chart-container"><div class="chart-title">Badges Earned</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Badges Earned</div>'+
 '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
-['Budget Boss','Saver','Nest Builder','Scanner','Date Night'].map(function(b){return '<div style="padding:6px 10px;border-radius:20px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 20%,transparent);font-size:10px;font-weight:700;color:var(--gold)">'+b+'</div>'}).join('')+'</div></div>'+
+[{b:'Budget Boss',d:'14-day streak'},{b:'Saver',d:'$5k auto-saved'},{b:'Nest Builder',d:'Created first nest'},{b:'Scanner',d:'10 receipts scanned'},{b:'Date Night',d:'4 money dates'}].map(function(badge){return '<div style="padding:6px 10px;border-radius:20px;background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid color-mix(in srgb,var(--gold) 20%,transparent);font-size:10px;font-weight:700;color:var(--gold)" title="'+badge.d+'">'+badge.b+'</div>'}).join('')+'</div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Next Unlocks</div>'+
+achievements.filter(function(a){return !a.done}).slice(0,4).map(function(a){return '<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-weight:700;font-size:11px;flex:1">'+a.n+'</span><span style="font-size:10px;font-weight:700;color:var(--warn)">'+a.p+'%</span></div><div style="margin-top:3px">'+br(a.p,'var(--warn)',3)+'</div><div class="sub" style="margin-top:2px">'+a.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2179,20 +2213,27 @@ return '<div class="fi">'+
 '<div class="stat-card"><div class="stat-label">Overall Progress</div><div class="stat-value" style="color:var(--acc)">'+Math.round(totalSaved/totalGoal*100)+'%</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Nest Details</div>'+
-'<table class="data-table"><thead><tr><th>Nest</th><th>Saved</th><th>Goal</th><th>Progress</th><th>Auto-Save</th><th>Frequency</th><th></th></tr></thead><tbody>'+
-nests.map(function(n){var p=Math.round(n.c/n.g*100);return '<tr style="cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><td style="font-weight:700">'+n.n+'</td><td style="color:var(--pos);font-weight:700">$'+n.c.toLocaleString()+'</td><td>$'+n.g.toLocaleString()+'</td><td><div style="display:flex;align-items:center;gap:6px;width:120px">'+br(p,'var(--acc)',4)+'<span style="font-size:10px;font-weight:700">'+p+'%</span></div></td><td>$'+n.auto+'</td><td>'+n.freq+'</td><td>'+ic(icons.chev,14,'var(--t3)')+'</td></tr>'}).join('')+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Nest Details</div>'+
+'<table class="data-table"><thead><tr><th>Nest</th><th>Saved</th><th>Goal</th><th>Progress</th><th>Auto-Save</th><th>Frequency</th><th>ETA</th><th></th></tr></thead><tbody>'+
+nests.map(function(n){var p=Math.round(n.c/n.g*100);var monthly=n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2);var months=Math.ceil((n.g-n.c)/monthly);return '<tr style="cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><td style="font-weight:700">'+n.n+'</td><td style="color:var(--pos);font-weight:700">$'+n.c.toLocaleString()+'</td><td>$'+n.g.toLocaleString()+'</td><td><div style="display:flex;align-items:center;gap:6px;width:120px">'+br(p,'var(--acc)',4)+'<span style="font-size:10px;font-weight:700">'+p+'%</span></div></td><td>$'+n.auto+'</td><td>'+n.freq+'</td><td style="font-weight:700;color:var(--acc)">'+months+' mo</td><td>'+ic(icons.chev,14,'var(--t3)')+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Contribution History (Monthly)</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Contribution History (Monthly)</div><div class="chart-subtitle">Total contributions across all nests</div>'+
 svgLineChart(contribData,500,160,'var(--pos)','Contributions')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Growth Projection per Nest</div>'+
-nests.slice(0,4).map(function(n){var monthly=n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2);var months=Math.ceil((n.g-n.c)/monthly);return '<div style="margin-bottom:10px"><div class="r" style="margin-bottom:3px"><span style="font-weight:700;font-size:12px;flex:1">'+n.n+'</span><span class="sub">'+months+' months to goal</span><span style="font-weight:700;font-size:12px;color:var(--pos);margin-left:8px">$'+n.c.toLocaleString()+'/$'+n.g.toLocaleString()+'</span></div>'+br(n.c/n.g*100,'var(--acc)',4)+'</div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Growth Projection (6 Months)</div><div class="chart-subtitle">Projected total savings at current auto-save rates</div>'+
+svgLineChart([{m:'Apr',v:totalSaved},{m:'May',v:totalSaved+1950},{m:'Jun',v:totalSaved+3900},{m:'Jul',v:totalSaved+5850},{m:'Aug',v:totalSaved+7800},{m:'Sep',v:totalSaved+9750}],500,160,'var(--acc)','Total Projected')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Nest Comparison</div><div class="chart-subtitle">Saved vs goal for each nest</div>'+
+svgBarChart(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--info)','var(--neg)','var(--gold)'];return {label:n.n,value:n.c,max:n.g,color:colors[i%colors.length]}}),500,220,true)+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Add/Edit Nest</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Add/Edit Nest</div>'+
 '<button class="btn-gold btn-full" style="border-radius:16px;margin-bottom:10px" onclick="os(\'New Nest\',sNewNest())">+ Create New Nest</button>'+
 nests.slice(0,3).map(function(n){return '<div class="ci" style="margin-bottom:6px;cursor:pointer" onclick="os(\''+n.n+'\',sNest(\''+n.n+'\','+n.c+','+n.g+'))"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">'+n.n+'</span><button class="btn-pill" style="font-size:10px">Edit</button></div></div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Nest Distribution</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Nest Distribution</div>'+
 svgDonut(nests.map(function(n,i){var colors=['var(--acc)','var(--warn)','var(--pos)','var(--info)','var(--neg)','var(--gold)'];return {label:n.n,value:n.c,color:colors[i%colors.length]}}),150,'$'+totalSaved.toLocaleString(),'Saved')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Monthly Auto-Save Summary</div>'+
+'<div class="ci" style="margin-bottom:8px;background:var(--posBg)"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">Total Monthly Auto-Save</span><span style="font-weight:800;font-size:14px;color:var(--pos)">$'+nests.reduce(function(a,n){return a+n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2)},0).toLocaleString()+'</span></div></div>'+
+nests.map(function(n){var monthly=n.auto*(n.freq==='Daily'?30:n.freq==='Weekly'?4:2);return '<div class="r" style="padding:5px 0;border-bottom:0.5px solid var(--sep)"><span style="font-size:11px;flex:1;font-weight:600">'+n.n+'</span><span style="font-size:11px;font-weight:700;color:var(--pos)">$'+monthly+'/mo</span></div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Boost College fund',d:'At $300/mo it takes 65 months -- consider increasing',u:true},{t:'Hawaii is on track',d:'$100/mo will hit $4k by Oct 2026'},{t:'Emergency almost there',d:'$450/mo auto-save -- 3 months to full coverage'},{t:'Wedding Fund strong',d:'$120/mo -- on pace for Dec 2026 target'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--warn) 15%,transparent);background:var(--warnBg)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--warn)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2284,23 +2325,31 @@ return '<div class="fi">'+
 '<div class="stat-card"><div class="stat-label">Payoff (Avalanche)</div><div class="stat-value" style="color:var(--pos)">7.5 mo</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Debt Table</div>'+
-'<table class="data-table"><thead><tr><th>Debt</th><th>Type</th><th>APR</th><th>Balance</th><th>Min Payment</th><th>Interest/mo</th></tr></thead><tbody>'+
-debts.map(function(d){return '<tr><td style="font-weight:700">'+d.n+'</td><td>'+bg(d.cat,'var(--info)')+'</td><td style="color:var(--neg);font-weight:700">'+d.r+'%</td><td class="amount" style="color:var(--neg)">$'+d.b.toLocaleString()+'</td><td class="amount">$'+d.min+'</td><td class="amount" style="color:var(--neg)">$'+Math.round(d.b*d.r/100/12)+'</td></tr>'}).join('')+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Debt Breakdown</div>'+
+'<table class="data-table"><thead><tr><th>Debt</th><th>Type</th><th>APR</th><th>Balance</th><th>Min Payment</th><th>Interest/mo</th><th>Payoff ETA</th></tr></thead><tbody>'+
+debts.map(function(d){var intMo=Math.round(d.b*d.r/100/12);var moLeft=Math.ceil(d.b/d.min);return '<tr><td style="font-weight:700">'+d.n+'</td><td>'+bg(d.cat,'var(--info)')+'</td><td style="color:var(--neg);font-weight:700">'+d.r+'%</td><td class="amount" style="color:var(--neg)">$'+d.b.toLocaleString()+'</td><td class="amount">$'+d.min+'</td><td class="amount" style="color:var(--neg)">$'+intMo+'</td><td style="font-weight:700;color:var(--acc)">'+moLeft+' mo</td></tr>'}).join('')+
+'<tr style="font-weight:800;background:var(--accS)"><td>Total</td><td></td><td style="color:var(--warn)">14.2% avg</td><td class="amount" style="color:var(--neg)">$3,200</td><td class="amount">$85</td><td class="amount" style="color:var(--neg)">$'+debts.reduce(function(a,d){return a+Math.round(d.b*d.r/100/12)},0)+'</td><td style="color:var(--acc)">~9 mo</td></tr>'+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Payoff Timeline</div><div class="chart-subtitle">Avalanche method (highest interest first) vs Snowball (smallest balance first)</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Payoff Timeline</div><div class="chart-subtitle">Avalanche method (highest interest first) vs Snowball (smallest balance first)</div>'+
 svgLineChart(payoffData,500,180,'var(--pos)','Avalanche')+
 '<div style="margin-top:8px">'+svgLineChart([{m:'Now',v:3200},{m:'+2mo',v:2800},{m:'+4mo',v:2300},{m:'+6mo',v:1700},{m:'+8mo',v:900},{m:'+10mo',v:0}],500,140,'var(--warn)','Snowball')+'</div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Interest Cost Breakdown</div><div class="chart-subtitle">How much interest you pay per month if minimum-only</div>'+
+svgBarChart([{label:'Mo 1',value:38,color:'var(--neg)'},{label:'Mo 2',value:34,color:'var(--neg)'},{label:'Mo 3',value:30,color:'var(--neg)'},{label:'Mo 4',value:25,color:'var(--warn)'},{label:'Mo 5',value:20,color:'var(--warn)'},{label:'Mo 6',value:14,color:'var(--warn)'},{label:'Mo 7',value:8,color:'var(--acc)'},{label:'Mo 8',value:3,color:'var(--pos)'}],500,160)+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Monthly Payment Schedule</div>'+
+'<table class="data-table"><thead><tr><th>Month</th><th>Payment</th><th style="text-align:right">Principal</th><th style="text-align:right">Interest</th><th style="text-align:right">Balance</th></tr></thead><tbody>'+
+[{m:'Apr 2026',pay:185,prin:147,int:38,bal:3053},{m:'May',pay:185,prin:151,int:34,bal:2902},{m:'Jun',pay:185,prin:155,int:30,bal:2747},{m:'Jul',pay:185,prin:160,int:25,bal:2587},{m:'Aug',pay:185,prin:165,int:20,bal:2422},{m:'Sep',pay:185,prin:171,int:14,bal:2251}].map(function(r){return '<tr><td style="font-weight:600">'+r.m+'</td><td style="font-weight:700">$'+r.pay+'</td><td class="amount" style="color:var(--pos)">$'+r.prin+'</td><td class="amount" style="color:var(--neg)">$'+r.int+'</td><td class="amount" style="color:var(--neg)">$'+r.bal.toLocaleString()+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Extra Payment Calculator</div>'+
-'<div class="ci" style="margin-bottom:8px"><div class="sub">Current extra: $0/mo</div></div>'+
-[{e:50,save:'$180',time:'1.5 mo faster'},{e:100,save:'$320',time:'2.8 mo faster'},{e:200,save:'$510',time:'4.2 mo faster'}].map(function(s){return '<div class="ci" style="margin-bottom:6px;cursor:pointer"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">+$'+s.e+'/mo extra</span></div><div class="r" style="margin-top:2px"><span class="sub" style="flex:1">Save '+s.save+' interest</span><span style="font-size:10px;font-weight:700;color:var(--pos)">'+s.time+'</span></div></div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Progress Visualization</div>'+
-'<div style="text-align:center"><div style="font-size:14px;font-weight:700;margin-bottom:8px">Debt-Free Progress</div>'+
-br(0,'var(--pos)',10)+'<div class="sub" style="margin-top:4px">$3,200 remaining</div></div>'+
-'<div style="margin-top:12px"><div class="r" style="justify-content:space-between;margin-bottom:4px"><span class="sub">Strategy Comparison</span></div>'+
-'<div class="ci" style="margin-bottom:4px;text-align:center"><div style="font-size:11px;font-weight:700">Avalanche</div><div class="sub">7.5 months &middot; Less interest</div></div>'+
-'<div class="ci" style="text-align:center"><div style="font-size:11px;font-weight:700">Snowball</div><div class="sub">8.2 months &middot; Quick wins</div></div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Extra Payment Impact Calculator</div>'+
+'<div class="ci" style="margin-bottom:8px"><div class="sub">Current extra: $0/mo</div><div style="font-weight:700;font-size:12px;color:var(--t1);margin-top:2px">Total interest at min-only: $172</div></div>'+
+[{e:50,save:'$180',time:'1.5 mo faster',pct:35},{e:100,save:'$320',time:'2.8 mo faster',pct:55},{e:200,save:'$510',time:'4.2 mo faster',pct:75},{e:500,save:'$620',time:'5.8 mo faster',pct:95}].map(function(s){return '<div class="ci" style="margin-bottom:6px;cursor:pointer"><div class="r"><span style="font-weight:700;font-size:12px;flex:1">+$'+s.e+'/mo extra</span></div><div style="margin:4px 0 2px">'+br(s.pct,'var(--pos)',3)+'</div><div class="r"><span class="sub" style="flex:1">Save '+s.save+' interest</span><span style="font-size:10px;font-weight:700;color:var(--pos)">'+s.time+'</span></div></div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Progress Visualization</div>'+
+'<div style="text-align:center;margin-bottom:8px"><div style="width:90px;height:90px;border-radius:45px;background:conic-gradient(var(--pos) 0%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:68px;height:68px;border-radius:34px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:20px;font-weight:900;color:var(--neg)">$3.2k</div><div class="sub">remaining</div></div></div></div>'+
+'<div style="margin-top:8px"><div class="r" style="justify-content:space-between;margin-bottom:6px"><span class="sub">Strategy Comparison</span></div>'+
+'<div class="ci" style="margin-bottom:4px;border-color:color-mix(in srgb,var(--pos) 15%,transparent);background:var(--posBg)"><div class="r"><div style="flex:1"><div style="font-size:11px;font-weight:700;color:var(--pos)">Avalanche (Recommended)</div><div class="sub">7.5 months &middot; $132 total interest</div></div>'+bg('Best','var(--pos)')+'</div></div>'+
+'<div class="ci"><div style="font-size:11px;font-weight:700">Snowball</div><div class="sub">8.2 months &middot; $172 total interest</div></div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Switch to avalanche method',d:'Save $40 in interest vs snowball',u:false},{t:'Add $100/mo extra payment',d:'Cuts payoff time by 2.8 months',u:true},{t:'Transfer CC balance',d:'0% APR for 12mo could save ~$130',u:true},{t:'Set up auto-pay for minimums',d:'Never miss a payment date'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--acc) 15%,transparent);background:var(--accS)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--acc)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2323,19 +2372,31 @@ return '<div class="fi">'+
 '<div class="stat-card"><div class="stat-label">Monthly Expense</div><div class="stat-value">$'+monthlyExp.toLocaleString()+'</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Coverage Gauge</div>'+
-'<div style="text-align:center;padding:12px"><div style="width:110px;height:110px;border-radius:55px;background:conic-gradient(var(--warn) 27%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:84px;height:84px;border-radius:42px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:24px;font-weight:900;color:var(--warn)">0.8</div><div class="sub">months</div></div></div><div class="sub" style="margin-top:6px">Target: 3-6 months</div></div></div>'+
-'<div class="chart-container"><div class="chart-title">Contribution History</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Coverage Gauge</div>'+
+'<div style="display:flex;gap:20px;align-items:center;padding:8px 0"><div style="text-align:center"><div style="width:110px;height:110px;border-radius:55px;background:conic-gradient(var(--warn) 27%,var(--sep) 0);display:flex;align-items:center;justify-content:center;margin:0 auto"><div style="width:84px;height:84px;border-radius:42px;background:var(--bgE);display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:24px;font-weight:900;color:var(--warn)">0.8</div><div class="sub">months</div></div></div><div class="sub" style="margin-top:6px">Target: 3-6 months</div></div>'+
+'<div style="flex:1"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+[{l:'3-Month Target',v:'$'+Math.round(monthlyExp*3).toLocaleString(),c:'var(--pos)'},{l:'6-Month Target',v:'$'+Math.round(monthlyExp*6).toLocaleString(),c:'var(--acc)'},{l:'Current Fund',v:'$3,600',c:'var(--warn)'},{l:'Gap to 3-mo',v:'$'+Math.round(monthlyExp*3-3600).toLocaleString(),c:'var(--neg)'}].map(function(s){return '<div class="ci" style="text-align:center;padding:8px"><div class="sub" style="font-size:9px">'+s.l+'</div><div style="font-size:16px;font-weight:800;color:'+s.c+';margin-top:2px">'+s.v+'</div></div>'}).join('')+
+'</div></div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Contribution History</div><div class="chart-subtitle">Cumulative fund balance over time</div>'+
 svgLineChart(contribHist,500,160,'var(--pos)','Cumulative')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Growth Projection</div><div class="chart-subtitle">At $450/mo savings rate</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Coverage Trend</div><div class="chart-subtitle">Months of coverage over time</div>'+
+svgLineChart([{m:'Jan',v:0.05},{m:'Feb',v:0.14},{m:'Mar',v:0.42},{m:'Apr',v:0.83}],500,140,'var(--warn)','Coverage (months)')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Growth Projection</div><div class="chart-subtitle">At $450/mo savings rate</div>'+
 svgLineChart(growthProj,500,160,'var(--acc)','Projected')+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">"How to Get There" Scenarios</div>'+
-'<table class="data-table"><thead><tr><th>Scenario</th><th>Extra</th><th>Time to 3mo</th></tr></thead><tbody>'+
-[{s:'Current pace',e:'$450/mo',t:'22 weeks'},{s:'+ Bill savings',e:'$597/mo',t:'16 weeks'},{s:'+ $500 boost',e:'Immediate',t:'18 weeks'},{s:'Aggressive',e:'$800/mo',t:'12 weeks'}].map(function(sc){return '<tr><td style="font-weight:600">'+sc.s+'</td><td>'+sc.e+'</td><td style="font-weight:700;color:var(--pos)">'+sc.t+'</td></tr>'}).join('')+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">"How to Get There" Scenarios</div>'+
+'<table class="data-table"><thead><tr><th>Scenario</th><th>Extra</th><th>Time to 3mo</th><th>Time to 6mo</th></tr></thead><tbody>'+
+[{s:'Current pace',e:'$450/mo',t3:'22 weeks',t6:'14 mo'},{s:'+ Bill savings',e:'$597/mo',t3:'16 weeks',t6:'10 mo'},{s:'+ $500 boost',e:'Immediate',t3:'18 weeks',t6:'12 mo'},{s:'Aggressive',e:'$800/mo',t3:'12 weeks',t6:'7 mo'},{s:'One-time $2k',e:'Immediate',t3:'10 weeks',t6:'11 mo'}].map(function(sc){return '<tr><td style="font-weight:600">'+sc.s+'</td><td>'+sc.e+'</td><td style="font-weight:700;color:var(--pos)">'+sc.t3+'</td><td style="color:var(--acc)">'+sc.t6+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
-'<div class="chart-container"><div class="chart-title">Monthly Expense Breakdown</div><div class="chart-subtitle">Feeds the 3-month target: $'+Math.round(monthlyExp*3).toLocaleString()+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Monthly Expense Breakdown</div><div class="chart-subtitle">Feeds the 3-month target: $'+Math.round(monthlyExp*3).toLocaleString()+'</div>'+
 svgDonut(expenses.map(function(e,i){var colors=['var(--neg)','var(--warn)','var(--acc)','var(--info)','var(--pos)','var(--t2)','var(--gold)','var(--accL)'];return {label:e.c,value:e.a,color:colors[i%colors.length]}}),150,'$'+monthlyExp.toLocaleString(),'/month')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Expense Table</div>'+
+'<table class="data-table"><thead><tr><th>Category</th><th style="text-align:right">Monthly</th><th style="text-align:right">3-Mo Reserve</th><th style="text-align:right">% of Total</th></tr></thead><tbody>'+
+expenses.map(function(e){return '<tr><td style="font-weight:600">'+e.c+'</td><td class="amount">$'+e.a+'</td><td class="amount">$'+(e.a*3).toLocaleString()+'</td><td class="amount">'+Math.round(e.a/monthlyExp*100)+'%</td></tr>'}).join('')+
+'<tr style="font-weight:800;background:var(--accS)"><td>Total</td><td class="amount">$'+monthlyExp.toLocaleString()+'</td><td class="amount">$'+Math.round(monthlyExp*3).toLocaleString()+'</td><td class="amount">100%</td></tr>'+
+'</tbody></table></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Increase auto-save to $600/mo',d:'Reach 3-month target 6 weeks sooner',u:true},{t:'Keep fund in high-yield savings',d:'Ally HYSA at 4.2% APY earns ~$12/mo'},{t:'Review monthly expenses',d:'Cutting $200/mo lowers your target by $600'},{t:'Set milestone alerts',d:'Get notified at 1mo, 2mo, 3mo milestones'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--acc) 15%,transparent);background:var(--accS)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--acc)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
@@ -2356,25 +2417,33 @@ return '<div class="fi">'+
 '<div class="stat-card"><div class="stat-label">Delivery</div><div class="stat-value" style="color:var(--acc);font-size:16px">Email</div></div>'+
 '</div>'+
 '<div class="dash-row"><div class="dash-main">'+
-'<div class="chart-container"><div class="chart-title">Alert Preferences</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Log</div><div class="chart-subtitle">All notifications with full timestamps and categories</div>'+
+'<table class="data-table"><thead><tr><th></th><th>Alert</th><th>Category</th><th>Timestamp</th><th>Status</th></tr></thead><tbody>'+
+alertLog.map(function(al){var typeColors={overspend:'var(--neg)',velocity:'var(--warn)',sync:'var(--info)',bills:'var(--acc)',goals:'var(--pos)',anomaly:'var(--neg)',weekly:'var(--t2)'};return '<tr><td><div style="width:8px;height:8px;border-radius:4px;background:'+(al.read?'var(--pos)':'var(--neg)')+'"></div></td><td style="font-weight:'+(al.read?500:700)+';color:'+(al.read?'var(--t1)':'var(--neg)')+'">'+al.t+'</td><td>'+bg(al.type,typeColors[al.type]||'var(--info)')+'</td><td style="font-size:11px;color:var(--t2)">'+al.ts+'</td><td>'+(al.read?bg('Read','var(--pos)'):bg('New','var(--neg)'))+'</td></tr>'}).join('')+
+'</tbody></table></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Preferences</div>'+
 '<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.mail,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">Email Alerts</div><div class="sub">'+alertPrefs.emailAddr+'</div></div></div>'+tg(alertPrefs.email,false,'togEmail')+'</div>'+
 '<div class="r" style="padding:10px 0;border-bottom:0.5px solid var(--sep)"><div style="flex:1;display:flex;align-items:center;gap:8px">'+ic(icons.phone,16,'var(--acc)',1.5)+'<div><div style="font-weight:600;font-size:12px">SMS Alerts</div><div class="sub">'+(alertPrefs.phone||'Add phone number')+'</div></div></div>'+tg(alertPrefs.sms,false,'togSMS')+'</div>'+
 '<div style="margin-top:12px"><div style="font-weight:700;font-size:12px;margin-bottom:8px">Alert Types</div>'+
-'<table class="data-table"><thead><tr><th>Alert Type</th><th>Status</th><th>Toggle</th></tr></thead><tbody>'+
-[['overspend','Category Overspend'],['sync','Account Sync Issues'],['bills','Bill Due Reminders'],['goals','Goal Milestones'],['anomaly','Anomaly Detection'],['velocity','Spending Velocity'],['weekly','Weekly Summary']].map(function(kv){return '<tr><td style="font-weight:600">'+kv[1]+'</td><td>'+(alertPrefs.types[kv[0]]?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</td><td>'+tg(alertPrefs.types[kv[0]],false,'togAlert_'+kv[0])+'</td></tr>'}).join('')+
+'<table class="data-table"><thead><tr><th>Alert Type</th><th>Description</th><th>Status</th><th>Toggle</th></tr></thead><tbody>'+
+[['overspend','Category Overspend','Triggers when a category exceeds budget'],['sync','Account Sync Issues','Alerts on stale or failed syncs'],['bills','Bill Due Reminders','Notifies 3 days before bill due dates'],['goals','Goal Milestones','Celebrates when you hit savings milestones'],['anomaly','Anomaly Detection','Flags unusual charges or duplicates'],['velocity','Spending Velocity','Warns when spending pace is elevated'],['weekly','Weekly Summary','Sunday digest of the past week']].map(function(kv){return '<tr><td style="font-weight:600">'+kv[1]+'</td><td class="sub" style="font-size:11px">'+kv[2]+'</td><td>'+(alertPrefs.types[kv[0]]?bg('Active','var(--pos)'):bg('Off','var(--t3)'))+'</td><td>'+tg(alertPrefs.types[kv[0]],false,'togAlert_'+kv[0])+'</td></tr>'}).join('')+
 '</tbody></table></div>'+
 '<button class="btn btn-full" style="margin-top:12px;border-radius:22px;height:44px;font-size:13px" onclick="saveAlertSettings()">Save Alert Preferences</button>'+
 pendingBadge('Email/SMS delivery backend')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Volume (Last 4 Weeks)</div><div class="chart-subtitle">Alerts triggered per week by category</div>'+
+svgBarChart([{label:'W1',value:12,color:'var(--acc)'},{label:'W2',value:8,color:'var(--acc)'},{label:'W3',value:15,color:'var(--warn)'},{label:'W4',value:10,color:'var(--acc)'}],500,140)+'</div>'+
 '</div><div class="dash-side">'+
-'<div class="chart-container"><div class="chart-title">Alert History / Log</div>'+
-alertLog.map(function(al){return '<div class="r" style="padding:8px 0;border-bottom:0.5px solid var(--sep);gap:6px"><div class="dot" style="width:6px;height:6px;background:'+(al.read?'var(--pos)':'var(--neg)')+'"></div><div style="flex:1"><div style="font-weight:'+(al.read?500:700)+';font-size:11px;color:'+(al.read?'var(--t1)':'var(--neg)')+'">'+al.t+'</div><div class="sub">'+al.ts+'</div></div>'+bg(al.type,'var(--info)')+'</div>'}).join('')+'</div>'+
-'<div class="chart-container"><div class="chart-title">Delivery Status</div>'+
-'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Email</span>'+bg(alertPrefs.email?'Active':'Off',alertPrefs.email?'var(--pos)':'var(--t3)')+'</div></div>'+
-'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">SMS</span>'+bg(alertPrefs.sms?'Active':'Off',alertPrefs.sms?'var(--pos)':'var(--t3)')+'</div></div>'+
-'<div class="ci"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Push</span>'+bg('Not Configured','var(--warn)')+'</div></div></div>'+
-'<div class="chart-container"><div class="chart-title">Notification Frequency</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Alert Distribution</div>'+
+svgDonut([{label:'Overspend',value:4,color:'var(--neg)'},{label:'Sync',value:3,color:'var(--info)'},{label:'Bills',value:2,color:'var(--acc)'},{label:'Goals',value:2,color:'var(--pos)'},{label:'Anomaly',value:1,color:'var(--warn)'},{label:'Velocity',value:1,color:'var(--gold)'}],140,'13','this week')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Delivery Status</div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Email</span>'+bg(alertPrefs.email?'Active':'Off',alertPrefs.email?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+alertPrefs.emailAddr+'</div></div>'+
+'<div class="ci" style="margin-bottom:6px"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">SMS</span>'+bg(alertPrefs.sms?'Active':'Off',alertPrefs.sms?'var(--pos)':'var(--t3)')+'</div><div class="sub" style="margin-top:2px">'+(alertPrefs.phone||'Not configured')+'</div></div>'+
+'<div class="ci"><div class="r"><span style="font-size:12px;font-weight:700;flex:1">Push</span>'+bg('Not Configured','var(--warn)')+'</div><div class="sub" style="margin-top:2px">Requires native app</div></div></div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Notification Frequency</div>'+
 '<div class="sub" style="margin-bottom:8px">How often to send summaries</div>'+
 ['Real-time','Daily Digest','Weekly Summary'].map(function(f,i){return '<div class="ci" style="margin-bottom:4px;cursor:pointer;'+(i===0?'border-color:color-mix(in srgb,var(--acc) 20%,transparent);background:var(--accS)':'')+'"><div class="r"><span style="font-size:12px;font-weight:600;flex:1">'+f+'</span>'+(i===0?ic(icons.check,14,'var(--acc)',2):'')+'</div></div>'}).join('')+'</div>'+
+'<div class="chart-container" style="margin-bottom:20px"><div class="chart-title">Recommendations</div>'+
+[{t:'Enable SMS for critical alerts',d:'Get sync failures and anomalies via text',u:true},{t:'Review unread alerts',d:'2 new alerts need attention',u:true},{t:'Configure push notifications',d:'Instant alerts when app goes native'},{t:'Set quiet hours',d:'No alerts between 10pm-7am'}].map(function(r){return '<div class="ci" style="margin-bottom:6px;'+(r.u?'border-color:color-mix(in srgb,var(--acc) 15%,transparent);background:var(--accS)':'')+'"><div style="font-weight:700;font-size:11px;color:'+(r.u?'var(--acc)':'var(--t1)')+'">'+r.t+'</div><div class="sub" style="font-size:10px">'+r.d+'</div></div>'}).join('')+'</div>'+
 '</div></div></div>';
 }
 return '<div class="fi">'+
