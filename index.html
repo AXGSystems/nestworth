@@ -123,7 +123,7 @@ body{
   min-height:100vh;min-height:100dvh;position:relative;overflow-x:hidden;
   -webkit-tap-highlight-color:transparent;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-  transition:background 0.5s ease,color 0.3s ease;
+  transition:color 0.3s ease;
 }
 button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
 input,textarea,select{font-family:inherit;color:var(--t1)}
@@ -140,6 +140,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 .c:active{transform:scale(0.98);box-shadow:none;transition-duration:0.08s}
 .c.tap{cursor:pointer}.c.tap:hover{background:var(--cardBgH);box-shadow:var(--shM)}
 .c.tap:focus-visible,.tr:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:16px}
+.btn:focus-visible,.btn-gold:focus-visible,.btn-pill:focus-visible,.btn-outline:focus-visible,.btn-danger:focus-visible,.tog:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:inherit}
 .cs{border-top:2px solid var(--acc)}
 .ci{background:var(--accS);border:0.5px solid var(--cardBorder);border-radius:12px;padding:10px;transition:transform var(--fast) var(--spring)}
 .ci[onclick]:active,.ci[style*="cursor:pointer"]:active{transform:scale(0.97);transition-duration:0.08s}
@@ -208,7 +209,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 .sho.open .sh-bg{opacity:1;pointer-events:auto}
 .sh{position:relative;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   background:var(--bgE);border-radius:16px 16px 0 0;padding:8px 20px 40px;
-  transform:translateY(100%);transition:transform var(--mod) var(--modalOut);z-index:1000;
+  transform:translateY(100%);transition:transform var(--mod) var(--modalOut);z-index:1000;will-change:transform;
   padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
 }
 .sho.open .sh{transform:translateY(0);pointer-events:auto;transition:transform var(--slow) var(--modalIn)}
@@ -247,10 +248,10 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 .drawer{
   position:fixed;top:0;left:0;bottom:0;width:300px;max-width:85vw;z-index:201;
   background:var(--drawerBg);backdrop-filter:blur(30px) saturate(1.8);-webkit-backdrop-filter:blur(30px) saturate(1.8);
-  transform:translateX(-100%);transition:transform var(--mod) var(--spring);
+  transform:translateX(-100%);transition:transform var(--mod) var(--spring);will-change:transform;
   overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding:0 0 calc(20px + env(safe-area-inset-bottom,0px));
-  box-shadow:4px 0 30px rgba(0,0,0,0.15);
+  box-shadow:4px 0 30px rgba(0,0,0,0.15);contain:layout style;
 }
 .drawer.open{transform:translateX(0)}
 .drawer-header{
@@ -279,7 +280,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
     background:var(--sidebarBg);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);
     border-right:0.5px solid var(--barBorder);z-index:10;
     transition:width var(--norm) var(--spring),min-width var(--norm) var(--spring);
-    padding-bottom:20px;
+    padding-bottom:20px;contain:layout style;
   }
   .sidebar.collapsed{width:64px;min-width:64px}
   .sidebar.collapsed .sb-label,.sidebar.collapsed .sb-section-title,.sidebar.collapsed .sidebar-header-text{display:none}
@@ -352,7 +353,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
 /* === Responsive / A11y === */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}}
 @media(prefers-contrast:more){:root{--sep:rgba(0,0,0,0.2);--t2:rgba(0,0,0,0.7)}[data-theme="dark"],[data-theme="midnight"],[data-theme="gold"]{--sep:rgba(255,255,255,0.2);--t2:rgba(255,255,255,0.75)}}
-@media print{.tab-bar,.app-hd,.sho,.drawer,.drawer-overlay,.sidebar,.ad-card{display:none!important}body{max-width:100%;padding:0;background:#fff;color:#000}.c,.cs{break-inside:avoid;box-shadow:none;border:1px solid #ddd;backdrop-filter:none;-webkit-backdrop-filter:none}.main-area{height:auto;overflow:visible}#cnt{padding:10px}}
+@media print{.tab-bar,.app-hd,.sho,.drawer,.drawer-overlay,.sidebar,.ad-card{display:none!important}body{max-width:100%;padding:0;background:#fff;color:#000}.c,.cs,.hero{break-inside:avoid;box-shadow:none;border:1px solid #ddd;backdrop-filter:none;-webkit-backdrop-filter:none}.hero{color:#000;background:#f5f5f5!important}.main-area{height:auto;overflow:visible}#cnt{padding:10px}.desk-grid{display:block}.desk-grid .c,.desk-grid .cs{margin-bottom:10px}}
 </style>
 </head>
 <body data-theme="emerald">
@@ -373,7 +374,7 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
   </div>
 </div>
 
-<div class="tab-bar" id="tbar"></div>
+<nav class="tab-bar" id="tbar" aria-label="Main navigation"></nav>
 <div class="sho" id="sho"><div class="sh-bg" onclick="closeSheet()"></div><div class="sh" id="shc"></div></div>
 
 <script>
@@ -388,17 +389,19 @@ input::placeholder,textarea::placeholder{color:var(--t3)}
    ================================================================ */
 
 /* ========== STATE ========== */
-let ct='home', pg=null, theme=localStorage.getItem('nw-theme')||'emerald';
+let ct='home', pg=null, theme='emerald';
+try{theme=localStorage.getItem('nw-theme')||'emerald'}catch(e){}
 const TABS=['home','budget','goals','track','coach'];
 document.body.setAttribute('data-theme',theme);
 let drawerOpen=false;
-let sidebarCollapsed=localStorage.getItem('nw-sidebar-collapsed')==='true';
+let sidebarCollapsed=false;
+try{sidebarCollapsed=localStorage.getItem('nw-sidebar-collapsed')==='true'}catch(e){}
 
 /* Alert prefs (persisted) */
 const alertDefault={email:true,sms:false,emailAddr:'von@example.com',phone:'',types:{overspend:true,sync:true,bills:true,goals:true,anomaly:true,velocity:true,weekly:true}};
 let alertPrefs=alertDefault;
 try{const _ap=JSON.parse(localStorage.getItem('nw-alerts')||'null');if(_ap&&typeof _ap==='object')alertPrefs=_ap}catch(e){console.warn('Alert prefs corrupted, using defaults')}
-function saveAlerts(){localStorage.setItem('nw-alerts',JSON.stringify(alertPrefs))}
+function saveAlerts(){try{localStorage.setItem('nw-alerts',JSON.stringify(alertPrefs))}catch(e){}}
 
 /* Feature requests & bug reports (persisted) */
 let featureRequests=[];
@@ -409,7 +412,7 @@ try{bugReports=JSON.parse(localStorage.getItem('nw-bug-reports')||'[]')}catch(e)
 /* Ad preferences (persisted) */
 let adPrefs={showNativeAds:true,showPremiumBanner:true,showPartnerOffers:true};
 try{const _ad=JSON.parse(localStorage.getItem('nw-ad-prefs')||'null');if(_ad&&typeof _ad==='object')adPrefs=_ad}catch(e){}
-function saveAdPrefs(){localStorage.setItem('nw-ad-prefs',JSON.stringify(adPrefs))}
+function saveAdPrefs(){try{localStorage.setItem('nw-ad-prefs',JSON.stringify(adPrefs))}catch(e){}}
 
 /* ========== HELPERS ========== */
 const $=id=>document.getElementById(id);
@@ -417,7 +420,7 @@ const isDesktop=()=>window.innerWidth>=768;
 function br(p,c='var(--acc)',h=5){return'<div class="bar-t" style="height:'+h+'px;background:var(--sep)"><div class="bar-f" style="width:'+Math.min(p,100)+'%;background:'+c+';height:'+h+'px"></div></div>'}
 function av(l,s,c){s=s||26;c=c||'var(--acc)';return'<div class="av" style="width:'+s+'px;height:'+s+'px;background:color-mix(in srgb,'+c+' 8%,transparent);border:1.5px solid color-mix(in srgb,'+c+' 15%,transparent);font-size:'+(s*0.36)+'px;color:'+c+'">'+l+'</div>'}
 function bg(t,c){c=c||'var(--acc)';return'<span class="badge" style="color:'+c+';background:color-mix(in srgb,'+c+' 8%,transparent)">'+t+'</span>'}
-function tg(on,red,id){red=red||false;id=id||'';return'<div class="tog '+(on?'on':'off')+' '+(red&&on?'red':'')+'" '+(id?'id="'+id+'"':'')+' onclick="event.stopPropagation();this.classList.toggle(\'on\');this.classList.toggle(\'off\')"><div class="th"></div></div>'}
+function tg(on,red,id){red=red||false;id=id||'';return'<div class="tog '+(on?'on':'off')+' '+(red&&on?'red':'')+'" role="switch" aria-checked="'+(on?'true':'false')+'" tabindex="0" '+(id?'id="'+id+'"':'')+' onclick="event.stopPropagation();this.classList.toggle(\'on\');this.classList.toggle(\'off\');this.setAttribute(\'aria-checked\',this.classList.contains(\'on\'))" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click()}"><div class="th"></div></div>'}
 function hd(t,sub){sub=sub||'';return'<div style="margin-bottom:12px"><span class="shd">'+t+'</span>'+(sub?'<span class="sub" style="margin-left:6px">'+sub+'</span>':'')+'</div>'}
 function ic(d,s,c,sw){s=s||16;c=c||'var(--acc)';sw=sw||1.5;return'<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>'}
 function pendingBadge(reason){return'<div class="pending-badge">PENDING — Requires '+reason+'</div>'}
@@ -427,7 +430,7 @@ function sp(){var d=[81200,81400,81100,81800,82000,82130,82450],w=150,h=48,mn=Ma
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
 /* Sheet */
-function os(t,c){$('shc').innerHTML='<div class="sh-h"></div><div class="shd" style="margin-bottom:14px">'+t+'</div><div class="fi">'+c+'</div>';$('sho').classList.add('open');document.body.style.overflow='hidden'}
+function os(t,c){$('shc').innerHTML='<div class="sh-h"></div><div class="shd" style="margin-bottom:14px">'+esc(t)+'</div><div class="fi">'+c+'</div>';$('sho').classList.add('open');document.body.style.overflow='hidden'}
 function closeSheet(){$('sho').classList.remove('open');document.body.style.overflow=''}
 
 /* Navigation */
@@ -440,7 +443,7 @@ function openDrawer(){drawerOpen=true;$('drawer').classList.add('open');$('drawe
 function closeDrawer(){drawerOpen=false;if($('drawer'))$('drawer').classList.remove('open');if($('drawerOverlay'))$('drawerOverlay').classList.remove('open');if(!$('sho').classList.contains('open'))document.body.style.overflow=''}
 
 /* Sidebar toggle */
-function toggleSidebar(){sidebarCollapsed=!sidebarCollapsed;localStorage.setItem('nw-sidebar-collapsed',sidebarCollapsed);var sb=$('sidebar');if(sb){sb.classList.toggle('collapsed',sidebarCollapsed)}rr()}
+function toggleSidebar(){sidebarCollapsed=!sidebarCollapsed;try{localStorage.setItem('nw-sidebar-collapsed',sidebarCollapsed)}catch(e){}var sb=$('sidebar');if(sb){sb.classList.toggle('collapsed',sidebarCollapsed)}rr()}
 
 /* ========== ICONS ========== */
 var icons={
@@ -835,8 +838,8 @@ function rFeatureRequest(){return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs">'+hd('Feature Request')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Have an idea? Let us know what would make NestWorth better.</div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="frTitle" placeholder="Brief summary of your idea..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Description</div><textarea id="frDesc" placeholder="Describe in detail what you\'d like to see..." rows="4" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="frTitle" maxlength="200" placeholder="Brief summary of your idea..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Description</div><textarea id="frDesc" maxlength="2000" placeholder="Describe in detail what you\'d like to see..." rows="4" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
 '<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Priority</div><select id="frPriority" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>'+
 '<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitFeatureRequest()">Submit Feature Request</button></div>'+
 (featureRequests.length?'<div class="c">'+hd('Previous Requests')+featureRequests.slice(-5).reverse().map(function(fr){return '<div class="ci" style="margin-bottom:4px"><div class="r" style="gap:4px"><span style="font-weight:600;font-size:12px;flex:1">'+esc(fr.title)+'</span>'+bg(fr.priority,'var(--acc)')+'</div><div class="sub" style="margin-top:2px">'+esc(fr.description).substring(0,80)+'...</div></div>'}).join('')+'</div>':'')+
@@ -845,7 +848,7 @@ function submitFeatureRequest(){
   var t=$('frTitle'),d=$('frDesc'),p=$('frPriority');
   if(!t||!t.value.trim()){os('Error',sDone('Please enter a title.'));return}
   featureRequests.push({title:t.value.trim(),description:(d?d.value.trim():''),priority:(p?p.value:'medium'),date:new Date().toISOString()});
-  localStorage.setItem('nw-feature-requests',JSON.stringify(featureRequests));
+  try{localStorage.setItem('nw-feature-requests',JSON.stringify(featureRequests))}catch(e){}
   os('Submitted!',sDone('Feature request saved. Thank you!'));
 }
 
@@ -854,11 +857,11 @@ function rReportBug(){return '<div class="fi">'+
 '<button onclick="gb()" style="font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;min-height:44px;display:inline-flex;align-items:center">&#x2190; Back</button>'+
 '<div class="cs">'+hd('Report a Bug')+
 '<div class="sub" style="margin-top:-8px;margin-bottom:14px">Found something broken? Help us fix it.</div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="brTitle" placeholder="Brief bug summary..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Steps to Reproduce</div><textarea id="brSteps" placeholder="1. Go to...\n2. Tap on...\n3. See error..." rows="3" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Expected Behavior</div><textarea id="brExpected" placeholder="What should happen..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
-'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Actual Behavior</div><textarea id="brActual" placeholder="What actually happens..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
-'<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Screenshot</div><div class="scan-area" style="padding:16px;opacity:0.5" onclick="this.innerHTML=\'<div class=sub>Screenshot attached (demo)</div>\'">'+ic(icons.cam,24,'var(--acc)',1.5)+'<div style="font-size:12px;font-weight:600;margin-top:6px">Tap to attach screenshot</div></div></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Title</div><input id="brTitle" maxlength="200" placeholder="Brief bug summary..." style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1)"></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Steps to Reproduce</div><textarea id="brSteps" maxlength="2000" placeholder="1. Go to...\n2. Tap on...\n3. See error..." rows="3" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Expected Behavior</div><textarea id="brExpected" maxlength="2000" placeholder="What should happen..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
+'<div style="margin-bottom:12px"><div class="sub" style="margin-bottom:4px">Actual Behavior</div><textarea id="brActual" maxlength="2000" placeholder="What actually happens..." rows="2" style="width:100%;padding:12px 16px;border-radius:12px;border:0.5px solid var(--sep);background:var(--cardBg);font-size:14px;outline:none;color:var(--t1);resize:vertical"></textarea></div>'+
+'<div style="margin-bottom:14px"><div class="sub" style="margin-bottom:4px">Screenshot</div><div class="scan-area" style="padding:16px;opacity:0.5" onclick="this.innerHTML=\'<div class=&quot;sub&quot;>Screenshot attached (demo)</div>\'">'+ic(icons.cam,24,'var(--acc)',1.5)+'<div style="font-size:12px;font-weight:600;margin-top:6px">Tap to attach screenshot</div></div></div>'+
 '<button class="btn btn-full" style="border-radius:22px;height:48px;font-size:15px" onclick="submitBugReport()">Submit Bug Report</button></div>'+
 (bugReports.length?'<div class="c">'+hd('Previous Reports')+bugReports.slice(-5).reverse().map(function(br){return '<div class="ci" style="margin-bottom:4px"><div style="font-weight:600;font-size:12px">'+esc(br.title)+'</div><div class="sub" style="margin-top:2px">'+esc(br.steps).substring(0,80)+'...</div></div>'}).join('')+'</div>':'')+
 '</div>'}
@@ -866,7 +869,7 @@ function submitBugReport(){
   var t=$('brTitle'),s=$('brSteps'),e=$('brExpected'),a=$('brActual');
   if(!t||!t.value.trim()){os('Error',sDone('Please enter a title.'));return}
   bugReports.push({title:t.value.trim(),steps:(s?s.value.trim():''),expected:(e?e.value.trim():''),actual:(a?a.value.trim():''),date:new Date().toISOString()});
-  localStorage.setItem('nw-bug-reports',JSON.stringify(bugReports));
+  try{localStorage.setItem('nw-bug-reports',JSON.stringify(bugReports))}catch(e2){}
   os('Submitted!',sDone('Bug report saved. We\'ll look into it!'));
 }
 
@@ -982,7 +985,7 @@ function setTheme(t){
     if(s)alertPrefs.sms=s.classList.contains('on');
     Object.keys(alertPrefs.types).forEach(function(k){var el=$('togAlert_'+k);if(el)alertPrefs.types[k]=el.classList.contains('on')});
   }
-  theme=t;localStorage.setItem('nw-theme',t);document.body.setAttribute('data-theme',t);updateThemeColor(t);rr();
+  theme=t;try{localStorage.setItem('nw-theme',t)}catch(e){}document.body.setAttribute('data-theme',t);updateThemeColor(t);rr();
 }
 function saveAlertSettings(){
   var e=$('togEmail'),s=$('togSMS');
@@ -1054,7 +1057,7 @@ function renderDrawerSection(title,items,isNav){
 function buildDrawer(){
   var d=$('drawer');
   if(!d)return;
-  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v3.0</div></div></div><button onclick="closeDrawer()" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
+  d.innerHTML='<div class="drawer-header"><div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div><div style="font-size:16px;font-weight:800;letter-spacing:-0.3px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div><div class="sub" style="font-size:10px">v3.0</div></div></div><button onclick="closeDrawer()" aria-label="Close menu" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:auto">'+ic('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',20,'var(--t2)',2)+'</button></div>'+
   renderDrawerSection('Main',drawerItems.main,true)+
   renderDrawerSection('Features A\u2013Z',drawerItems.features,false)+
   renderDrawerSection('Support',drawerItems.support,false)+
@@ -1143,19 +1146,24 @@ function rr(){
 
   h.innerHTML=
     '<div class="r" style="gap:7px">'+
-    '<button class="hamburger-btn" onclick="openDrawer()" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center">'+icons.menu('var(--t2)')+'</button>'+
+    '<button class="hamburger-btn" onclick="openDrawer()" aria-label="Open menu" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center">'+icons.menu('var(--t2)')+'</button>'+
     (showingHome?
       '<div style="width:28px;height:28px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--acc));display:flex;align-items:center;justify-content:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="13" rx="9" ry="7" stroke="#fff" stroke-width="2.2"/><path d="M8 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div><div style="font-size:18px;font-weight:800;letter-spacing:-0.5px"><span style="color:var(--t1)">Nest</span><span style="color:var(--gold)">Worth</span></div>'
       :'<span style="font-size:16px;font-weight:700;letter-spacing:-0.3px">'+pageTitle+'</span>')+
     '</div>'+
     '<div class="r" style="gap:2px">'+
     av('V',22,'var(--acc)')+av('C',22,'var(--warn)')+
-    '<button onclick="gp(\'settings\')" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.gear('var(--t2)')+'</div></button>'+
-    '<button onclick="os(\'Notifications\',sNotifs())" style="position:relative;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.bell('var(--t2)')+'</div><div class="alert-dot" style="top:6px;right:6px"></div></button>'+
+    '<button onclick="gp(\'settings\')" aria-label="Settings" style="width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.gear('var(--t2)')+'</div></button>'+
+    '<button onclick="os(\'Notifications\',sNotifs())" aria-label="Notifications" style="position:relative;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:16px;background:var(--accS);display:flex;align-items:center;justify-content:center">'+icons.bell('var(--t2)')+'</div><div class="alert-dot" style="top:6px;right:6px"></div></button>'+
     '</div>';
 
   /* Content */
   $('cnt').innerHTML=getPageContent();
+
+  /* Reset scroll position on navigation */
+  var ma=document.querySelector('.main-area');
+  if(ma)ma.scrollTop=0;
+  if(!isDesktop())window.scrollTo(0,0);
 
   /* Tab bar (mobile only) */
   if(_prevTab!==ct||_prevPg!==pg){
@@ -1180,6 +1188,9 @@ requestAnimationFrame(function(){document.body.classList.add('loaded')});
 /* Handle resize for responsive layout */
 var _resizeTimer;
 window.addEventListener('resize',function(){clearTimeout(_resizeTimer);_resizeTimer=setTimeout(function(){rr()},150)});
+
+/* Escape key closes drawers/sheets */
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if($('sho').classList.contains('open')){closeSheet()}else if(drawerOpen){closeDrawer()}}});
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </body>
